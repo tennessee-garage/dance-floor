@@ -14,12 +14,11 @@ struct HSV_set {
 } HSV_set;
 
 void init_avr(void) {
-    _delay_ms(1000);	// wait a little before starting setup
+    // wait a little before starting setup
+    _delay_ms(1000);
 
-    DDRA = 0xff;		// pin for driving blinking led (to see if device freezes or sth)
-    PORTA = 0x00;
-
-    DDRB = 0xff;		// set all portb to output
+    // set all of port B to output
+    DDRB = 0xFF;
     PORTB = 0x00;
 }
 
