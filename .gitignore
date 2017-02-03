@@ -1,3 +1,15 @@
+# CLion IDE
+.dep/
+.idea/
+cmake-build-debug/
+
+# AVR files
+*.eep
+*.lss
+*.lst
+*.map
+*.sym
+
 # Object files
 *.o
 *.ko
