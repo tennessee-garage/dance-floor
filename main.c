@@ -17,6 +17,9 @@ void init_avr(void) {
     // wait a little before starting setup
     _delay_ms(1000);
 
+    // Set all of port A to input
+    DDRA = 0x00;
+
     // set all of port B to output
     DDRB = 0xFF;
     PORTB = 0x00;
@@ -81,6 +84,18 @@ void init_timer(void) {
     TCNT0L = 0x00;
 }
 
+void init_adc(void) {
+    // Enable the ADC and set the prescalar to 128 (divide the 16Mhz system clock to a reasonable
+    // value for the ADC
+    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
+
+    // Set bipolar input mode
+    ADCSRB = _BV(BIN);
+
+    // PA0: positive, PA1: negative, 20x gain
+    ADMUX = _BV(ADLAR) | _BV(MUX3) | _BV(MUX1) | _BV(MUX0);
+}
+
 void HSV2RGB(struct HSV_set HSV, struct RGB_set *RGB){
     int i;
     float f, p, q, t, h, s, v;
@@ -137,6 +152,25 @@ void HSV2RGB(struct HSV_set HSV, struct RGB_set *RGB){
     }
 }
 
+int16_t read_diff_adc() {
+    // Set the "start conversion" bit
+    ADCSRA |= _BV(ADSC);
+
+    // Loop while the ADSC bit is set.  It will automatically be cleared when the conversion is done
+    while (ADCSRA & _BV(ADSC));
+
+    // Negative result
+    if (ADCH & 0x80) {
+        set_blue(0);
+        set_red(0xFF - (ADCH & 0x0FF));
+        return -1* (~ADCH);
+    } else {
+        set_red(0);
+        set_blue(ADCH & 0x0FF);
+        return ADCH;
+    }
+}
+
 void main(void) {
     struct RGB_set RGB;
     struct HSV_set HSV;
@@ -148,6 +182,9 @@ void main(void) {
     init_avr();
     init_pwm();
     init_timer();
+    init_adc();
+
+    int16_t adc_val;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
@@ -157,16 +194,19 @@ void main(void) {
         blue = (blue+1)%1024;
         red = (red+1)%1024;
 */
-        _delay_ms(10);
+//        _delay_ms(10);
 
-        HSV.h = (HSV.h+1)%360;
-        HSV2RGB(HSV, &RGB);
+//        HSV.h = (HSV.h+1)%360;
 
-        set_green(RGB.g);
-        set_blue(RGB.b);
-        set_red(RGB.r);
+        read_diff_adc();
 
-        _delay_ms(10);
+        //HSV2RGB(HSV, &RGB);
+
+        //set_green(RGB.g);
+        //set_blue(RGB.b);
+        //set_red(RGB.r);
+
+//        _delay_ms(10);
     }
 #pragma clang diagnostic pop
 }
