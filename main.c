@@ -1,3 +1,16 @@
+/**
+ * Code to drive an ATTiny861a
+ *
+ * http://www.atmel.com/Images/doc8197.pdf
+ *
+ * - Drives an RGB LED Strip via PWM
+ * - Reads 4 load sensors in a wheatstone bridge configuration via differential ADC
+ * - Communicates to a master controller via i2c (TODO)
+ *
+ */
+
+#define	F_CPU 16000000UL
+
 #include <avr/io.h>
 #include <util/delay.h>
 
