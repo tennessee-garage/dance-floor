@@ -1,19 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-/*
-struct RGB_set {
-    unsigned int r;
-    unsigned int g;
-    unsigned int b;
-} RGB_set;
-
-struct HSV_set {
-    unsigned int h;
-    unsigned int s;
-    unsigned int v;
-} HSV_set;
-*/
 struct RGB_set {
     unsigned char r;
     unsigned char g;
@@ -36,70 +23,60 @@ void init_avr(void) {
     PORTB = 0x00;
 }
 
-// OCR1C Sets the top compare value used to clear the ORC1A/B/D registers
-void set_top_compare(int val) {
-    TC1H = val >> 8;
-    OCR1C = val & 0x0FF;
-}
-
-void set_red(int val) {
+void set_red(uint16_t val) {
     TC1H = val >> 8;
     OCR1D = val & 0x0FF;
 }
 
-void set_green(int val) {
+void set_green(uint16_t val) {
     TC1H = val >> 8;
     OCR1A = val & 0x0FF;
 }
 
-void set_blue(int val) {
+void set_blue(uint16_t val) {
     TC1H = val >> 8;
     OCR1B = val & 0x0FF;
 }
 
 void init_pwm(void) {
 
-    PLLCSR =  0x82;      // LSM for PLL & enable PLL
+    // Set low speed mode and start the PLL
+    PLLCSR = _BV(LSM) | _BV(PLLE);
+
     while (!(PLLCSR & 1<<PLOCK));
-    PLLCSR = 0x86;         // LSM for PLL, PLL enable PCKE
 
-    //TCCR1A
+    // Enable PCKE (set all rather than set bit via |= to save space)
+    PLLCSR = _BV(LSM) | _BV(PCKE) | _BV(PLLE);
+
     // COM1A1 COM1A0 COM1B1 COM1B0 FOC1A FOC1B PWM1A PWM1B
-    //TCCR1A = 0b00100001;	// enable PWM1B
-    TCCR1A = 0b10100011;
+    TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(PWM1A) | _BV(PWM1B);
 
-    //TCCR1C
+    // prescaler at 64
+    TCCR1B = _BV(CS12) | _BV(CS11) | _BV(CS10);
+
     // COM1A1S COM1A0S COM1B1S COM1B0S COM1D1 COM1D0 FOC1D PWM1D
-    TCCR1C = 0b10101001;	// enable PWM1D
+    TCCR1C = _BV(COM1A1S) | _BV(COM1B1S) | _BV(COM1D1) | _BV(PWM1D);
 
-    //TCCR1D
     // FPIE1 FPEN1 FPNC1 FPES1 FPAC1 FPF1 WGM11 WGM10
-    TCCR1D = 0b00000001;
+    TCCR1D = _BV(WGM10);
 
+    // Clear the compare counter
     TC1H = 0x00;
     TCNT1 = 0x00;
 
+    // Set the top value of the compare count to 1023
+    TC1H = 0x03;
+    OCR1C = 0xFF;
+
+    // Clear the LEDs
     set_green(0);
     set_blue(0);
     set_red(0);
-
-    set_top_compare(1023);
-
-    //DT1=0x00;
-    TCCR1B |= (1 << CS12) | (1 << CS11) | (1 << CS10);	// prescaler 64
 }
 
 void init_timer(void) {
-
-    // init timer
-    // prescaler 64
-
-    //TCCR0A
-    // TCW0 ICEN0 ICNC0 ICES0 ACIC0 â€“ â€“ CTC0
-
-    //TCCR0B
-    // â€“ â€“ â€“ TSM PSR0 CS02 CS01 CS01
-    TCCR0B = 0b00000011;
+    // - - - TSM PSR0 CS02 CS01 CS00
+    TCCR0B = _BV(CS01) | _BV(CS00);
 
     TCNT0H = 0x00;
     TCNT0L = 0x00;
@@ -173,6 +150,8 @@ void main(void) {
     init_pwm();
     init_timer();
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
     while (1) {
 /*
         green = (green+1)%1024;
@@ -190,4 +169,5 @@ void main(void) {
 
         _delay_ms(10);
     }
+#pragma clang diagnostic pop
 }
