@@ -90,6 +90,7 @@ Change Activity:
 
 #define SET_USI_TO_TWI_START_CONDITION_MODE() \
 { \
+  DDR_USI &= ~(1<<PORT_USI_SDA); /* set SDA as input JGG */  \
   USICR = \
        /* enable Start Condition Interrupt, disable Overflow Interrupt */ \
        ( 1 << USISIE ) | ( 0 << USIOIE ) | \
@@ -268,66 +269,60 @@ bool usiTwiDataInReceiveBuffer(void) {
  * USI Start Condition ISR
  */
 ISR( USI_START_VECTOR ) {
-    // Bring PB4 high
-    PORTB |= _BV(PORTB4);
+     // set default starting conditions for new TWI package
+     overflowState = USI_SLAVE_CHECK_ADDRESS;
 
-        // set default starting conditions for new TWI package
-        overflowState = USI_SLAVE_CHECK_ADDRESS;
+    // set SDA as input
+    DDR_USI &= ~( 1 << PORT_USI_SDA );
 
-        // set SDA as input
-        DDR_USI &= ~( 1 << PORT_USI_SDA );
+    // wait for SCL to go low to ensure the Start Condition has completed (the
+    // start detector will hold SCL low ) - if a Stop Condition arises then leave
+    // the interrupt to prevent waiting forever - don't use USISR to test for Stop
+    // Condition as in Application Note AVR312 because the Stop Condition Flag is
+    // going to be set from the last TWI sequence
+    while (
+        ( PIN_USI & ( 1 << PIN_USI_SCL )) && // SCL his high
+        !(( PIN_USI & ( 1 << PIN_USI_SDA ))) // and SDA is low
+    );
 
-        // wait for SCL to go low to ensure the Start Condition has completed (the
-        // start detector will hold SCL low ) - if a Stop Condition arises then leave
-        // the interrupt to prevent waiting forever - don't use USISR to test for Stop
-        // Condition as in Application Note AVR312 because the Stop Condition Flag is
-        // going to be set from the last TWI sequence
-        while (
-            ( PIN_USI & ( 1 << PIN_USI_SCL )) && // SCL his high
-            !(( PIN_USI & ( 1 << PIN_USI_SDA ))) // and SDA is low
-        );
+    if ( !( PIN_USI & ( 1 << PIN_USI_SDA ))) {
+        // a Stop Condition did not occur
+        USICR =
+                // keep Start Condition Interrupt enabled to detect RESTART
+                (1 << USISIE) |
+                // enable Overflow Interrupt
+                (1 << USIOIE) |
+                // set USI in Two-wire mode, hold SCL low on USI Counter overflow
+                (1 << USIWM1) | (1 << USIWM0) |
+                // Shift Register Clock Source = External, positive edge
+                // 4-Bit Counter Source = external, both edges
+                (1 << USICS1) | (0 << USICS0) | (0 << USICLK) |
+                // no toggle clock-port pin
+                (0 << USITC);
 
-        if ( !( PIN_USI & ( 1 << PIN_USI_SDA ))) {
-            // a Stop Condition did not occur
-            USICR =
-                    // keep Start Condition Interrupt enabled to detect RESTART
-                    (1 << USISIE) |
-                    // enable Overflow Interrupt
-                    (1 << USIOIE) |
-                    // set USI in Two-wire mode, hold SCL low on USI Counter overflow
-                    (1 << USIWM1) | (1 << USIWM0) |
-                    // Shift Register Clock Source = External, positive edge
-                    // 4-Bit Counter Source = external, both edges
-                    (1 << USICS1) | (0 << USICS0) | (0 << USICLK) |
-                    // no toggle clock-port pin
-                    (0 << USITC);
+    } else {
+        // a Stop Condition did occur
+        USICR =
+                // enable Start Condition Interrupt
+                (1 << USISIE) |
+                // disable Overflow Interrupt
+                (0 << USIOIE) |
+                // set USI in Two-wire mode, no USI Counter overflow hold
+                (1 << USIWM1) | (0 << USIWM0) |
+                // Shift Register Clock Source = external, positive edge
+                // 4-Bit Counter Source = external, both edges
+                (1 << USICS1) | (0 << USICS0) | (0 << USICLK) |
+                // no toggle clock-port pin
+                (0 << USITC);
+    }
 
-        } else {
-            // a Stop Condition did occur
-            USICR =
-                    // enable Start Condition Interrupt
-                    (1 << USISIE) |
-                    // disable Overflow Interrupt
-                    (0 << USIOIE) |
-                    // set USI in Two-wire mode, no USI Counter overflow hold
-                    (1 << USIWM1) | (0 << USIWM0) |
-                    // Shift Register Clock Source = external, positive edge
-                    // 4-Bit Counter Source = external, both edges
-                    (1 << USICS1) | (0 << USICS0) | (0 << USICLK) |
-                    // no toggle clock-port pin
-                    (0 << USITC);
-        }
-
-        USISR =
-        // clear interrupt flags - resetting the Start Condition Flag will
-        // release SCL
-        ( 1 << USI_START_COND_INT ) | ( 1 << USIOIF ) |
-        ( 1 << USIPF ) |( 1 << USIDC ) |
-        // set USI to sample 8 bits (count 16 external SCL pin toggles)
-        ( 0x0 << USICNT0);
-
-    // Bring PB4 low
-    PORTB &= ~_BV(PORTB4);
+    USISR =
+    // clear interrupt flags - resetting the Start Condition Flag will
+    // release SCL
+    ( 1 << USI_START_COND_INT ) | ( 1 << USIOIF ) |
+    ( 1 << USIPF ) |( 1 << USIDC ) |
+    // set USI to sample 8 bits (count 16 external SCL pin toggles)
+    ( 0x0 << USICNT0);
 }
 
 /**
@@ -339,79 +334,74 @@ ISR( USI_START_VECTOR ) {
  *
  */
 ISR( USI_OVERFLOW_VECTOR ) {
-    // Bring PB6 high
-    PORTB |= _BV(PORTB6);
-
-        switch ( overflowState ) {
-            // Address mode: check address and send ACK (and next USI_SLAVE_SEND_DATA) if OK,
-            // else reset USI
-            case USI_SLAVE_CHECK_ADDRESS:
-                if ((USIDR == 0) || ((USIDR >> 1) == slaveAddress)) {
-                    if (USIDR & 0x01) {
-                        overflowState = USI_SLAVE_SEND_DATA;
-                    } else {
-                        overflowState = USI_SLAVE_REQUEST_DATA;
-                    }
-                    SET_USI_TO_SEND_ACK();
+    switch ( overflowState ) {
+        // Address mode: check address and send ACK (and next USI_SLAVE_SEND_DATA) if OK,
+        // else reset USI
+        case USI_SLAVE_CHECK_ADDRESS:
+            if ((USIDR == 0) || ((USIDR >> 1) == slaveAddress)) {
+                if (USIDR & 0x01) {
+                    overflowState = USI_SLAVE_SEND_DATA;
                 } else {
-                    SET_USI_TO_TWI_START_CONDITION_MODE();
+                    overflowState = USI_SLAVE_REQUEST_DATA;
                 }
+                SET_USI_TO_SEND_ACK();
+            } else {
+                SET_USI_TO_TWI_START_CONDITION_MODE();
+            }
             break;
 
-            // Master write data mode: check reply and goto USI_SLAVE_SEND_DATA if OK,
-            // else reset USI
-            case USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA:
-                if (USIDR) {
-                    // if NACK, the master does not want more data
-                    SET_USI_TO_TWI_START_CONDITION_MODE();
-                    return;
-                }
+        // Master write data mode: check reply and goto USI_SLAVE_SEND_DATA if OK,
+        // else reset USI
+        case USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA:
+            if (USIDR) {
+                // if NACK, the master does not want more data
+                SET_USI_TO_TWI_START_CONDITION_MODE();
+                return;
+            }
             // from here we just drop straight into USI_SLAVE_SEND_DATA if the
             // master sent an ACK
 
-            // copy data from buffer to USIDR and set USI to shift byte
-            // next USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA
-            case USI_SLAVE_SEND_DATA:
-                // Get data from Buffer
-                if (txHead != txTail) {
-                    txTail = (txTail + 1) & TWI_TX_BUFFER_MASK;
-                    USIDR = txBuf[txTail];
-                } else {
-                    // the buffer is empty
-                    SET_USI_TO_TWI_START_CONDITION_MODE();
-                    return;
-                }
+        // copy data from buffer to USIDR and set USI to shift byte
+        // next USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA
+        case USI_SLAVE_SEND_DATA:
+            // Get data from Buffer
+            if (txHead != txTail) {
+                txTail = (txTail + 1) & TWI_TX_BUFFER_MASK;
+                USIDR = txBuf[txTail];
+            } else {
+                // the buffer is empty
+                SET_USI_TO_TWI_START_CONDITION_MODE();
+                return;
+            }
 
             overflowState = USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA;
             SET_USI_TO_SEND_DATA();
             break;
 
-            // set USI to sample reply from master
-            // next USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA
-            case USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA:
-                overflowState = USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA;
+        // set USI to sample reply from master
+        // next USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA
+        case USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA:
+            overflowState = USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA;
             SET_USI_TO_READ_ACK();
             break;
 
-            // Master read data mode: set USI to sample data from master, next
-            // USI_SLAVE_GET_DATA_AND_SEND_ACK
-            case USI_SLAVE_REQUEST_DATA:
-                overflowState = USI_SLAVE_GET_DATA_AND_SEND_ACK;
+        // Master read data mode: set USI to sample data from master, next
+        // USI_SLAVE_GET_DATA_AND_SEND_ACK
+        case USI_SLAVE_REQUEST_DATA:
+            overflowState = USI_SLAVE_GET_DATA_AND_SEND_ACK;
             SET_USI_TO_READ_DATA();
             break;
 
-            // copy data from USIDR and send ACK
-            // next USI_SLAVE_REQUEST_DATA
-            case USI_SLAVE_GET_DATA_AND_SEND_ACK:
-                // put data into buffer
-                // Not necessary, but prevents warnings
-                rxHead = (rxHead + 1) & TWI_RX_BUFFER_MASK;
+        // copy data from USIDR and send ACK
+        // next USI_SLAVE_REQUEST_DATA
+        case USI_SLAVE_GET_DATA_AND_SEND_ACK:
+            // put data into buffer
+            // Not necessary, but prevents warnings
+            rxHead = (rxHead + 1) & TWI_RX_BUFFER_MASK;
             rxBuf[rxHead] = USIDR;
             // next USI_SLAVE_REQUEST_DATA
             overflowState = USI_SLAVE_REQUEST_DATA;
             SET_USI_TO_SEND_ACK();
             break;
-        }
-    // Bring PB6 low
-    PORTB &= ~_BV(PORTB6);
+    }
 }

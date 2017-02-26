@@ -5,28 +5,31 @@
  *
  * - Drives an RGB LED Strip via PWM
  * - Reads 4 load sensors in a wheatstone bridge configuration via differential ADC
- * - Communicates to a master controller via i2c (TODO)
+ * - Communicates to a master controller via i2c
  *
  */
 
-#define	F_CPU 16000000UL
-
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+#include "usiTwiSlave.h"
+#include "main.h"
 
-struct RGB_set {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-} RGB_set;
+#ifndef SLAVE_ADDRESS
+#define SLAVE_ADDRESS 0x26
+#endif
 
-struct HSV_set {
-    signed int h;
-    unsigned char s;
-    unsigned char v;
-} HSV_set;
+#define COMMAND_SET_LED 0x10
+#define COMMAND_REQUEST_WEIGHT 0x11
+#define COMMAND_LAST 0x12
 
-void init_avr(void) {
+#define ADC_CONVERSION_DONE() !(ADCSRA & _BV(ADSC))
+#define START_ADC_CONVERSION() ADCSRA |= _BV(ADSC)
+
+uint8_t adc_value;
+uint8_t last_i2c_command;
+
+void init_avr() {
     // wait a little before starting setup
     _delay_ms(1000);
 
@@ -36,21 +39,6 @@ void init_avr(void) {
     // set all of port B to output
     DDRB = 0xFF;
     PORTB = 0x00;
-}
-
-void set_red(uint16_t val) {
-    TC1H = val >> 8;
-    OCR1D = val & 0x0FF;
-}
-
-void set_green(uint16_t val) {
-    TC1H = val >> 8;
-    OCR1A = val & 0x0FF;
-}
-
-void set_blue(uint16_t val) {
-    TC1H = val >> 8;
-    OCR1B = val & 0x0FF;
 }
 
 void init_pwm(void) {
@@ -103,123 +91,88 @@ void init_adc(void) {
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
 
     // Set bipolar input mode
-    ADCSRB = _BV(BIN);
+    ADCSRB = _BV(BIN) | _BV(GSEL);
 
-    // PA0: positive, PA1: negative, 20x gain
-    ADMUX = _BV(ADLAR) | _BV(MUX3) | _BV(MUX1) | _BV(MUX0);
-}
+    // PA5: positive, PA6: negative, 20x gain
+    ADMUX = _BV(ADLAR) | _BV(MUX4) | _BV(MUX2);
 
-void HSV2RGB(struct HSV_set HSV, struct RGB_set *RGB){
-    int i;
-    float f, p, q, t, h, s, v;
-
-    h=(float)HSV.h;
-    s=(float)HSV.s;
-    v=(float)HSV.v;
-
-    s /=255;
-
-    if( s == 0 ) { // achromatic (grey)
-        RGB->r = RGB->g = RGB->b = v;
-        return;
-    }
-
-    h /= 60;            // sector 0 to 5
-    i = floor( h );
-    f = h - i;            // factorial part of h
-    p = (unsigned char)(v * ( 1 - s ));
-    q = (unsigned char)(v * ( 1 - s * f ));
-    t = (unsigned char)(v * ( 1 - s * ( 1 - f ) ));
-
-    switch( i ) {
-        case 0:
-            RGB->r = v;
-            RGB->g = t;
-            RGB->b = p;
-            break;
-        case 1:
-            RGB->r = q;
-            RGB->g = v;
-            RGB->b = p;
-            break;
-        case 2:
-            RGB->r = p;
-            RGB->g = v;
-            RGB->b = t;
-            break;
-        case 3:
-            RGB->r = p;
-            RGB->g = q;
-            RGB->b = v;
-            break;
-        case 4:
-            RGB->r = t;
-            RGB->g = p;
-            RGB->b = v;
-            break;
-        default:        // case 5:
-            RGB->r = v;
-            RGB->g = p;
-            RGB->b = q;
-            break;
-    }
-}
-
-int16_t read_diff_adc() {
     // Set the "start conversion" bit
     ADCSRA |= _BV(ADSC);
+}
 
-    // Loop while the ADSC bit is set.  It will automatically be cleared when the conversion is done
-    while (ADCSRA & _BV(ADSC));
+void set_red(uint16_t val) {
+    TC1H = val >> 8;
+    OCR1D = val & 0x0FF;
+}
 
-    // Negative result
-    if (ADCH & 0x80) {
-        set_blue(0);
-        set_red(0xFF - (ADCH & 0x0FF));
-        return -1* (~ADCH);
-    } else {
-        set_red(0);
-        set_blue(ADCH & 0x0FF);
-        return ADCH;
+void set_green(uint16_t val) {
+    TC1H = val >> 8;
+    OCR1A = val & 0x0FF;
+}
+
+void set_blue(uint16_t val) {
+    TC1H = val >> 8;
+    OCR1B = val & 0x0FF;
+}
+
+void handle_i2c_command_last(void) {
+    usiTwiTransmitByte(last_i2c_command);
+}
+
+void handle_i2c_command_request_weight(void) {
+    usiTwiTransmitByte(adc_value);
+}
+
+void handle_i2c_command_set_led(void) {
+    uint8_t red = usiTwiReceiveByte();
+    uint8_t green = usiTwiReceiveByte();
+    uint8_t blue = usiTwiReceiveByte();
+
+    set_red(red);
+    set_green(green);
+    set_blue(blue);
+}
+
+void handle_i2c_command(void) {
+    uint8_t command;
+
+    command = usiTwiReceiveByte();
+
+    switch(command) {
+        case COMMAND_REQUEST_WEIGHT:
+            handle_i2c_command_request_weight();
+            break;
+        case COMMAND_SET_LED:
+            handle_i2c_command_set_led();
+            break;
+        case COMMAND_LAST:
+            handle_i2c_command_last();
+            break;
+        default:
+            break;
     }
+    last_i2c_command = command;
 }
 
 void main(void) {
-    struct RGB_set RGB;
-    struct HSV_set HSV;
-
-    HSV.h = 0;
-    HSV.s = 255;
-    HSV.v = 255;
-
     init_avr();
     init_pwm();
     init_timer();
     init_adc();
 
-    int16_t adc_val;
+    sei();
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
+    usiTwiSlaveInit(SLAVE_ADDRESS);
+
     while (1) {
-/*
-        green = (green+1)%1024;
-        blue = (blue+1)%1024;
-        red = (red+1)%1024;
-*/
-//        _delay_ms(10);
+        if (ADC_CONVERSION_DONE()) {
+            adc_value = ADCH;
 
-//        HSV.h = (HSV.h+1)%360;
+            START_ADC_CONVERSION();
+        }
 
-        read_diff_adc();
-
-        //HSV2RGB(HSV, &RGB);
-
-        //set_green(RGB.g);
-        //set_blue(RGB.b);
-        //set_red(RGB.r);
-
-//        _delay_ms(10);
+        if (usiTwiDataInReceiveBuffer()) {
+            handle_i2c_command();
+        }
     }
-#pragma clang diagnostic pop
 }

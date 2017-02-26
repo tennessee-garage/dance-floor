@@ -21,6 +21,6 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 set(SOURCE_FILES
         main.c
-        Makefile)
+        Makefile main.h)
 
 add_executable(Demo2 ${SOURCE_FILES})
