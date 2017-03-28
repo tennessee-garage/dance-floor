@@ -60,7 +60,8 @@ TARGET = main
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c usiTwiSlave.c
+#SRC = $(TARGET).c usiTwiSlave.c i2cCommands.c
+SRC = $(TARGET).c
 
 
 # List Assembler source files here.

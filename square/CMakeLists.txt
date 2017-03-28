@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(Demo2)
+project(dance-floor-square)
 
 SET(MCU "attiny861")
 SET(F_CPU "16000000")
@@ -19,9 +19,9 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-set(SOURCE_FILES
-        square/main.c
-        square/main.h
-        square/Makefile)
+SET(SOURCE_FILES
+        Makefile
+        main.c
+        main.h)
 
-add_executable(Demo2 ${SOURCE_FILES})
+add_executable(dance-floor-square ${SOURCE_FILES})

@@ -20,8 +20,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 set(SOURCE_FILES
-        square/main.c
-        square/main.h
-        square/Makefile)
+        main.c
+        Makefile main.h i2cCommands.c i2cCommands.h spiCommands.c spiCommands.h)
 
 add_executable(Demo2 ${SOURCE_FILES})
