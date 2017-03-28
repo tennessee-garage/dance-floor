@@ -11,7 +11,6 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <avr/interrupt.h>
 #include "main.h"
 
 #define ADC_CONVERSION_DONE() !(ADCSRA & _BV(ADSC))
@@ -24,20 +23,11 @@
 #define IN_OVERFLOW() (USISR & _BV(USIOIF))
 #define NOT_IN_OVERFLOW() !IN_OVERFLOW()
 
-// Clear the counter when chip select goes low
-#define CLEAR_USI_COUNTER() USISR &= 0xF0
-
 // Read the value off the chip select
 #define CHIP_SELECT() (PINA & _BV(PINA3))
 #define IS_CHIP_SELECTED() (CHIP_SELECT() == 0)
 
 #define DATA_BYTES 4
-
-// Indicates whether we are transferring data at the moment or not
-uint8_t transferring_spi_data = 0;
-
-// Last seen value of chip select
-uint8_t last_chip_select = 0;
 
 uint8_t byte_count = 0;
 uint8_t buffer[DATA_BYTES];
@@ -135,8 +125,6 @@ void init_spi(void) {
 
     byte_count = 0;
 
-    last_chip_select = CHIP_SELECT();
-
     // Clear the overflow flag
     CLEAR_OVERFLOW();
 }
@@ -197,7 +185,6 @@ void handle_adc(void) {
 
         CLEAR_PB0();
     }
-
 }
 
 int main(void) {
