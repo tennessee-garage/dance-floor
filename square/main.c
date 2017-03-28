@@ -158,7 +158,6 @@ void handle_spi(void) {
     while (IS_CHIP_SELECTED()) {
 
         // See if we're in an overflow condition
-        //while (!(USISR & _BV(USIOIF)) && !(PINA & _BV(PINA3)));
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
 
         byte_count = (byte_count + 1) % DATA_BYTES;
@@ -172,7 +171,6 @@ void handle_spi(void) {
 void handle_adc(void) {
 
     if (ADC_CONVERSION_DONE()) {
-        SET_PB0();
         adc_value = toSignedInt(ADCH);
 
         for (int i = 0; i < DATA_BYTES; i++) {
@@ -182,8 +180,6 @@ void handle_adc(void) {
         USIDR = buffer[0];
 
         START_ADC_CONVERSION();
-
-        CLEAR_PB0();
     }
 }
 
