@@ -369,6 +369,9 @@ gccversion :
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
+fuse:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U lfuse:w:0xc1:m -U hfuse:w:0xdf:m
+
 
 # Generate avr-gdb config/init file which does the following:
 #     define the reset signal, load the target file, connect to target, and set 
