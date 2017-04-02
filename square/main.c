@@ -27,10 +27,16 @@
 #define CHIP_SELECT() (PINA & _BV(PINA3))
 #define IS_CHIP_SELECTED() (CHIP_SELECT() == 0)
 
-#define DATA_BYTES 4
+// Pull 10-bit values
+#define PULL_RED(buf) (((buf[0] & 0x3F) << 4) | (buf[1] >> 4))
+#define PULL_GREEN(buf) (((buf[1] & 0x0F) << 6) | (buf[2] >> 2))
+#define PULL_BLUE(buf) (((buf[2] & 0x03) << 8) | buf[3])
+
+#define DATA_BYTES 5
 
 uint8_t byte_count = 0;
-uint8_t buffer[DATA_BYTES];
+uint8_t in_buffer[DATA_BYTES];
+uint8_t out_buffer[DATA_BYTES];
 
 // Store the last value of the ADC/weight sensor value
 int8_t adc_value;
@@ -120,7 +126,8 @@ void init_spi(void) {
     DDRA |= _BV(DDA1);
 
     for (int i = 0; i < DATA_BYTES; i++) {
-        buffer[i] = 0x00;
+        in_buffer[i] = 0x00;
+        out_buffer[i] = 0x00;
     }
 
     byte_count = 0;
@@ -153,19 +160,34 @@ int8_t toSignedInt(uint8_t val) {
 }
 
 void handle_spi(void) {
+    byte_count = 0;
 
     // If we're selected
     while (IS_CHIP_SELECTED()) {
 
-        // See if we're in an overflow condition
+        // Wait for bytes to be read in, at which point overflow will trigger
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
+        in_buffer[byte_count] = USIDR;
+        USIDR = out_buffer[byte_count+1];
 
-        byte_count = (byte_count + 1) % DATA_BYTES;
-
-        USIDR = buffer[byte_count];
-
+        byte_count++;
         CLEAR_OVERFLOW();
     }
+
+    uint16_t red = PULL_RED(in_buffer);
+    uint16_t green = PULL_GREEN(in_buffer);
+    uint16_t blue = PULL_BLUE(in_buffer);
+
+    set_red(red);
+    set_green(green);
+    set_blue(blue);
+
+    out_buffer[0] = red & 0x0FF;
+    out_buffer[1] = green & 0x0FF;
+    out_buffer[2] = blue & 0x0FF;
+    out_buffer[3] = 0x00;
+
+    USIDR = out_buffer[0];
 }
 
 void handle_adc(void) {
@@ -174,10 +196,10 @@ void handle_adc(void) {
         adc_value = toSignedInt(ADCH);
 
         for (int i = 0; i < DATA_BYTES; i++) {
-            buffer[i] = (uint8_t) adc_value;
+            in_buffer[i] = (uint8_t) adc_value;
         }
         // Ready the first byte for the next transfer
-        USIDR = buffer[0];
+        USIDR = in_buffer[0];
 
         START_ADC_CONVERSION();
     }
@@ -190,7 +212,7 @@ int main(void) {
     init_spi();
 
     while (1) {
-        handle_adc();
+        //handle_adc();
         handle_spi();
     }
 }
