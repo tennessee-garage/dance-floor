@@ -28,15 +28,19 @@
 #define IS_CHIP_SELECTED() (CHIP_SELECT() == 0)
 
 // Pull 10-bit values
-#define PULL_RED(buf) (((buf[0] & 0x3F) << 4) | (buf[1] >> 4))
-#define PULL_GREEN(buf) (((buf[1] & 0x0F) << 6) | (buf[2] >> 2))
-#define PULL_BLUE(buf) (((buf[2] & 0x03) << 8) | buf[3])
+#define DECODE_RED(byte1, byte2) (((byte1 & 0x3F) << 4) | (byte2 >> 4))
+#define DECODE_GREEN(byte1, byte2) (((byte1 & 0x0F) << 6) | (byte2 >> 2))
+#define DECODE_BLUE(byte1, byte2) (((byte1 & 0x03) << 8) | byte2)
 
-#define DATA_BYTES 5
+// Each packet transmitted has 4 bytes.  The dance floor has 64 squares so will need
+// to have 64 packets sent to set LED values.  Using 96 to give some extra room
+#define DATA_BYTES 4
+#define MAX_PACKETS 96
 
-uint8_t byte_count = 0;
-uint8_t in_buffer[DATA_BYTES];
-uint8_t out_buffer[DATA_BYTES];
+// Hold the data being piped through the squares
+uint8_t buffer[DATA_BYTES * MAX_PACKETS];
+// Keep track of where we're at in the buffer
+uint8_t head;
 
 // Store the last value of the ADC/weight sensor value
 int8_t adc_value;
@@ -125,12 +129,10 @@ void init_spi(void) {
     // Set PA0 to be an output for the DO SPI function
     DDRA |= _BV(DDA1);
 
-    for (int i = 0; i < DATA_BYTES; i++) {
-        in_buffer[i] = 0x00;
-        out_buffer[i] = 0x00;
+    for (int i = 0; i < DATA_BYTES * MAX_PACKETS; i++) {
+        buffer[i] = 0x00;
     }
-
-    byte_count = 0;
+    head = 0;
 
     // Clear the overflow flag
     CLEAR_OVERFLOW();
@@ -160,34 +162,48 @@ int8_t toSignedInt(uint8_t val) {
 }
 
 void handle_spi(void) {
-    byte_count = 0;
+    uint8_t transferred = 0;
 
     // If we're selected
     while (IS_CHIP_SELECTED()) {
+        transferred = 1;
 
         // Wait for bytes to be read in, at which point overflow will trigger
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
-        in_buffer[byte_count] = USIDR;
-        USIDR = out_buffer[byte_count+1];
 
-        byte_count++;
+        // Write the value we got to the head of the fifo, and read the tail to sent forward
+        buffer[head] = USIDR;
+        USIDR = buffer[head-3];
+
+        head++;
+
         CLEAR_OVERFLOW();
     }
 
-    uint16_t red = PULL_RED(in_buffer);
-    uint16_t green = PULL_GREEN(in_buffer);
-    uint16_t blue = PULL_BLUE(in_buffer);
+    // If we didn't just transfer some bytes, don't decode and set LEDs
+    if (!transferred) {
+        return;
+    }
+
+    // The value of head is incremented after the last byte is written, and then incremented again when
+    // chip select goes high (not selected) for this reason the last byte written is at head - 2
+    uint16_t red = DECODE_RED(buffer[head-5], buffer[head-4]);
+    uint16_t green = DECODE_GREEN(buffer[head-4], buffer[head-3]);
+    uint16_t blue = DECODE_BLUE(buffer[head-3], buffer[head-2]);
 
     set_red(red);
     set_green(green);
     set_blue(blue);
+/*
+    buffer[0] = red & 0x0FF;
+    buffer[1] = green & 0x0FF;
+    buffer[2] = blue & 0x0FF;
+    buffer[3] = head;
 
-    out_buffer[0] = red & 0x0FF;
-    out_buffer[1] = green & 0x0FF;
-    out_buffer[2] = blue & 0x0FF;
-    out_buffer[3] = 0x00;
+    USIDR = buffer[0];
+*/
+    head = 4;
 
-    USIDR = out_buffer[0];
 }
 
 void handle_adc(void) {
@@ -196,10 +212,12 @@ void handle_adc(void) {
         adc_value = toSignedInt(ADCH);
 
         for (int i = 0; i < DATA_BYTES; i++) {
-            in_buffer[i] = (uint8_t) adc_value;
+            buffer[i] = (uint8_t) adc_value;
         }
+
         // Ready the first byte for the next transfer
-        USIDR = in_buffer[0];
+        USIDR = buffer[0];
+        head = 4;
 
         START_ADC_CONVERSION();
     }
@@ -212,7 +230,7 @@ int main(void) {
     init_spi();
 
     while (1) {
-        //handle_adc();
+        handle_adc();
         handle_spi();
     }
 }
