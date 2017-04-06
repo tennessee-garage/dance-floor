@@ -42,12 +42,6 @@ uint8_t buffer[DATA_BYTES * MAX_PACKETS];
 // Keep track of where we're at in the buffer
 uint8_t head;
 
-// Store the last value of the ADC/weight sensor value
-int8_t adc_value;
-
-// Store the lowest value seen to use as a calibration
-int8_t base_adc_value;
-
 void init_avr() {
     // wait a little before starting setup
     _delay_ms(1000);
@@ -58,8 +52,6 @@ void init_avr() {
     // set all of port B to output
     DDRB = 0xFF;
     PORTB = 0x00;
-
-    base_adc_value = 127;
 }
 
 void init_pwm(void) {
@@ -112,9 +104,9 @@ void init_adc(void) {
     // Set bipolar input mode (BIN), 32x gain (GSEL), see below for MUX5 info
     ADCSRB = _BV(BIN) | _BV(GSEL) | _BV(MUX5);
 
-    // 1.1v reference voltage (REFS1), left shift 10bit result (ADLAR),
+    // 1.1v reference voltage (REFS1),
     // PA5: positive, PA6: negative (MUX5, MUX3, MUX2, see table 15-5 in datasheet)
-    ADMUX = _BV(REFS1) | _BV(ADLAR) | _BV(MUX3) | _BV(MUX2);
+    ADMUX = _BV(REFS1) | _BV(MUX3) | _BV(MUX2);
 
     START_ADC_CONVERSION();
 }
@@ -153,14 +145,6 @@ void set_blue(uint16_t val) {
     OCR1B = val & 0x0FF;
 }
 
-int8_t toSignedInt(uint8_t val) {
-    if (0x80 & val) {
-        return -1*(adc_value & 0x80) + (adc_value & ~0x80);
-    } else {
-        return val;
-    }
-}
-
 void handle_spi(void) {
     uint8_t transferred = 0;
 
@@ -194,26 +178,22 @@ void handle_spi(void) {
     set_red(red);
     set_green(green);
     set_blue(blue);
-/*
-    buffer[0] = red & 0x0FF;
-    buffer[1] = green & 0x0FF;
-    buffer[2] = blue & 0x0FF;
-    buffer[3] = head;
 
-    USIDR = buffer[0];
-*/
+    // Keep the head at 4 so we don't start overwriting the weight with color
+    // values when there's no ADC conversion ready
     head = 4;
-
 }
 
 void handle_adc(void) {
 
     if (ADC_CONVERSION_DONE()) {
-        adc_value = toSignedInt(ADCH);
+        // These MUST be read in this order, ADCL then ADCH "to ensure that the
+        // content of the data registers belongs to the same conversion"
+        buffer[1] = ADCL;
+        buffer[0] = ADCH;
 
-        for (int i = 0; i < DATA_BYTES; i++) {
-            buffer[i] = (uint8_t) adc_value;
-        }
+        buffer[2] = 0;
+        buffer[3] = 0;
 
         // Ready the first byte for the next transfer
         USIDR = buffer[0];
