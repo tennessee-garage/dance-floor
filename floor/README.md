@@ -44,4 +44,4 @@ python run-show.py --driver opc --
 
 ## Writing a new processor
 
-See README.md in the processor folder
+Different processors provide different ways to drive the floor LEDs. See README.md in the [processor folder](https://github.com/garthwebb/dance-floor/tree/master/floor/processor) for how to write a new processor.
