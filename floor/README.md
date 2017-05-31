@@ -28,8 +28,11 @@ There is a test mode of this code that allows running and debugging from a compu
 ```bash
 git clone https://github.com/zestyping/openpixelcontrol.git
 ```
-2. Follow the [QuickStart guide](https://github.com/zestyping/openpixelcontrol#quickstart-simulator) for OpenPixelControl
+2. Follow the [QuickStart guide](https://github.com/zestyping/openpixelcontrol#quickstart-simulator) for OpenPixelControl setup and testing
 3. Clone this repository
+```bash
+git clone https://github.com/garthwebb/dance-floor.git
+```
 
 To confirm everything is setup correctly, start the `gl_server` with the dance floor layout:
 ```bash
