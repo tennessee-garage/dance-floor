@@ -1,5 +1,5 @@
 from base import Base
-import spidev
+import importlib
 
 
 class Raspberry(Base):
@@ -7,7 +7,9 @@ class Raspberry(Base):
     def __init__(self):
         super(Raspberry, self).__init__()
 
-        self.spi = spidev.SpiDev()
+        module = importlib.import_module("spidev")
+
+        self.spi = module.SpiDev()
         self.spi.open(0, 0)
 
     def send_data(self):
