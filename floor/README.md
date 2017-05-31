@@ -42,7 +42,7 @@ $OPC_PATH/bin/gl_server -l $DANCE_PATH/floor/opc-layouts/simple-dance-floor.json
 ```
 Next start the show code:
 ```bash
-python run-show.py --driver opc --
+python run-show.py --driver opc
 ```
 
 ## Writing a new processor
