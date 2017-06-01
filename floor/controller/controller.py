@@ -44,6 +44,9 @@ class Controller(object):
         self.driver.test_support()
 
     def run(self):
+        # Make sure the processor is limited to the bit depth of the driver
+        self.processor.set_max_value(self.driver.MAX_LED_VALUE)
+
         while True:
             self.init_loop()
             self.generate_frame()

@@ -4,6 +4,8 @@ from util import opc
 
 class Opc(Base):
 
+    MAX_LED_VALUE = 256
+
     def __init__(self):
         super(Opc, self).__init__()
         self.frame = 0

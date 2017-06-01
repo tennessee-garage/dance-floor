@@ -2,6 +2,8 @@
 
 class Base(object):
 
+    MAX_LED_VALUE = 1023
+
     def __init__(self):
         self.weights = []
         self.leds = []
