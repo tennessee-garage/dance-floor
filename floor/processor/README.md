@@ -29,7 +29,7 @@ class YourPattern(Base):
         return pixels
 ```
 2. Create code in `gen_next_frame` that creates a single frame of 64 RGB values.  The dance floor is 8 x 8 so if you want to work with x and y coordinates, you can do `pixels[x + y*8]` to index into the array as if it were multidimensional.
-3. Call your class from the command line by giving the file name:
+3. To test, call your class from the command line by giving the file name (make sure gl_sever is running):
 ```bash
-  --processor your_class_file
+python run-show.py --driver opc --processor your_class_file
 ```
