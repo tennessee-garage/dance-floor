@@ -2,16 +2,20 @@
 
 ## Creating a new processor
 
-The skeleton for a processor is:
-
+1. Start with the skeleton for a processor:
 ```python
 from base import Base
 
 
-class Your_Pattern(Base):
+def create():
+    # Simply return a new instance of your class here
+    return YourPattern()
+
+
+class YourPattern(Base):
 
     def __init__(self):
-        super(Your_Pattern, self).__init__()
+        super(YourPattern, self).__init__()
         # Set/initialize any state variables here
 
     def get_next_frame(self, weights):
@@ -24,9 +28,8 @@ class Your_Pattern(Base):
 
         return pixels
 ```
-
-The processor class name and file name should be camel case, in lower and upper case respetively.  This simply makes it easy to declare:
+2. Create code in `gen_next_frame` that creates a single frame of 64 RGB values.  The dance floor is 8 x 8 so if you want to work with x and y coordinates, you can do `pixels[x + y*8]` to index into the array as if it were multidimensional.
+3. Call your class from the command line by giving the file name:
 ```bash
-  --processor some_class
+  --processor your_class_file
 ```
-and have it find some_class.py, and then load the Some_Class class in python space.
