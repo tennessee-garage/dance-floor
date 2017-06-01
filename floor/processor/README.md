@@ -25,3 +25,8 @@ class Your_Pattern(Base):
         return pixels
 ```
 
+The processor class name and file name should be camel case, in lower and upper case respetively.  This simply makes it easy to declare:
+```bash
+  --processor some_class
+```
+and have it find some_class.py, and then load the Some_Class class in python space.
