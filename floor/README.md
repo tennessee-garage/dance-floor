@@ -33,14 +33,17 @@ git clone https://github.com/zestyping/openpixelcontrol.git
 ```bash
 git clone https://github.com/garthwebb/dance-floor.git
 ```
+## Running the code
 
-To confirm everything is setup correctly, start the `gl_server` with the dance floor layout:
+Don't have a light up dance floor?  No problem!  You can see a visualization of the dance floor by running the `gl_server` provided by OpenPixelControl.
+
+1. Start the `gl_server` with the dance floor layout:
 ```bash
 # Replace $OPC_PATH with whereever you installed OpenPixelControl
 # and $DANCE_PATH with wherever this repo exists
 $OPC_PATH/bin/gl_server -l $DANCE_PATH/floor/opc-layouts/simple-dance-floor.json
 ```
-Next start the show code:
+2. Next start the show code:
 ```bash
 python run-show.py --driver opc
 ```
