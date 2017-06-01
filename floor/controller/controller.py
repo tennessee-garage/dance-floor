@@ -30,7 +30,7 @@ class Controller(object):
             print "Error: Processor '{}' does not exist or could not be loaded".format(processor_name)
             sys.exit(0)
 
-        self.processor = getattr(module, processor_name.title())()
+        self.processor = module.create()
 
     def set_driver(self, driver_name):
 
