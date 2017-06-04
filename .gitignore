@@ -40,6 +40,12 @@ cmake-build-debug/
 *.x86_64
 *.hex
 
+# Python cruft
+*.pyc
+
+# Vim temporary files
+*.swp
+
 # Debug files
 *.dSYM/
 *.su
