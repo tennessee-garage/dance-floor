@@ -1,7 +1,7 @@
 from base import Base
-from fonts import synchronizer
 import os.path
 import colorsys
+import importlib
 
 
 def create():
@@ -10,6 +10,8 @@ def create():
 
 class Message(Base):
 
+    # The font to use
+    DEFAULT_FONT = "synchronizer"
     # How far apart should the letters be
     KERNING = 1
     # Essentially the width of the dance floor
@@ -21,7 +23,10 @@ class Message(Base):
 
     def __init__(self):
         super(Message, self).__init__()
-        self.font = synchronizer.alpha()
+
+        font_module = importlib.import_module("processor.fonts.{}".format(self.DEFAULT_FONT))
+
+        self.font = font_module.alpha()
         # The list of messages to scroll
         self.messages = []
         # The current message to scroll
@@ -87,7 +92,7 @@ class Message(Base):
     def load_wall_row(self, mesg, row):
         for char in list(mesg):
             char_data = self.get_font_char(char)
-            row_data = char_data[row + 1]
+            row_data = char_data[row]
 
             # Add this strip of the character to the wall
             self.wall[row].extend(row_data)

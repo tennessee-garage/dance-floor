@@ -1,4 +1,12 @@
 #!/opt/local/bin/perl -w
+#
+# A script that takes a true type font file and outputs a Python file containing a data structure
+# holding the bitmap version of that font.  Usage is:
+#
+#    ./ttf-to-array.pl --file /path/to/truetype.ttf > processor/fonts/font_name.py
+#
+# This can be used by processors to display text.  For an example, see message.py
+#
 
 use strict;
 use warnings;
@@ -15,10 +23,11 @@ if (! -e $file) {
 my $convert_tmpl = "convert -font $file -pointsize 8 label:%s xbm:-";
 
 my @chars;
-foreach my $letter ("a".."z", "A".."Z", "0".."9") {
+foreach my $letter ("a".."z", "A".."Z", "0".."9", ",", ".", "-", "_", "!") {
     my $data = convert_char($letter);
     push @chars, inflate_char($letter, $data);
 }
+push @chars, space_char();
 
 print "\n\ndef alpha():\n";
 print "    return {\n";
@@ -56,14 +65,34 @@ sub inflate_char {
             } else {
                 push @line, 0;
             }
+
+            # If this is a single pixel wide (e.g. "!" or similar) then add a trailing
+            # comma to make it a python tuple.  Python why you gotta be so cray?
+            if ($width == 0) {
+                $line[-1] .= ',';
+            }
         }
         push @lines, "(".join(", ", @line).")";
     }
 
     return "        '$letter': (\n" .
-           "            $width,\n" .
            "            ".join(",\n            ", @lines) . "\n" .
            "        )";
+}
+
+sub space_char {
+    return "
+        ' ': (
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0)
+        )
+    "
 }
 
 sub find_width {
