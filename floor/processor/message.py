@@ -8,7 +8,10 @@ def create():
 
 class Message(Base):
 
+    # How far apart should the letters be
     KERNING = 1
+    # Essentially the width of the dance floor
+    WINDOW_WIDTH = 8
 
     def __init__(self):
         super(Message, self).__init__()
@@ -17,8 +20,10 @@ class Message(Base):
         self.mesg = "The quick brown fox jumps over the lazy dog"
         # The message converted to the font in an array
         self.wall = []
-        # The current window on to the wall
-        self.window = 0
+        # The current window position on the wall
+        self.window = 0.0
+        # How fast to scroll in pixels per frame
+        self.speed = 0.5
 
         self.init_wall(self.mesg)
 
@@ -27,7 +32,7 @@ class Message(Base):
             self.wall.append([])
 
             # Add blank space at the beginning so the text can scroll in from the side
-            self.wall[row].extend([0] * 8)
+            self.wall[row].extend([0] * self.WINDOW_WIDTH)
 
             # Add the characters for this row
             for char in list(mesg):
@@ -39,19 +44,23 @@ class Message(Base):
                 # Add kerning
                 self.wall[row].extend([0] * self.KERNING)
 
-            # Add blank space at the end so the text can scroll off the side
-            self.wall[row].extend([0] * 7)
+            # Add blank space at the end so the text can scroll off the side, minus the
+            # kerning from the final letter
+            self.wall[row].extend([0] * (self.WINDOW_WIDTH - self.KERNING))
 
     def get_next_frame(self, weights):
         # Ignore weights
 
         pixels = []
         for row in range(0, 8):
-            for col in range(self.window, self.window+8):
+            for col in range(int(self.window), int(self.window)+self.WINDOW_WIDTH):
                 if self.wall[row][col]:
                     pixels.append((self.max_value, 0, 0))
                 else:
-                    pixels.append((0, 0, 9))
+                    pixels.append((0, 0, 0))
 
-        self.window = (self.window + 1) % (len(self.wall[0])-8)
+        self.window += self.speed
+        if self.window >= len(self.wall[0]) - self.WINDOW_WIDTH:
+            self.window = 0.0
+
         return pixels
