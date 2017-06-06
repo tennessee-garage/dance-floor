@@ -26,6 +26,7 @@ class Pulsar(Base):
                 self.pixels.append((0, 0, 0))
 
     def neighbor_sum(self, x, y, i):
+        anti_alias = 0.8
         px = self.pixels
         sum = 0
         if x>0:
@@ -33,19 +34,19 @@ class Pulsar(Base):
             sum += px[y*8 + (x-1)][i]
             if y>0:
                 #top-left
-                sum += px[(y-1)*8 + (x-1)][i]
+                sum += anti_alias*px[(y-1)*8 + (x-1)][i]
             if y<7:
                 #bottom-left
-                sum += px[(y+1)*8 + (x-1)][i]
+                sum += anti_alias*px[(y+1)*8 + (x-1)][i]
         if x<7:
             #middle-right
             sum += px[y*8 + (x+1)][i]
             if y>0:
                 #top-right
-                sum += px[(y-1)*8 + (x+1)][i]
+                sum += anti_alias*px[(y-1)*8 + (x+1)][i]
             if y<7:
                 #bottom-right
-                sum += px[(y+1)*8 + (x+1)][i]
+                sum += anti_alias*px[(y+1)*8 + (x+1)][i]
 
         if y>0:
             #top-middle
@@ -87,13 +88,13 @@ class Pulsar(Base):
                                     self.max_value*random.random())
 
         elif (next_time - self.last_time) > (0.5*reset_time) :
-             self.wave_toggle = -0.4
+             self.wave_toggle = -0.2
 
 
         #propagate the blossoms
         self_decay = 0.9;
         wave_decay = 0.5;
-        max = self.max_value
+        max = 0.8*self.max_value
 
 
         # for the
