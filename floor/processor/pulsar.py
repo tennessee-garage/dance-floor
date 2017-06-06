@@ -71,7 +71,7 @@ class Pulsar(Base):
                     next_pixels.append((0, 0, 0))
 
             #instead of picking random count and indexes, these could be the current highest weights
-            #count: make 3-5 sources for the new blossoms
+            #count: make 1-4 sources for the new blossoms
             count = randint(1,5)
             for i in range(0, count):
                 #index: pick a random square for the source
@@ -81,6 +81,7 @@ class Pulsar(Base):
                                     self.max_value*random.random(),
                                     self.max_value*random.random())
 
+        # after a certain amount of time, toggle wave direction and make it recede, but weakly
         elif (next_time - self.last_time) > (0.5*reset_time) :
              self.wave_toggle = -0.2
 
@@ -89,7 +90,6 @@ class Pulsar(Base):
         self_decay = 0.9;
         wave_decay = 0.5;
         max = 0.8*self.max_value
-
 
         # for the
         for y in range(0, 8):
