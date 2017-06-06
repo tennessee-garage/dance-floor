@@ -11,14 +11,8 @@ def create():
 class Pulsar(Base):
     def __init__(self):
         super(Pulsar, self).__init__()
-        self.red = 0
-        self.green = 0
-        self.blue = 0
         self.pixels = []
-        self.last_drop = -1
-
         self.wave_toggle = 1
-
         self.last_time = time.time()
 
         for x in range(0, 8):
@@ -26,7 +20,7 @@ class Pulsar(Base):
                 self.pixels.append((0, 0, 0))
 
     def neighbor_sum(self, x, y, i):
-        anti_alias = 0.8
+        anti_alias = 0.7
         px = self.pixels
         sum = 0
         if x>0:
