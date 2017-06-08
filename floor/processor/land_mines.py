@@ -5,6 +5,8 @@ from random import randint
 import time
 import math
 
+life_time = 4
+
 def create():
     return LandMines()
 
@@ -43,7 +45,7 @@ class LandMines(Base):
         return walker
 
     def build_mine(self, x, y):
-        t = 1.5
+        t = life_time
         color = [0,0,0]
         color[0] = randint(0, 1)*self.max_value
         color[1] = randint(0, 1)*self.max_value
@@ -58,10 +60,9 @@ class LandMines(Base):
     # 3. If delta_time > life_time, remove mine
     def get_next_frame(self, weights):
         next_time = time.time()
-        life_time = 1.5
 
         chance = random.random()
-        if chance > 0.85:
+        if chance > 0.9:
             walker = self.get_walker()
             x = walker['x']
             y = walker['y']
@@ -70,7 +71,7 @@ class LandMines(Base):
             self.pixels[mine['y']*8 + mine['x']] = mine['color']
 
         time_delta = 0.1
-        velocity = 0.005 * self.max_value
+        velocity = 0.0003 * self.max_value
         live_mines = []
         for index in xrange(len(self.mines)):
             mine = self.mines[index]
