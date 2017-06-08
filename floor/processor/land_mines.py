@@ -42,12 +42,7 @@ class LandMines(Base):
             walker['y'] = 7
         return walker
 
-    def build_mine(self):
-        #x = randint(0,7)
-        #y = randint(0,7)
-        walker = self.get_walker()
-        x = walker['x']
-        y = walker['y']
+    def build_mine(self, x, y):
         t = 1.5
         color = [0,0,0]
         color[0] = randint(0, 1)*self.max_value
@@ -67,7 +62,10 @@ class LandMines(Base):
 
         chance = random.random()
         if chance > 0.85:
-            mine = self.build_mine()
+            walker = self.get_walker()
+            x = walker['x']
+            y = walker['y']
+            mine = self.build_mine(x, y)
             self.mines.append(mine)
             self.pixels[mine['y']*8 + mine['x']] = mine['color']
 
