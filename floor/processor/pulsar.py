@@ -20,7 +20,8 @@ class Pulsar(Base):
                 self.pixels.append((0, 0, 0))
 
     def neighbor_sum(self, x, y, i):
-        anti_alias = 0.7
+        #anti_alias < 1 will round corners. leaving it at 1 for now, the rectangle patterns are nice
+        anti_alias = 1.0
         px = self.pixels
         sum = 0
         if x>0:
@@ -56,7 +57,6 @@ class Pulsar(Base):
         return sum
 
     def get_next_frame(self, weights):
-        next_pixels = []
         next_time = time.time()
 
         #reset_time could be beat driven
@@ -66,9 +66,10 @@ class Pulsar(Base):
         if next_time - self.last_time > reset_time:
             self.last_time = next_time
             self.wave_toggle = 1
+            self.pixels = []
             for y in range(0, 8):
                 for x in range(0, 8):
-                    next_pixels.append((0, 0, 0))
+                    self.pixels.append((0, 0, 0))
 
             #instead of picking random count and indexes, these could be the current highest weights
             #count: make 1-4 sources for the new blossoms
@@ -76,7 +77,7 @@ class Pulsar(Base):
             for i in range(0, count):
                 #index: pick a random square for the source
                 index = randint(0, 63)
-                next_pixels[index] = (
+                self.pixels[index] = (
                                     self.max_value*random.random(),
                                     self.max_value*random.random(),
                                     self.max_value*random.random())
@@ -91,7 +92,7 @@ class Pulsar(Base):
         wave_decay = 0.5;
         max = 0.8*self.max_value
 
-        # for the
+        next_pixels = []
         for y in range(0, 8):
             for x in range(0, 8):
                 last_pixel = self.pixels[y*8 + x];
