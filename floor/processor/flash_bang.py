@@ -4,10 +4,10 @@ import math
 
 
 def create():
-    return Sparkler()
+    return FlashBang()
 
 
-class Sparkler(Base):
+class FlashBang(Base):
 
     # Random range for how long the main burst lasts
     BURST_DECAY_MAX = 0.95
@@ -26,7 +26,7 @@ class Sparkler(Base):
     SPARKLE_SPACING = 5
 
     def __init__(self):
-        super(Sparkler, self).__init__()
+        super(FlashBang, self).__init__()
         self.burst_pixels = []
         self.sparkles = []
 
