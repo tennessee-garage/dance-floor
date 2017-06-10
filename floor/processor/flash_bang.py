@@ -136,6 +136,9 @@ class FlashBang(Base):
                     and (self.sparkles[x] % self.SPARKLE_SPACING == 0):
                 pixels[x] = [self.burst_blue, self.burst_red, self.burst_green]
             self.sparkles[x] += 1
+            self.burst_blue *= .9995
+            self.burst_red *= .9995
+            self.burst_green *= .9995
 
     @staticmethod
     def inverse_square(x, y, center_x, center_y):
