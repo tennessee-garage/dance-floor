@@ -57,11 +57,34 @@ class Pulsar(Base):
 
         return sum
 
+    def handle_weight_input(self, weights):
+        # Weight values are either 0 or 1.  If 1 consider it a step and add a pixel
+        for i in range(0, 64):
+            if weights[i] > 0:
+                self.pixels[i] = (
+                    self.max_value * random.random(),
+                    self.max_value * random.random(),
+                    self.max_value * random.random())
+
+    def random_weight_input(self):
+        count = randint(1, 5)
+        for i in range(0, count):
+            # index: pick a random square for the source
+            index = randint(0, 63)
+            self.pixels[index] = (
+                self.max_value*random.random(),
+                self.max_value*random.random(),
+                self.max_value*random.random()
+            )
+
     def get_next_frame(self, weights):
         next_time = time.time()
 
         # reset_time could be beat driven
         reset_time = 1.2
+
+        # Read from weight input
+        self.handle_weight_input(weights)
 
         # whenever we hit the reset time, wipe the board and choose more sources
         if next_time - self.last_time > reset_time:
@@ -73,16 +96,8 @@ class Pulsar(Base):
                 for x in range(0, 8):
                     self.pixels.append((0, 0, 0))
 
-            # instead of picking random count and indexes, these could be the current highest weights
-            # count: make 1-4 sources for the new blossoms
-            count = randint(1, 5)
-            for i in range(0, count):
-                # index: pick a random square for the source
-                index = randint(0, 63)
-                self.pixels[index] = (
-                                    self.max_value*random.random(),
-                                    self.max_value*random.random(),
-                                    self.max_value*random.random())
+             # Uncomment to have random weight inputs
+#            self.random_weight_input()
 
         # after a certain amount of time, toggle wave direction and make it recede, but weakly
         elif (next_time - self.last_time) > (0.5*reset_time):

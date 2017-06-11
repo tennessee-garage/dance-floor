@@ -4,8 +4,8 @@ import importlib
 
 class Raspberry(Base):
 
-    def __init__(self):
-        super(Raspberry, self).__init__()
+    def __init__(self, args):
+        super(Raspberry, self).__init__(args)
 
         module = importlib.import_module("spidev")
 

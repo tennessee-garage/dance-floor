@@ -4,9 +4,10 @@ class Base(object):
 
     MAX_LED_VALUE = 1023
 
-    def __init__(self):
+    def __init__(self, driver_args):
         self.weights = []
         self.leds = []
+        self.args = driver_args
 
     def get_weights(self):
         """

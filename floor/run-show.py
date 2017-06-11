@@ -14,10 +14,25 @@ parser.add_argument(
     default='raver_plaid',
     help='Sets the LED processor to generate each frame of light data'
 )
+parser.add_argument(
+    '--no-opc-input',
+    dest='opc_input',
+    action='store_false',
+    help='Turn off keyboard input handling'
+)
+parser.add_argument(
+    '--opc-input',
+    dest='opc_input',
+    action='store_true',
+    help='Turn on keyboard input handling'
+)
+parser.set_defaults(opc_input=True)
 args = parser.parse_args()
 
 show = Controller()
-show.set_driver(args.driver_name)
+show.set_driver(args.driver_name, {
+    "opc_input": args.opc_input
+})
 show.set_processor(args.processor_name)
 
 show.run()
