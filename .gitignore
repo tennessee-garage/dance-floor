@@ -49,3 +49,6 @@ cmake-build-debug/
 # Debug files
 *.dSYM/
 *.su
+
+# macOS stuff
+.DS_Store
