@@ -1,4 +1,3 @@
-import select
 
 
 def getch():
