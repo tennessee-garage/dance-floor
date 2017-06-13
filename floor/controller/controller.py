@@ -32,7 +32,7 @@ class Controller(object):
 
         self.processor = module.create()
 
-    def set_driver(self, driver_name):
+    def set_driver(self, driver_name, driver_args):
 
         try:
             module = importlib.import_module("driver.{}".format(driver_name))
@@ -40,8 +40,7 @@ class Controller(object):
             print "Error: Driver '{}' does not exist or could not be loaded".format(driver_name)
             sys.exit(0)
 
-        self.driver = getattr(module, driver_name.title())()
-        self.driver.test_support()
+        self.driver = getattr(module, driver_name.title())(driver_args)
 
     def run(self):
         # Make sure the processor is limited to the bit depth of the driver
