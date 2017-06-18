@@ -52,3 +52,9 @@ cmake-build-debug/
 
 # macOS stuff
 .DS_Store
+
+# Eagle
+*.b$*
+*.b#*
+*.s$*
+*.s#*
