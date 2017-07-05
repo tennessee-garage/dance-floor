@@ -58,3 +58,5 @@ cmake-build-debug/
 *.b#*
 *.s$*
 *.s#*
+*.brd.lck
+*.sch.lck
