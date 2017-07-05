@@ -130,23 +130,25 @@ void init_spi(void) {
     CLEAR_OVERFLOW();
 }
 
-void set_red(uint16_t val) {
+void set_blue(uint16_t val) {
     TC1H = val >> 8;
     OCR1D = val & 0x0FF;
 }
 
-void set_green(uint16_t val) {
+void set_red(uint16_t val) {
     TC1H = val >> 8;
     OCR1A = val & 0x0FF;
 }
 
-void set_blue(uint16_t val) {
+void set_green(uint16_t val) {
     TC1H = val >> 8;
     OCR1B = val & 0x0FF;
 }
 
 void handle_spi(void) {
     uint8_t transferred = 0;
+    uint8_t val_in;
+    uint8_t val_out = buffer[head-3];
 
     // If we're selected
     while (IS_CHIP_SELECTED()) {
@@ -155,13 +157,17 @@ void handle_spi(void) {
         // Wait for bytes to be read in, at which point overflow will trigger
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
 
-        // Write the value we got to the head of the fifo, and read the tail to sent forward
-        buffer[head] = USIDR;
-        USIDR = buffer[head-3];
+        // Read the value we got in and immediately write out the value we want to send forward
+        val_in = USIDR;
+        USIDR = val_out;
+        CLEAR_OVERFLOW();
 
+        // Write the value we got to the head of the fifo
+        buffer[head] = val_in;
         head++;
 
-        CLEAR_OVERFLOW();
+        // Set the value we'll output on the next round
+        val_out = buffer[head-3];
     }
 
     // If we didn't just transfer some bytes, don't decode and set LEDs
