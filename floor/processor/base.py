@@ -10,6 +10,12 @@ class Base(object):
         self.weights = []
         self.max_value = self.DEFAULT_MAX_VALUE
 
+    # accept (x,y) tuple reflecting a coordinate
+    # return the array index suitable for use in weights or pixels arrays
+    def idx(self,pixel):
+        (x,y) = pixel
+        return (x * SELF.FLOOR_WIDTH) + y
+
     def set_max_value(self, max_value):
         self.max_value = max_value
 
