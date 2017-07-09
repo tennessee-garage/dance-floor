@@ -3,6 +3,8 @@
 class Base(object):
 
     DEFAULT_MAX_VALUE = 1024
+    FLOOR_WIDTH = 8
+    FLOOR_HEIGHT = 8
 
     def __init__(self):
         self.weights = []
