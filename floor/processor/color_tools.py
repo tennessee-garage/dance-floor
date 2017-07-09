@@ -31,5 +31,4 @@ def get_palette(name, max_value):
 def get_random_palette(max_value):
     idx = random.randint(0, palletes_length-1)
     name = palette_keys[idx]
-    print idx, name
     return get_palette(name, max)
