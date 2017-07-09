@@ -1,5 +1,5 @@
 from base import Base
-
+import datetime
 
 def create():
     # Simply return a new instance of your class here
@@ -7,7 +7,7 @@ def create():
 
 class Life(Base):
 
-    CYCLE_DURATION = 5
+    BPM = 94
 
     def __init__(self):
         super(Life, self).__init__()
@@ -16,7 +16,8 @@ class Life(Base):
         self.active_px = self.init_frame(False)
 
         # used to track when to update the lifecycle
-        self.countdown = self.CYCLE_DURATION
+        self.last_update = datetime.datetime.now()
+        self.cycle_duration = 60000000 / self.BPM / 2
 
         ## add a "blinker" organism to the floor
         on = [(1,1), (1,2), (1,3)]
@@ -76,9 +77,9 @@ class Life(Base):
 
     def get_next_frame(self, weights):
         # update_active_px with lifecycle
-        self.countdown -= 1
-        if (self.countdown == 0):
-            self.countdown = self.CYCLE_DURATION
+        delta = datetime.datetime.now() - self.last_update
+        if (delta.microseconds > self.cycle_duration):
+            self.last_update = datetime.datetime.now()
             self.active_px = self.conway_cycle_board(self.active_px)
 
         # update active_px from weights
