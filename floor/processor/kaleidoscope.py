@@ -16,8 +16,8 @@ class Kaleidoscope(Base):
         super(Kaleidoscope, self).__init__()
         self.active_px = []
         self.times = []
-        # self.palette = color.get_random_palette(self.max_value)
-        self.palette = color.get_palette('rainbow_bunny', self.max_value)
+        self.palette = color.get_random_palette(self.max_value)
+        # self.palette = color.get_palette('rainbow_bunny', self.max_value)
         self.palette_length = len(self.palette)
 
         for x in range(0, 64):
