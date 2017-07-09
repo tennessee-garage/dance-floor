@@ -14,7 +14,7 @@ class Base(object):
     # return the array index suitable for use in weights or pixels arrays
     def idx(self,pixel):
         (x,y) = pixel
-        return (x * SELF.FLOOR_WIDTH) + y
+        return (x * self.FLOOR_WIDTH) + y
 
     def set_max_value(self, max_value):
         self.max_value = max_value
