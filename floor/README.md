@@ -28,6 +28,11 @@ There is a test mode of this code that allows running and debugging from a compu
 ```bash
 git clone https://github.com/zestyping/openpixelcontrol.git
 ```
+or use JB's fork, where lights are rendered as squares instead of points:
+```bash
+https://github.com/jbrecht/openpixelcontrol.git
+```
+
 2. Follow the [QuickStart guide](https://github.com/zestyping/openpixelcontrol#quickstart-simulator) for OpenPixelControl setup and testing
 3. Clone this repository
 ```bash
