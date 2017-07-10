@@ -24,14 +24,14 @@ class Kaleidoscope(Base):
             self.active_px.append((0, 0, 0))
             self.times.append(0)
 
-
     def handle_weight_input(self, weights):
         # Weight values are either 0 or 1.  If 1 consider it a step and add a pixel
         for i in range(0, 64):
-            if weights[i] > 0 and self.times[i]==0:
+            if weights[i] > 0 and self.times[i] == 0:
                 col = random.randint(0, self.palette_length-1)
                 self.active_px[i] = self.palette[col]
                 self.times[i] = time.time()
+
     def init_frame(self):
         frame = []
         for x in range(0, 64):
@@ -50,7 +50,7 @@ class Kaleidoscope(Base):
                 index = y*8 + x
                 if self.times[index] > 0:
                     age_scale = 1 - (t - self.times[index])/self.LIFETIME
-                    if age_scale <0:
+                    if age_scale < 0:
                         self.times[index] = 0
                     else:
                         next_pixel = color.scale_color(self.active_px[index], age_scale)

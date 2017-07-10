@@ -21,7 +21,7 @@ class Pulsar(Base):
                 self.pixels.append((0, 0, 0))
 
     def neighbor_sum(self, x, y, i):
-        #anti_alias < 1 will round corners. leaving it at 1 for now, the rectangle patterns are nice
+        # anti_alias < 1 will round corners. leaving it at 1 for now, the rectangle patterns are nice
         anti_alias = 1.0
         px = self.pixels
         sum = 0
@@ -96,7 +96,7 @@ class Pulsar(Base):
                 for x in range(0, 8):
                     self.pixels.append((0, 0, 0))
 
-             # Uncomment to have random weight inputs
+            # Uncomment to have random weight inputs
 #            self.random_weight_input()
 
         # after a certain amount of time, toggle wave direction and make it recede, but weakly

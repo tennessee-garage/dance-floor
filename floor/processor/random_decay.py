@@ -1,6 +1,7 @@
 from base import Base
 import random
 
+
 def create(args=None):
     return RandomDecay()
 
@@ -11,7 +12,7 @@ class RandomDecay(Base):
         self.red = 0
         self.green = 0
         self.blue = 0
-        self.pixels = [];
+        self.pixels = []
 
         for x in range(0, 8):
             for y in range(0, 8):

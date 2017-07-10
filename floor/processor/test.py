@@ -1,7 +1,7 @@
 from base import Base
 
 
-def create():
+def create(args=None):
     # Simply return a new instance of your class here
     return Test()
 
@@ -15,7 +15,7 @@ class Test(Base):
         super(Test, self).__init__()
 
         # helpful colors
-        dark = (0,0,0)
+        dark = (0, 0, 0)
         red = (self.DEFAULT_MAX_VALUE, 0, 0)
         blue = (0, self.DEFAULT_MAX_VALUE, 0)
         green = (0, 0, self.DEFAULT_MAX_VALUE)
@@ -37,7 +37,7 @@ class Test(Base):
         })
 
         # cycles for individual squares
-        for c in ["red","blue","green"]:
+        for c in ["red", "blue", "green"]:
             for i in range(0, (self.FLOOR_WIDTH * self.FLOOR_HEIGHT)):
                 floor = self.init_floor(dark)
                 floor[i] = eval(c)
@@ -49,8 +49,6 @@ class Test(Base):
         self.current_cycle = 0
         self.countdown = self.cycles[0]['duration']
 
-
-
     def init_floor(self, initial_value):
         frame = []
         for x in range(0, (self.FLOOR_WIDTH * self.FLOOR_HEIGHT)):
@@ -59,9 +57,9 @@ class Test(Base):
 
     def get_next_frame(self, weights):
         self.countdown -= 1
-        if (self.countdown == 0):
+        if self.countdown == 0:
             self.current_cycle += 1
-            if (self.current_cycle > len(self.cycles) - 1):
+            if self.current_cycle > len(self.cycles) - 1:
                 self.current_cycle = 0
             self.countdown = self.cycles[self.current_cycle]['duration']
 
