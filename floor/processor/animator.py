@@ -2,17 +2,23 @@ from base import Base
 import importlib
 
 
-def create():
-    return Animator()
+def create(args=None):
+    return Animator(args)
 
 
 class Animator(Base):
 
-    DEFAULT_ANIMATION = "Pac Man"
+    DEFAULT_ANIMATION = "gods_eye"
 
-    def __init__(self):
+    def __init__(self, args=None):
         super(Animator, self).__init__()
-        module = importlib.import_module("processor.animations.{}".format(self.DEFAULT_ANIMATION))
+
+        if "animation" in args:
+            animation = args["animation"]
+        else:
+            animation = self.DEFAULT_ANIMATION
+
+        module = importlib.import_module("processor.animations.{}".format(animation))
         self.animation = module.anim()
         self.floor_frame = 0
         self.animation_frame = 0

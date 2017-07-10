@@ -4,7 +4,7 @@ import time
 import random
 import math
 
-def create():
+def create(args=None):
     return Kaleidoscope()
 
 

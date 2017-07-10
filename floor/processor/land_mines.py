@@ -7,7 +7,7 @@ import math
 
 life_time = 4
 
-def create():
+def create(args=None):
     return LandMines()
 
 

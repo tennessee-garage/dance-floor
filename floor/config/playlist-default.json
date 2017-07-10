@@ -1,0 +1,60 @@
+{
+  "queue": [
+    {
+      "name": "animator",
+      "duration": "5",
+      "args": {
+        "animation": "Color train"
+      }
+    },
+    {
+      "name": "message",
+      "duration": "5",
+      "args": {
+        "text": "Bleep bloop fazz!"
+      }
+    },
+    {
+      "name": "animator",
+      "duration": "5",
+      "args": {
+        "animation": "radiating"
+      }
+    },
+    {
+      "name": "flash_bang",
+      "duration": "5"
+    },
+    {
+      "name": "kaleidoscope",
+      "duration": "5"
+    },
+    {
+      "name": "land_mines",
+      "duration": "5"
+    },
+    {
+      "name": "life",
+      "duration": "5"
+    },
+    {
+      "name": "message",
+      "duration": "5",
+      "args": {
+        "text": "Dance, dance, dance!"
+      }
+    },
+    {
+      "name": "pulsar",
+      "duration": "5"
+    },
+    {
+      "name": "random_decay",
+      "duration": "5"
+    },
+    {
+      "name": "raver_plaid",
+      "duration": "5"
+    }
+  ]
+}

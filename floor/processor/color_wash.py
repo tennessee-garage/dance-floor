@@ -1,7 +1,7 @@
 from base import Base
 
 
-def create():
+def create(args=None):
     return ColorWash()
 
 

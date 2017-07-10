@@ -4,8 +4,8 @@ import colorsys
 import importlib
 
 
-def create():
-    return Message()
+def create(args=None):
+    return Message(args)
 
 
 class Message(Base):
@@ -21,7 +21,7 @@ class Message(Base):
     # Default message to show if messages file is empty or missing
     DEFAULT_MESSAGE = "Burn baby burn, Disco Inferno"
 
-    def __init__(self):
+    def __init__(self, args=None):
         super(Message, self).__init__()
 
         font_module = importlib.import_module("processor.fonts.{}".format(self.DEFAULT_FONT))
@@ -47,7 +47,13 @@ class Message(Base):
         # How fast to scroll in pixels per frame
         self.speed = 0.5
 
-        self.load_messages()
+        if "text" in args:
+            # Load a single message from the args
+            self.messages.append(args["text"])
+        else:
+            # Load a list of messages from the messages file
+            self.load_messages()
+
         self.load_next_wall()
 
     def load_messages(self):

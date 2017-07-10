@@ -6,9 +6,10 @@ class Base(object):
     FLOOR_WIDTH = 8
     FLOOR_HEIGHT = 8
 
-    def __init__(self):
+    def __init__(self, args=dict):
         self.weights = []
         self.max_value = self.DEFAULT_MAX_VALUE
+        self.args = args
 
     # accept (x,y) tuple reflecting a coordinate
     # return the array index suitable for use in weights or pixels arrays

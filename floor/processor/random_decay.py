@@ -1,7 +1,7 @@
 from base import Base
 import random
 
-def create():
+def create(args=None):
     return RandomDecay()
 
 

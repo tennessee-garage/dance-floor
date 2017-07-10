@@ -5,7 +5,7 @@ import time
 import math
 
 
-def create():
+def create(args=None):
     return RaverPlaid()
 
 

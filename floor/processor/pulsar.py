@@ -5,7 +5,7 @@ from random import randint
 import time
 
 
-def create():
+def create(args=None):
     return Pulsar()
 
 

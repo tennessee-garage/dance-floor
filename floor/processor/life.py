@@ -1,7 +1,7 @@
 from base import Base
 import datetime
 
-def create():
+def create(args=None):
     # Simply return a new instance of your class here
     return Life()
 
