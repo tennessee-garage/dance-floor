@@ -1,8 +1,8 @@
 from base import Base
-import color_tools as color
+import util.color_utils as color
 import time
 import random
-import math
+
 
 def create(args=None):
     return Kaleidoscope()
