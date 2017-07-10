@@ -40,7 +40,7 @@
 // Hold the data being piped through the squares
 uint8_t buffer[DATA_BYTES * MAX_PACKETS];
 // Keep track of where we're at in the buffer
-uint8_t head;
+uint16_t head;
 
 void init_avr() {
     // wait a little before starting setup
@@ -148,6 +148,9 @@ void set_green(uint16_t val) {
 void handle_spi(void) {
     uint8_t transferred = 0;
     uint8_t val_in;
+
+    // When we enter this method USIDR already has buffer[head-4] loaded.  When we
+    // write out val_out it will be for the next byte, which is buffer[head+1-4] or buffer[head-3]
     uint8_t val_out = buffer[head-3];
 
     // If we're selected
@@ -166,7 +169,8 @@ void handle_spi(void) {
         buffer[head] = val_in;
         head++;
 
-        // Set the value we'll output on the next round
+        // Set the value we'll output on the next round.  Now that head has been incremented, the
+        // value in USIDR is buffer[head-4].  To ready the next value we grab buffer[head+1-4]
         val_out = buffer[head-3];
     }
 
