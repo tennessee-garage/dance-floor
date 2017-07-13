@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>dance floor devserver</title>
+<style>
+body {
+  color: #ccc;
+  background: #000;
+}
+.pixel {
+  width: 48px;
+  height: 48px;
+  padding: 2px;
+  display: inline-block;
+  border: 1px solid #222;
+}
+</style>
+</head>
+<body>
+
+<h1>Let's Dance!</h1>
+
+<div id="dance-floor">
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+  <div class="row">
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+    <div class="pixel"></div>
+  </div>
+</div>
+
+<script>
+  function updatePixels(pixelData) {
+    var pixelElements = document.getElementsByClassName('pixel');
+    for (var i = 0; i < pixelElements.length; i++) {
+      var element = pixelElements[i];
+      var rgb = pixelData[i];
+
+      element.style.background = 'rgb(' + rgb[0] + ', ' + rgb[1] +', ' + rgb[2] + ')';
+    }
+  }
+  var socket = new WebSocket("ws://localhost:1980");
+  socket.onmessage = function(event) {
+    var message = JSON.parse(event.data);
+    console.log('Websocket message: ', message);
+    updatePixels(message.payload);
+  };
+</script>
+
+</body>
