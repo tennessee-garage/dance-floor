@@ -102,9 +102,11 @@ class Devserver(Base):
         print 'Serving on http://localhost:1979/'
 
     def send_data(self):
+        # Ensure all RGB values are integral.
+        leds = [map(int, pixel) for pixel in self.leds]
         message = {
             "event": "leds",
-            "payload": self.leds,
+            "payload": leds,
         }
         FloorWebsocketHandler.broadcast(message)
 
