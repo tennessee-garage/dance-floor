@@ -112,12 +112,34 @@ body {
       element.style.background = 'rgb(' + rgb[0] + ', ' + rgb[1] +', ' + rgb[2] + ')';
     }
   }
+
+  function installTouchHandlers(socket) {
+    var createHandler = function (pixelId) {
+      return function() {
+        var message = {
+          event: 'click',
+          payload: {
+            pixel: pixelId
+          }
+        };
+        socket.send(JSON.stringify(message));
+      }
+    };
+
+    var pixelElements = document.getElementsByClassName('pixel');
+    for (var i = 0; i < pixelElements.length; i++) {
+      var element = pixelElements[i];
+      element.addEventListener('click', createHandler(i));
+    }
+  }
+
   var socket = new WebSocket("ws://localhost:1980");
   socket.onmessage = function(event) {
     var message = JSON.parse(event.data);
-    console.log('Websocket message: ', message);
     updatePixels(message.payload);
   };
+
+  installTouchHandlers(socket);
 </script>
 
 </body>

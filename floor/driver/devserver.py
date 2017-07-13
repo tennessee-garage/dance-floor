@@ -24,14 +24,33 @@ class FloorWebsocketHandler(WebSocket):
     # Singleton set of connected websocket clients.
     WEBSOCKET_CLIENTS = []
 
+    # Singleton set of weights.
+    WEIGHTS = [0] * 64
+
     @classmethod
-    def broadcast(self, message):
+    def broadcast(cls, message):
         for client in FloorWebsocketHandler.WEBSOCKET_CLIENTS:
             client.sendMessage(unicode(json.dumps(message)))
 
+    @classmethod
+    def getAndClearWeights(cls):
+        ret = cls.WEIGHTS
+        cls.WEIGHTS = [0] * 64
+        return ret
+
     def handleMessage(self):
-        # TODO(mikey): Handle incoming websocket messages to set weights.
-        pass
+        try:
+            event = json.loads(self.data)
+        except ValueError:
+            print('bad client message: ', self.data)
+            return
+
+        event_type = event.get('event')
+        if event_type == 'click':
+            pixel_id = event['payload']['pixel']
+            FloorWebsocketHandler.WEIGHTS[pixel_id] = 1
+        else:
+            print('unknown client event: {}'.format(event_type))
 
     def handleConnected(self):
         print('>>> WebSocket connected: {}'.format(self.address))
@@ -71,6 +90,8 @@ class Devserver(Base):
         SocketServer.TCPServer.allow_reuse_address = True
         self.web_server = SocketServer.TCPServer(("", 1979), WebserverHandler)
 
+        self.weights = [0] * 64
+
         self.websocket_thread = threading.Thread(target=self.websocket_server.serveforever)
         self.websocket_thread.daemon = True
         self.websocket_thread.start()
@@ -91,5 +112,4 @@ class Devserver(Base):
         pass
 
     def get_weights(self):
-        weights = [0] * 64
-        return weights
+        return FloorWebsocketHandler.getAndClearWeights()
