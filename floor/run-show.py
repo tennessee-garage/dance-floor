@@ -2,6 +2,9 @@ from controller import Controller
 from controller import Playlist
 import argparse
 import os
+import logging
+
+LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 
 def main():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
@@ -29,8 +32,17 @@ def main():
         action='store_true',
         help='Turn on keyboard input handling'
     )
+    parser.add_argument(
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        help='Enable verbose logging'
+    )
     parser.set_defaults(opc_input=True)
     args = parser.parse_args()
+
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     config_dir = get_config_dir()
     playlist = Playlist(config_dir, args.processor_name)
