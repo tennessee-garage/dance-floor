@@ -12,6 +12,9 @@
     body {
       padding-top: 50px;
     }
+    .btn:focus,.btn:active {
+      outline: none !important;
+    }
   </style>
 
 </head>
@@ -47,6 +50,7 @@
     <h2>Control Panel</h2>
     <div id="playlist">
       <button class="btn btn-default btn-block" id="next-button">Next</button>
+      <button class="btn btn-default btn-block" id="stay-button">Stay Put!</button>
     </div>
   </div>
 
@@ -108,9 +112,22 @@
     });
   }
 
+  function stay() {
+    return axios.post('/api/playlist/stay').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
   function installListeners() {
     $('#next-button').click(function () {
       advance();
+    });
+    $('#stay-button').click(function () {
+      stay();
     });
   }
 

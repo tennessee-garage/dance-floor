@@ -101,3 +101,5 @@ class Playlist(object):
             # Position was ahead of current.
             pass
 
+    def stay(self):
+        self.next_advance = None

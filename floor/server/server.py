@@ -60,6 +60,12 @@ def api_playlist_add():
 
     return jsonify(view_playlist(playlist))
 
+@app.route('/api/playlist/stay', methods=['POST'])
+def api_playlist_stay():
+    playlist = app.controller.playlist
+    app.controller.playlist.stay()
+    return jsonify(view_playlist(playlist))
+
 @app.route('/api/playlist/<int:position>', methods=['GET', 'DELETE'])
 def api_playlist_position(position):
     playlist = app.controller.playlist

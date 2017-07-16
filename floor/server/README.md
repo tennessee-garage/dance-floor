@@ -89,6 +89,19 @@ Adds a new item to the playlist, at the end of the playlist.
 The playlist object upon success; HTTP `400` on error.
 
 
+### `POST /api/playlist/stay`
+
+Cancel any auto-advance timeout on the current playlist item ("stay" on this processor).
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The playlist object.
+
+
 ### `DELETE /api/playlist/:position`
 
 Remove the playlist item at position `position`.
