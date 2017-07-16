@@ -1,0 +1,128 @@
+<html>
+<head>
+  <title>Dance!</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" />
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.css" /> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.js"></script>
+
+  <style>
+    body {
+      padding-top: 50px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Dance Floor</a>
+    </div>
+    <div id="navbar" class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Home</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>
+
+<div class="container">
+  <div class="col-sm-6">
+    <h2>Now Playing</h2>
+    <div id="playlist"></div>
+  </div>
+
+  <div class="col-sm-6">
+    <h2>Control Panel</h2>
+    <div id="playlist">
+      <button class="btn btn-default btn-block" id="next-button">Next</button>
+    </div>
+  </div>
+
+</div><!-- /.container -->
+
+<script>
+  var refreshHandle;
+
+  function handlePlaylistUpdate(playlist) {
+    console.log('Playlist:', playlist);
+
+    var playlistDiv = document.getElementById('playlist');
+    var listGroup = document.createElement('ul');
+    listGroup.className = 'list-group';
+
+    for (var i = 0; i < playlist.queue.length; i++) {
+      var playlistItem = document.createElement('li');
+      var isActive = (i === playlist.current_position);
+
+      if (isActive) {
+        playlistItem.className = 'list-group-item active';
+      } else {
+        playlistItem.className = 'list-group-item';
+      }
+
+      playlistItem.innerHTML = playlist.queue[i].name;
+      if (isActive) {
+
+      }
+
+      listGroup.appendChild(playlistItem);
+    }
+
+    playlistDiv.innerHTML = '';
+    playlistDiv.appendChild(listGroup);
+  }
+
+  function handleError(error) {
+    console.error(error);
+  }
+
+  function getStatus() {
+    return axios.get('/api/playlist').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function advance() {
+    return axios.post('/api/playlist/advance').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function installListeners() {
+    $('#next-button').click(function () {
+      advance();
+    });
+  }
+
+  function rescheduleRefresh() {
+    if (refreshHandle) {
+      clearTimeout(refreshHandle);
+    }
+    refreshHandle = setTimeout(getStatus, 2000);
+  }
+
+  getStatus();
+  installListeners();
+</script>
+
+</body>
