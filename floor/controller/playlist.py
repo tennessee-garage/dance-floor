@@ -1,20 +1,18 @@
 import json
 from time import time
 import sys
+import logging
+
+logger = logging.getLogger('playlist')
 
 
 class Playlist(object):
 
     def __init__(self, config_dir='', processor=None):
         # The index into the queue array
-        self.position = -1
-        # When the current processor started
-        self.start_time = None
-        # The current processor entry
-        self.current = None
-        # The current duration
-        self.current_duration = None
-
+        self.position = 0
+        # Time when the playlist should auto advance.
+        self.next_advance = None
         self.queue = []
 
         # If a processor was passed in, use it, otherwise read the config file
@@ -52,17 +50,15 @@ class Playlist(object):
         self.queue.insert(self.position, Playlist.item(name, duration, args))
         return position
 
-    def next_ready(self):
-        # If we just started, we're ready for a new processor
-        if self.position == -1:
-            return True
+    def get_current(self):
+        """Get the current item, advancing if it's time to."""
+        if not self.queue:
+            return None
 
-        # A duration of zero means "forever".  If non-zero, check our run time
-        if self.current_duration > 0:
-            if (time() - self.start_time) > self.current_duration:
-                return True
+        if self.next_advance is not None and (time() > self.next_advance):
+            self.advance()
 
-        return False
+        return self.queue[self.position]
 
     def advance(self):
         """Go to the next playlist item."""
@@ -75,9 +71,14 @@ class Playlist(object):
         if position >= queue_length:
             raise ValueError('Position {} out of range ({})'.format(position, queue_length))
         self.position = position
-        self.current = self.queue[position]
-        self.current_duration = self.current["duration"]
-        self.start_time = time()
+
+        current = self.queue[self.position]
+        if current['duration']:
+            self.next_advance = time() + current['duration']
+        else:
+            self.next_advance = None
+
+        logger.info('Advanced to: {} (position={})'.format(current['name'], self.position))
 
     def remove(self, position):
         """Removes an item from the playlist. If removing the current item,
@@ -100,15 +101,3 @@ class Playlist(object):
             # Position was ahead of current.
             pass
 
-    def get_processor_name(self):
-        if not self.current:
-            return None
-        return self.current["name"]
-
-    def get_processor_args(self):
-        if not self.current:
-            return None
-        if "args" in self.current:
-            return self.current["args"]
-        else:
-            return None

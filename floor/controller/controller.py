@@ -24,6 +24,9 @@ class Controller(object):
         self.processors = {}
         self.load_processors()
 
+        self.current_processor = None
+        self.current_args = None
+
         self.set_fps(self.DEFAULT_FPS)
 
     def load_processors(self):
@@ -64,6 +67,8 @@ class Controller(object):
         Raises `ValueError` if processor is unknown.
         """
         self.processor = self.build_processor(processor_name, processor_args)
+        self.current_processor = processor_name
+        self.current_args = processor_args
 
     def build_processor(self, name, args=None):
         """Builds a processor instance."""
@@ -96,17 +101,20 @@ class Controller(object):
         self.frame_start = time.time()
 
     def check_playlist(self):
-        if self.playlist.next_ready():
-            self.playlist.advance()
-            logger.info('Loading processor {}'.format(self.playlist.get_processor_name()))
-            self.set_processor(
-                self.playlist.get_processor_name(),
-                self.playlist.get_processor_args()
-            )
+        item = self.playlist.get_current()
+        if not item:
+            return
+
+        processor, args = item['name'], item['args']
+        if processor and (processor, args) != (self.current_processor, self.current_args):
+            logger.debug('Loading processor {}'.format(processor))
+            self.set_processor(processor, args)
             # Make sure the processor is limited to the bit depth of the driver
             self.processor.set_max_value(self.driver.MAX_LED_VALUE)
 
     def generate_frame(self):
+        if not self.processor:
+            return
         leds = self.processor.get_next_frame(self.driver.get_weights())
         self.driver.set_leds(leds)
 
