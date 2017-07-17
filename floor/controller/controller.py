@@ -10,8 +10,8 @@ logger = logging.getLogger('controller')
 
 
 class Controller(object):
-
     DEFAULT_FPS = 24
+    DEFAULT_BPM = 120.0
 
     def __init__(self, playlist):
         self.playlist = playlist
@@ -28,6 +28,10 @@ class Controller(object):
         self.current_args = None
 
         self.set_fps(self.DEFAULT_FPS)
+
+        self.bpm = None
+        self.downbeat = None
+        self.set_bpm(self.DEFAULT_BPM)
 
     def load_processors(self):
         """Loads (or reloads) all processors."""
@@ -60,6 +64,13 @@ class Controller(object):
         self.fps = fps
         self.frame_seconds = 1.0/fps
 
+    def set_bpm(self, bpm, downbeat=None):
+        logger.info('Setting bpm to: {}'.format(bpm))
+        self.bpm = float(bpm)
+        self.downbeat = downbeat or time.time()
+        if self.processor:
+            self.processor.set_bpm(bpm, downbeat)
+
     def set_processor(self, processor_name, processor_args=None):
         """Sets the active processor, which must already be loaded into
         `self.processors`.
@@ -67,6 +78,7 @@ class Controller(object):
         Raises `ValueError` if processor is unknown.
         """
         self.processor = self.build_processor(processor_name, processor_args)
+        self.processor.set_bpm(self.bpm, self.downbeat)
         self.current_processor = processor_name
         self.current_args = processor_args
 

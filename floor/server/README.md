@@ -114,6 +114,36 @@ None.
 
 The playlist object upon success; HTTP `400` on error.
 
+
+### `GET /api/bpm`
+
+Get the current tempo settings.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The BPM information, consisting of:
+
+* `bpm` (number): Beats per minute.
+* `downbeat` (number): Timestamp in milliseconds of the downbeat.
+
+
+### `POST /api/bpm`
+
+Set the current tempo.
+
+**Request arguments**
+
+* `bpm` (number): Beats per minute, as a number
+
+**Response**
+
+The BPM information.
+
+
 ## TODO
 
 Some improvements which should be made:

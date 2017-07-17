@@ -78,6 +78,21 @@ def api_playlist_position(position):
     else:
         return jsonify(playlist.queue[position])
 
+@app.route('/api/bpm', methods=['GET', 'POST'])
+def api_bpm():
+    controller = app.controller
+    if request.method == 'POST':
+        content = request.get_json(silent=True)
+        bpm = float(content.get('bpm', 0))
+        if not bpm:
+            abort(400, 'Must give bpm.')
+        controller.set_bpm(bpm)
+
+    return jsonify({
+        'bpm': controller.bpm,
+        'downbeat_millis': int(controller.downbeat * 1000),
+    })
+
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):
     app.controller = controller
     thr = threading.Thread(target=app.run, kwargs={
