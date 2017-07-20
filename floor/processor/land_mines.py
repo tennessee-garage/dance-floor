@@ -1,4 +1,5 @@
 from base import Base
+import color_tools as color
 import random
 from random import randint
 
@@ -17,6 +18,8 @@ class LandMines(Base):
         self.pixels = []
         self.mines = []
         self.walkers = self.init_walkers()
+        self.palette = color.get_random_palette(self.max_value)
+        self.palette_length = len(self.palette)
         for x in range(0, 8):
             for y in range(0, 8):
                 self.pixels.append((0, 0, 0))
@@ -51,7 +54,8 @@ class LandMines(Base):
         color[1] = randint(0, 1)*self.max_value
         color[2] = randint(0, 1)*self.max_value
         color = tuple(color)
-        return {'x':x, 'y':y, 't':t, 'color':color}
+        idx = random.randint(0, self.palette_length-1)
+        return {'x':x, 'y':y, 't':t, 'color':self.palette[idx]}
 
 
     # For each mine in mines:
@@ -62,7 +66,7 @@ class LandMines(Base):
         next_time = time.time()
 
         chance = random.random()
-        if chance > 0.9:
+        if chance > 0.95:
             walker = self.get_walker()
             x = walker['x']
             y = walker['y']
