@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(spi-buffer)
 
-SET(MCU "atmega168pb")
+SET(MCU "atmega168")  # atmega168pb
 SET(F_CPU "8000000")
 SET(CMAKE_SYSTEM_NAME Generic)
 
