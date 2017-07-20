@@ -1,5 +1,5 @@
 from base import Base
-import color_tools as color
+import util.color_utils as color
 import random
 from random import randint
 import time
