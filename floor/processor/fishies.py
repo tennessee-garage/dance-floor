@@ -4,7 +4,7 @@ import random
 from random import randint
 import time
 
-def create():
+def create(args=None):
     return Fishies()
 
 
@@ -29,15 +29,10 @@ class Fishies(Base):
         fishies = []
         fishies.append({'x':0, 'y':0, 'dx':1, 'dy':1, 'c':self.palette[0]})
         fishies.append({'x':0, 'y':7, 'dx':-1, 'dy':-1, 'c':self.palette[1]})
-        fishies.append({'x':7, 'y':0, 'dx':-1, 'dy':1, 'c':self.palette[2]})
-        fishies.append({'x':7, 'y':7, 'dx':-1, 'dy':-1, 'c':self.palette[3]})
-        fishies.append({'x':3, 'y':3, 'dx':-1, 'dy':-1, 'c':self.palette[4]})
-        # fishies.append({'x':3, 'y':0, 'dx':-1, 'dy':-1, 'c':self.palette[0]})
-        # fishies.append({'x':0, 'y':3, 'dx':-1, 'dy':-1, 'c':self.palette[1]})
+        fishies.append({'x':7, 'y':0, 'dx':-1, 'dy':1, 'c':self.palette[3]})
+        fishies.append({'x':7, 'y':7, 'dx':-1, 'dy':-1, 'c':self.palette[4]})
+        # fishies.append({'x':3, 'y':3, 'dx':-1, 'dy':-1, 'c':self.palette[4]})
         return fishies
-
-    #def swim_away(epicenter):
-        #swim away from epicenter
 
     def swim(self, fish):
         #swim in a random direction
@@ -77,7 +72,7 @@ class Fishies(Base):
 
         for index in xrange(len(self.pixels)):
             px = self.pixels[index]
-            px = color.scale_color(px, 0.8)
+            px = color.scale_color(px, 0.7)
             self.pixels[index] = px
 
         return self.pixels
