@@ -1,6 +1,6 @@
 import time
 import threading
-from flask import Flask, jsonify, request, abort, render_template
+from flask import Flask, jsonify, request, abort, render_template, send_from_directory
 
 
 app = Flask('server')
@@ -8,6 +8,10 @@ app = Flask('server')
 @app.route('/')
 def main():
     return render_template('index.html')
+
+@app.route('/static/<path:path>')
+def static_assets(path):
+    return send_from_directory('static', path)
 
 def view_playlist(playlist):
     if playlist.next_advance is not None:
