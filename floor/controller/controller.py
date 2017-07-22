@@ -69,7 +69,7 @@ class Controller(object):
         self.bpm = float(bpm)
         self.downbeat = downbeat or time.time()
         if self.processor:
-            self.processor.set_bpm(bpm, downbeat)
+            self.processor.set_bpm(bpm, self.downbeat)
 
     def set_processor(self, processor_name, processor_args=None):
         """Sets the active processor, which must already be loaded into

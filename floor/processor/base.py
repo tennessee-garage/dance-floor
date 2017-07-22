@@ -38,5 +38,6 @@ class Base(object):
             downbeat: timestamp corresponding to the first beat of a new
                 measure.
         """
+        assert downbeat is not None
         self.bpm = bpm
         self.downbeat = downbeat
