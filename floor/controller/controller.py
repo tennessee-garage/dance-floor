@@ -1,7 +1,6 @@
 import time
 import sys
 import importlib
-import driver
 import processor
 
 
@@ -76,4 +75,5 @@ class Controller(object):
     def delay(self):
         elapsed = time.time() - self.frame_start
         if elapsed < self.frame_seconds:
+            # print "Remain: {}".format(self.frame_seconds - elapsed)
             time.sleep(self.frame_seconds - elapsed)
