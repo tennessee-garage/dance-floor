@@ -32,6 +32,14 @@ def view_tempo(bpm, downbeat):
         'downbeat_millis': int(downbeat * 1000)
     }
 
+@app.route('/api/status', methods=['GET'])
+def api_status():
+    result = {
+        'playlist': view_playlist(app.controller.playlist),
+        'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
+    }
+    return jsonify(result)
+
 @app.route('/api/playlist', methods=['GET'])
 def api_playlist():
     playlist = app.controller.playlist

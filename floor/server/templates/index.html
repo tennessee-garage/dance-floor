@@ -115,8 +115,10 @@
   }
 
   function getStatus() {
-    return axios.get('/api/playlist').then(function (response) {
-      handlePlaylistUpdate(response.data);
+    return axios.get('/api/status').then(function (response) {
+      var playlist = response.data.playlist;
+      handlePlaylistUpdate(response.data.playlist);
+      handleTempoUpdate(response.data.tempo);
       rescheduleRefresh();
     }).catch(function (error) {
       handleError(error);
@@ -229,6 +231,12 @@
 
   getStatus();
   installListeners();
+
+  // Quirk: Un-focus bootstrap buttons after click.
+  $(".btn").mouseup(function(){
+      $(this).blur();
+  });
+
 </script>
 
 </body>
