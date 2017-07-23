@@ -7,7 +7,8 @@
 #include "main.h"
 
 // define baud
-#define BAUD 9600
+//#define BAUD 9600
+#define BAUD 57600
 
 // set baud rate value for UBRR
 #define BAUD_RATE ((F_CPU/(16*BAUD))-1)
@@ -49,8 +50,8 @@ void init_avr() {
  */
 void init_uart() {
     // Set baud rate
-    UBRR0H = 103 >> 8; // BAUD_RATE >> 8;
-    UBRR0L = 0xFF & 103; // BAUD_RATE;
+    UBRR0H = 16 >> 8; // BAUD_RATE >> 8;
+    UBRR0L = 0xFF & 16; // BAUD_RATE;
 
     // Enable receiver and transmitter
     UCSR0B = _BV(TXEN0) | _BV(RXEN0);
