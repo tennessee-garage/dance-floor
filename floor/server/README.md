@@ -128,7 +128,7 @@ None.
 The BPM information, consisting of:
 
 * `bpm` (number): Beats per minute.
-* `downbeat` (number): Timestamp in milliseconds of the downbeat.
+* `downbeat_millis` (number): Timestamp in milliseconds of the downbeat.
 
 
 ### `POST /api/bpm`
@@ -144,11 +144,24 @@ Set the current tempo.
 The BPM information.
 
 
+### `POST /api/bpm/nudge`
+
+Shift the BPM, downbeat, or both by a relative amount
+
+**Request arguments**
+
+* `bpm_delta` (number; optional): Value to add to or subtract from the current bpm.
+* `downbeat_millis_delta` (number; optional): Value to add to or subtract from the current downbeat.
+
+**Response**
+
+The BPM information.
+
+
 ## TODO
 
 Some improvements which should be made:
 
-* Bundle JS dependencies for internet-free operation.
 * Use a wsgi server in "production".
 * Common error handling.
 * Threadsafety around `Playlist` actions.
