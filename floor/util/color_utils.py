@@ -58,7 +58,7 @@ def contrast(color, center, mult):
 def clip_black_by_luminance(color, threshold):
     """
     If the color's luminance is less than threshold, replace it with black.
-    
+
     color: an (r, g, b) tuple
     threshold: a float
 
@@ -126,7 +126,8 @@ palettes = {
     'druids': ['483c46', '3c6e71', '70ae6e', 'beee62', 'f4743b'],
     'autumn': ['8ea604', 'f5bb00', 'ec9f05', 'd76a03', 'bf3100'],
     'unicorns': ['dec5e3', 'cdedfd', 'b6dcfe', 'a9f8fb', '81f7e5'],
-    'linoleum': ['d33f49', 'd7c0d0', 'eff0d1', '77ba99', '806c89']
+    'linoleum': ['d33f49', 'd7c0d0', 'eff0d1', '77ba99', '806c89'],
+    'wedding1': ['f8aeaa', 'abaab2', 'f5927b']
 }
 palette_keys = palettes.keys()
 palettes_length = len(palette_keys)
