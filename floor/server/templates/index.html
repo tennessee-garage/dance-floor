@@ -1,0 +1,223 @@
+<html>
+<head>
+  <title>Dance!</title>
+
+  <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" />
+  <script src="/static/jquery-3.2.1.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/static/axios-0.16.2.min.js"></script>
+
+  <style>
+    body {
+      padding-top: 50px;
+    }
+    .btn:focus,.btn:active {
+      outline: none !important;
+    }
+    #tapper {
+      margin-top: 24px;
+      min-height: 128px;
+    }
+    #bpm-status {
+      font-style: italic;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Dance Floor</a>
+    </div>
+    <div id="navbar" class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Home</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+      <h2>Now Playing</h2>
+      <div id="playlist"></div>
+    </div>
+
+    <div class="col-sm-6">
+      <h2>Control Panel</h2>
+      <div id="playlist">
+        <button class="btn btn-default btn-block" id="next-button">Next</button>
+        <button class="btn btn-default btn-block" id="stay-button">Stay Put!</button>
+      </div>
+
+      <button class="btn btn-default btn-block" id="tapper">
+        Tap BPM
+      </div>
+      <p class="text-center text-muted" id="bpm-status">
+        Current BPM: unknown
+      </p>
+    </div>
+
+  </div>
+
+</div><!-- /.container -->
+
+<script>
+  var refreshHandle;
+  var bpmSamples = [];
+  var bpmAbortTimeoutHandle;
+
+  function handlePlaylistUpdate(playlist) {
+    console.log('Playlist:', playlist);
+
+    var playlistDiv = document.getElementById('playlist');
+    var listGroup = document.createElement('ul');
+    listGroup.className = 'list-group';
+
+    for (var i = 0; i < playlist.queue.length; i++) {
+      var playlistItem = document.createElement('a');
+      var isActive = (i === playlist.current_position);
+
+      if (isActive) {
+        playlistItem.className = 'list-group-item list-group-item-success';
+      } else {
+        playlistItem.className = 'list-group-item';
+      }
+
+      playlistItem.innerHTML = '' + (i+1) + '. ' + playlist.queue[i].name;
+      listGroup.appendChild(playlistItem);
+    }
+
+    playlistDiv.innerHTML = '';
+    playlistDiv.appendChild(listGroup);
+  }
+
+  function handleError(error) {
+    console.error(error);
+  }
+
+  function getStatus() {
+    return axios.get('/api/playlist').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function advance() {
+    return axios.post('/api/playlist/advance').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function stay() {
+    return axios.post('/api/playlist/stay').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function setBpm(bpm) {
+    console.log('Setting BPM to: ', bpm);
+    return axios.post('/api/bpm', {bpm: bpm}).then(function (response) {
+      var bpm = response.data.bpm;
+      var status = document.getElementById('bpm-status');
+      status.innerHTML = 'Current BPM: ' + bpm;
+    }).catch(function (error) {
+      handleError(error);
+    });
+  }
+
+  function resetBpmTapper() {
+    var tapper = document.getElementById('tapper');
+    tapper.innerHTML = 'Tap BPM';
+    bpmSamples = [];
+  }
+
+  function onBpmTapped() {
+    var tapper = document.getElementById('tapper');
+    var now = (new Date()).getTime();
+    bpmSamples.push(now);
+
+    // Clean things up if somone doesn't finish the job.
+    if (bpmAbortTimeoutHandle) {
+      clearTimeout(bpmAbortTimeoutHandle);
+    }
+    bpmAbortTimeoutHandle = setTimeout(resetBpmTapper, 5000);
+
+    // Bail out early if we need more samples.
+    if (bpmSamples.length < 4) {
+      var remain = 4 - bpmSamples.length;
+      tapper.innerHTML = 'Tap BPM (' + remain + ' more ...)';
+      return;
+    }
+
+    if (bpmAbortTimeoutHandle) {
+      clearTimeout(bpmAbortTimeoutHandle);
+      bpmAbortTimeoutHandle = null;
+    }
+
+    // Compute and send BPM.
+    var intervals = [
+      bpmSamples[1] - bpmSamples[0],
+      bpmSamples[2] - bpmSamples[1],
+      bpmSamples[3] - bpmSamples[2]
+    ];
+    resetBpmTapper();
+
+    var secondsPerBeat = (intervals[0] + intervals[1] + intervals[2]) / 3 / 1000;
+    var beatsPerSecond = 1 / secondsPerBeat;
+    var beatsPerMinute = beatsPerSecond * 60;
+    beatsPerMinute = Math.round(beatsPerMinute * 10) / 10;
+
+    if (beatsPerMinute < 60 || beatsPerMinute > 200) {
+      console.error('Ignoring crazy BPM: ', beatsPerMinute);
+      return;
+    }
+
+    setBpm(beatsPerMinute);
+  }
+
+  function installListeners() {
+    $('#next-button').click(function () {
+      advance();
+    });
+    $('#stay-button').click(function () {
+      stay();
+    });
+    $('#tapper').click(function () {
+      onBpmTapped();
+    });
+  }
+
+  function rescheduleRefresh() {
+    if (refreshHandle) {
+      clearTimeout(refreshHandle);
+    }
+    refreshHandle = setTimeout(getStatus, 2000);
+  }
+
+  getStatus();
+  installListeners();
+</script>
+
+</body>

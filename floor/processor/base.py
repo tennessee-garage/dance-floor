@@ -10,6 +10,8 @@ class Base(object):
         self.weights = []
         self.max_value = self.DEFAULT_MAX_VALUE
         self.args = args
+        self.bpm = None
+        self.downbeat = None
 
     # accept (x,y) tuple reflecting a coordinate
     # return the array index suitable for use in weights or pixels arrays
@@ -26,3 +28,16 @@ class Base(object):
         :return:
         """
         pass
+
+    def set_bpm(self, bpm, downbeat):
+        """
+        Sets the current BPM and the time of the downbeat.
+
+        Args
+            bpm: float number of beats per minute
+            downbeat: timestamp corresponding to the first beat of a new
+                measure.
+        """
+        assert downbeat is not None
+        self.bpm = bpm
+        self.downbeat = downbeat

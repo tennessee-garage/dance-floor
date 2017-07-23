@@ -6,6 +6,9 @@ import threading
 import os
 import sys
 
+import logging
+logger = logging.getLogger('devserver')
+
 from base import Base
 
 try:
@@ -42,7 +45,7 @@ class FloorWebsocketHandler(WebSocket):
         try:
             event = json.loads(self.data)
         except ValueError:
-            print('bad client message: ', self.data)
+            logger.warning('bad client message: {}'.format(self.data))
             return
 
         event_type = event.get('event')
@@ -50,14 +53,14 @@ class FloorWebsocketHandler(WebSocket):
             pixel_id = event['payload']['pixel']
             FloorWebsocketHandler.WEIGHTS[pixel_id] = 1
         else:
-            print('unknown client event: {}'.format(event_type))
+            logger.warning('unknown client event: {}'.format(event_type))
 
     def handleConnected(self):
-        print('>>> WebSocket connected: {}'.format(self.address))
+        logger.info('>>> WebSocket connected: {}'.format(self.address))
         FloorWebsocketHandler.WEBSOCKET_CLIENTS.append(self)
 
     def handleClose(self):
-        print('<<< WebSocket closed: {}'.format(self.address))
+        logger.info('<<< WebSocket closed: {}'.format(self.address))
         FloorWebsocketHandler.WEBSOCKET_CLIENTS.remove(self)
 
 
@@ -68,6 +71,9 @@ class WebserverHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.end_headers()
         data = open(HTML_FILE).read()
         self.wfile.write(data)
+
+    def log_request(self, code='-', size='-'):
+        logger.info('{} [{}]'.format(self.requestline, code))
 
 
 class Devserver(Base):
@@ -99,7 +105,7 @@ class Devserver(Base):
         self.web_thread = threading.Thread(target=self.web_server.serve_forever)
         self.web_thread.daemon = True
         self.web_thread.start()
-        print 'Serving on http://localhost:1979/'
+        logger.info('Serving on http://localhost:1979/')
 
     def send_data(self):
         # Ensure all RGB values are integral.

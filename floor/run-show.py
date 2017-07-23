@@ -1,7 +1,12 @@
 from controller import Controller
 from controller import Playlist
+from server.server import run_server
 import argparse
 import os
+import sys
+import logging
+
+LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 
 def main():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
@@ -29,8 +34,23 @@ def main():
         action='store_true',
         help='Turn on keyboard input handling'
     )
-    parser.set_defaults(opc_input=True)
+    parser.add_argument(
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        help='Enable verbose logging'
+    )
+    parser.add_argument(
+        '--server_port',
+        dest='server_port',
+        type=int,
+        help='Web server port; -1 to disable.'
+    )
+    parser.set_defaults(opc_input=True, server_port=1977)
     args = parser.parse_args()
+
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     config_dir = get_config_dir()
     playlist = Playlist(config_dir, args.processor_name)
@@ -40,7 +60,13 @@ def main():
         "opc_input": args.opc_input
     })
 
-    show.run()
+    if args.server_port >= 0:
+        run_server(show, port=args.server_port)
+
+    try:
+        show.run()
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
 def get_config_dir():
