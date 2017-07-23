@@ -62,9 +62,17 @@
 
       <button class="btn btn-default btn-block" id="tapper">
         Tap BPM
-      </div>
-      <p class="text-center text-muted" id="bpm-status">
-        Current BPM: unknown
+      </button>
+      <p class="text-muted" id="bpm-status">
+        <form class="form-inline text-center">
+          <div class="form-group">
+            <div class="input-group">
+              <input id="bpm" type="number" step="0.1" min="40.0" max="220.0"
+                class="form-control" placeholder="120.0">
+              <div class="input-group-addon">BPM</div>
+            </div>
+          </div>
+        </form>
       </p>
     </div>
 
@@ -138,13 +146,16 @@
 
   function setBpm(bpm) {
     console.log('Setting BPM to: ', bpm);
-    return axios.post('/api/bpm', {bpm: bpm}).then(function (response) {
-      var bpm = response.data.bpm;
-      var status = document.getElementById('bpm-status');
-      status.innerHTML = 'Current BPM: ' + bpm;
+    return axios.post('/api/tempo', {bpm: bpm}).then(function (response) {
+      handleTempoUpdate(response.data);
     }).catch(function (error) {
       handleError(error);
     });
+  }
+
+  function handleTempoUpdate(tempoData) {
+    var status = document.getElementById('bpm');
+    status.value = tempoData.bpm;
   }
 
   function resetBpmTapper() {

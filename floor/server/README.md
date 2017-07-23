@@ -115,7 +115,7 @@ None.
 The playlist object upon success; HTTP `400` on error.
 
 
-### `GET /api/bpm`
+### `GET /api/tempo`
 
 Get the current tempo settings.
 
@@ -131,7 +131,7 @@ The BPM information, consisting of:
 * `downbeat_millis` (number): Timestamp in milliseconds of the downbeat.
 
 
-### `POST /api/bpm`
+### `POST /api/tempo`
 
 Set the current tempo.
 
@@ -144,7 +144,7 @@ Set the current tempo.
 The BPM information.
 
 
-### `POST /api/bpm/nudge`
+### `POST /api/tempo/nudge`
 
 Shift the BPM, downbeat, or both by a relative amount
 

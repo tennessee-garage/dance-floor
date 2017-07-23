@@ -90,8 +90,8 @@ def api_playlist_position(position):
     else:
         return jsonify(playlist.queue[position])
 
-@app.route('/api/bpm', methods=['GET', 'POST'])
-def api_bpm():
+@app.route('/api/tempo', methods=['GET', 'POST'])
+def api_tempo():
     controller = app.controller
     if request.method == 'POST':
         content = request.get_json(silent=True)
@@ -102,8 +102,8 @@ def api_bpm():
 
     return jsonify(view_tempo(controller.bpm, controller.downbeat))
 
-@app.route('/api/bpm/nudge', methods=['POST'])
-def api_bpm_nudge_downbeat():
+@app.route('/api/tempo/nudge', methods=['POST'])
+def api_tempo_nudge():
     controller = app.controller
     content = request.get_json(silent=True)
 
