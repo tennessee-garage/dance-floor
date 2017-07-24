@@ -10,7 +10,7 @@ class Playlist(object):
 
     def __init__(self, config_dir='', processor=None):
         # The index into the queue array
-        self.position = 0
+        self.position = None
         # Time when the playlist should auto advance.
         self.next_advance = None
         self.queue = []
@@ -55,14 +55,20 @@ class Playlist(object):
         if not self.queue:
             return None
 
-        if self.next_advance is not None and (time() > self.next_advance):
+        if self.position is None:
+            # First call: Start the first item.
+            self.advance()
+        elif self.next_advance is not None and (time() > self.next_advance):
             self.advance()
 
         return self.queue[self.position]
 
     def advance(self):
         """Go to the next playlist item."""
-        position = (self.position + 1) % len(self.queue)
+        if self.position is None:
+            position = 0
+        else:
+            position = (self.position + 1) % len(self.queue)
         self.go_to(position)
 
     def go_to(self, position):
