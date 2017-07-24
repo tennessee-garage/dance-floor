@@ -20,9 +20,10 @@ def view_playlist(playlist):
         remain = max(0, playlist.next_advance - time.time())
     else:
         remain = 0
+    remain_millis = int(remain * 1000)
     return {
         'current_position': playlist.position,
-        'millis_remaining': remain,
+        'millis_remaining': remain_millis,
         'queue': playlist.queue,
     }
 
