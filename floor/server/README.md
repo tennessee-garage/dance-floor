@@ -4,6 +4,62 @@ This is a simple HTTP service that exposes a public API and control web page to 
 
 ## API
 
+### `GET /api/status`
+
+Returns the current status.
+
+**Request Arguments**
+
+None.
+
+**Response**
+
+A structure consisting of:
+
+* `playlist` (object): The current playlist; see `GET /api/playlist`.
+* `tempo` (object): The current tempo; see `GET /api/tempo`.
+* `processors` (array): A list of available processor, each an object consisting of:
+  * `name` (string): The name of the processor.
+
+```json
+{
+  "playlist": {
+    "current_position": 1,
+    "millis_remaining": 2106,
+    "queue": [
+      {
+        "args": {
+          "animation": "Color train"
+        },
+        "duration": 5,
+        "name": "animator"
+      },
+      {
+        "args": {
+          "text": "Bleep bloop fazz!"
+        },
+        "duration": 5,
+        "name": "message"
+      },
+    ]
+  },
+  "processors": {
+    "animator": {
+      "name": "animator"
+    },
+    "message": {
+      "name": "message"
+    },
+    "pulsar": {
+      "name": "pulsar"
+    }
+  },
+  "tempo": {
+    "bpm": 120.0,
+    "downbeat_millis": 1500861666019
+  }
+}```
+
 ### `GET /api/playlist`
 
 Returns the current playlist.
