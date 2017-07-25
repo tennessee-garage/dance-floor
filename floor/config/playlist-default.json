@@ -1,6 +1,10 @@
 {
   "queue": [
     {
+      "name": "hyperspace",
+      "duration": "5"
+    },
+    {
       "name": "animator",
       "duration": "5",
       "args": {
@@ -23,6 +27,10 @@
     },
     {
       "name": "flash_bang",
+      "duration": "5"
+    },
+    {
+      "name": "fishies",
       "duration": "5"
     },
     {

@@ -120,7 +120,7 @@ def hex_to_rgb(value):
 
 # palettes as hex strings
 palettes = {
-    'rainbow_bunny': ['f9c80e', 'f86624', 'f86624', 'ea3546', '662e9b', '43bccd'],
+    'rainbow_bunny': ['31cb00', 'f9c80e', 'f86624', 'f86624', 'ea3546', '662e9b', '43bccd'],
     'new_mexico': ['004777', 'a30000', 'ff7700', 'efd28d', '00afb5'],
     'desert': ['ff9f1c', 'ffbf69', 'ffffff', 'cbf3f0', '2ec4b6'],
     'druids': ['483c46', '3c6e71', '70ae6e', 'beee62', 'f4743b'],
