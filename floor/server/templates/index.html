@@ -60,12 +60,67 @@
         <button class="btn btn-default btn-block" id="stay-button">Stay Put!</button>
       </div>
 
+      <hr/>
+      <h4>Advanced Disco Zone <span class="glyphicon glyphicon-fire" aria-hidden="true"></h4>
+
       <button class="btn btn-default btn-block" id="tapper">
         Tap BPM
-      </div>
-      <p class="text-center text-muted" id="bpm-status">
-        Current BPM: unknown
+      </button>
+      <p class="text-muted" id="bpm-status">
+        <form class="form-inline text-center">
+          <div class="form-group">
+            <div class="input-group">
+              <input id="bpm" type="number" step="0.1" min="40.0" max="220.0"
+                class="form-control" placeholder="120.0">
+              <div class="input-group-addon">BPM</div>
+            </div>
+          </div>
+        </form>
       </p>
+
+      <!-- BPM Nudger -->
+      <div class="btn-group btn-group-justified" role="group" aria-label="...">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" id="bpm-nudge-left">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            Slower
+          </button>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" disabled>
+            BPM
+          </button>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" id="bpm-nudge-right">
+            Faster
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <p></p>
+
+      <!-- Downbeat Nudger -->
+      <div class="btn-group btn-group-justified" role="group" aria-label="...">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" id="downbeat-nudge-left">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            Earlier
+          </button>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" disabled>
+            Downbeat
+          </button>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" id="downbeat-nudge-right">
+            Later
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -107,8 +162,10 @@
   }
 
   function getStatus() {
-    return axios.get('/api/playlist').then(function (response) {
-      handlePlaylistUpdate(response.data);
+    return axios.get('/api/status').then(function (response) {
+      var playlist = response.data.playlist;
+      handlePlaylistUpdate(response.data.playlist);
+      handleTempoUpdate(response.data.tempo);
       rescheduleRefresh();
     }).catch(function (error) {
       handleError(error);
@@ -136,15 +193,34 @@
     });
   }
 
-  function setBpm(bpm) {
-    console.log('Setting BPM to: ', bpm);
-    return axios.post('/api/bpm', {bpm: bpm}).then(function (response) {
-      var bpm = response.data.bpm;
-      var status = document.getElementById('bpm-status');
-      status.innerHTML = 'Current BPM: ' + bpm;
+  function setTempo(bpm) {
+    var data = {
+      bpm: bpm,
+    };
+    console.log('Setting tempo to: ', data);
+    return axios.post('/api/tempo', data).then(function (response) {
+      handleTempoUpdate(response.data);
     }).catch(function (error) {
       handleError(error);
     });
+  }
+
+  function nudgeTempo(bpmDelta, downbeatMillisDelta) {
+    var data = {
+      bpm_delta: bpmDelta,
+      downbeat_millis_delta: downbeatMillisDelta,
+    };
+    console.log('Nudging tempo by: ', data);
+    return axios.post('/api/tempo/nudge', data).then(function (response) {
+      handleTempoUpdate(response.data);
+    }).catch(function (error) {
+      handleError(error);
+    });
+  }
+
+  function handleTempoUpdate(tempoData) {
+    var status = document.getElementById('bpm');
+    status.value = tempoData.bpm;
   }
 
   function resetBpmTapper() {
@@ -194,7 +270,23 @@
       return;
     }
 
-    setBpm(beatsPerMinute);
+    setTempo(beatsPerMinute);
+  }
+
+  function onBpmNudgedLeft() {
+    nudgeTempo(-0.1);
+  }
+
+  function onBpmNudgedRight() {
+    nudgeTempo(0.1);
+  }
+
+  function onDownbeatNudgedLeft() {
+    nudgeTempo(null, -100);
+  }
+
+  function onDownbeatNudgedLeft() {
+    nudgeTempo(null, 100);
   }
 
   function installListeners() {
@@ -207,6 +299,18 @@
     $('#tapper').click(function () {
       onBpmTapped();
     });
+    $('#bpm-nudge-left').click(function () {
+      onBpmNudgedLeft();
+    });
+    $('#bpm-nudge-right').click(function () {
+      onBpmNudgedRight();
+    });
+    $('#downbeat-nudge-left').click(function () {
+      onDownbeatNudgedLeft();
+    });
+    $('#downbeat-nudge-right').click(function () {
+      onDownbeatNudgedRight();
+    });
   }
 
   function rescheduleRefresh() {
@@ -218,6 +322,12 @@
 
   getStatus();
   installListeners();
+
+  // Quirk: Un-focus bootstrap buttons after click.
+  $(".btn").mouseup(function(){
+      $(this).blur();
+  });
+
 </script>
 
 </body>

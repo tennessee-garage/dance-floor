@@ -2,6 +2,8 @@ import time
 import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
 
+MIN_BPM = 40
+MAX_BPM = 220
 
 app = Flask('server')
 
@@ -18,11 +20,26 @@ def view_playlist(playlist):
         remain = max(0, playlist.next_advance - time.time())
     else:
         remain = 0
+    remain_millis = int(remain * 1000)
     return {
         'current_position': playlist.position,
-        'millis_remaining': remain,
+        'millis_remaining': remain_millis,
         'queue': playlist.queue,
     }
+
+def view_tempo(bpm, downbeat):
+    return {
+        'bpm': bpm,
+        'downbeat_millis': int(downbeat * 1000)
+    }
+
+@app.route('/api/status', methods=['GET'])
+def api_status():
+    result = {
+        'playlist': view_playlist(app.controller.playlist),
+        'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
+    }
+    return jsonify(result)
 
 @app.route('/api/playlist', methods=['GET'])
 def api_playlist():
@@ -82,8 +99,8 @@ def api_playlist_position(position):
     else:
         return jsonify(playlist.queue[position])
 
-@app.route('/api/bpm', methods=['GET', 'POST'])
-def api_bpm():
+@app.route('/api/tempo', methods=['GET', 'POST'])
+def api_tempo():
     controller = app.controller
     if request.method == 'POST':
         content = request.get_json(silent=True)
@@ -92,10 +109,29 @@ def api_bpm():
             abort(400, 'Must give bpm.')
         controller.set_bpm(bpm)
 
-    return jsonify({
-        'bpm': controller.bpm,
-        'downbeat_millis': int(controller.downbeat * 1000),
-    })
+    return jsonify(view_tempo(controller.bpm, controller.downbeat))
+
+@app.route('/api/tempo/nudge', methods=['POST'])
+def api_tempo_nudge():
+    controller = app.controller
+    content = request.get_json(silent=True)
+
+    bpm_delta = 0
+    if content.get('bpm_delta') is not None:
+        bpm_delta = float(content.get('bpm_delta', 0))
+
+    downbeat_millis_delta = 0
+    if content.get('downbeat_millis_delta') is not None:
+        downbeat_millis_delta = float(content.get('downbeat_millis_delta', 0))
+
+    bpm = controller.bpm + bpm_delta
+    downbeat = controller.downbeat + (downbeat_millis_delta / 1000.0)
+
+    if bpm < MIN_BPM or bpm > MAX_BPM:
+        abort(400, 'Crazy bpm.')
+
+    controller.set_bpm(bpm, downbeat)
+    return jsonify(view_tempo(controller.bpm, controller.downbeat))
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):
     app.controller = controller
