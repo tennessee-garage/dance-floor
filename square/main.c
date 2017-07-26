@@ -39,13 +39,8 @@
 
 // Hold the data being piped through the squares
 uint8_t buffer[DATA_BYTES * MAX_PACKETS];
-// Keep track of where we're at in the buffer
-uint16_t head;
 
 void init_avr() {
-    // wait a little before starting setup
-    _delay_ms(1000);
-
     // Set all of port A to input
     DDRA = 0x00;
 
@@ -90,6 +85,27 @@ void init_pwm(void) {
     TCNT0H = 0x00;
     TCNT0L = 0x00;
 
+    // Light the Green LEDs
+    set_green(1023);
+    set_blue(0);
+    set_red(0);
+
+    _delay_ms(1000);
+
+    // Light the Blue LEDs
+    set_green(0);
+    set_blue(1023);
+    set_red(0);
+
+    _delay_ms(1000);
+
+    // Light the Red LEDs
+    set_green(0);
+    set_blue(0);
+    set_red(1023);
+
+    _delay_ms(1000);
+
     // Clear the LEDs
     set_green(0);
     set_blue(0);
@@ -124,7 +140,6 @@ void init_spi(void) {
     for (int i = 0; i < DATA_BYTES * MAX_PACKETS; i++) {
         buffer[i] = 0x00;
     }
-    head = 0;
 
     // Clear the overflow flag
     CLEAR_OVERFLOW();
@@ -149,11 +164,17 @@ void handle_spi(void) {
     uint8_t transferred = 0;
     uint8_t val_in;
 
+    // Start the head at 4 since 0..3 are the weight values
+    uint16_t head = 4;
+
     // When we enter this method USIDR already has buffer[head-4] loaded.  When we
     // write out val_out it will be for the next byte, which is buffer[head+1-4] or buffer[head-3]
     uint8_t val_out = buffer[head-3];
 
-    // If we're selected
+    // Wait for the next cycle to start
+    while (!IS_CHIP_SELECTED());
+
+    // While in chip select, read data
     while (IS_CHIP_SELECTED()) {
         transferred = 1;
 
@@ -188,10 +209,6 @@ void handle_spi(void) {
     set_red(red);
     set_green(green);
     set_blue(blue);
-
-    // Keep the head at 4 so we don't start overwriting the weight with color
-    // values when there's no ADC conversion ready
-    head = 4;
 }
 
 void handle_adc(void) {
@@ -207,10 +224,22 @@ void handle_adc(void) {
 
         // Ready the first byte for the next transfer
         USIDR = buffer[0];
-        head = 4;
 
         START_ADC_CONVERSION();
     }
+}
+
+void sync_spi(void) {
+    // Wait out a full cycle to make sure we are fully synced up
+
+    // Wait for any current cycle to finish
+    while (IS_CHIP_SELECTED());
+
+    // Wait for the next cycle to start
+    while (!IS_CHIP_SELECTED());
+
+    // Wait out this cycle
+    while (IS_CHIP_SELECTED());
 }
 
 int main(void) {
@@ -219,8 +248,11 @@ int main(void) {
     init_adc();
     init_spi();
 
+    // Get ourselves synced up by waiting out one cycle
+    sync_spi();
+
     while (1) {
-        handle_adc();
         handle_spi();
+        handle_adc();
     }
 }
