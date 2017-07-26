@@ -36,9 +36,30 @@ https://github.com/jbrecht/openpixelcontrol.git
 ```bash
 git clone https://github.com/garthwebb/dance-floor.git
 ```
+
+3. Install simple websocket server and Flask
+```bash
+sudo pip install git+https://github.com/dpallot/simple-websocket-server.git
+sudo pip install virtualenv
+sudo pip install Flask
+```
+
 ## Running the code
 
 Don't have a light up dance floor?  No problem!  You can see a visualization of the dance floor by running the `gl_server` provided by OpenPixelControl.
+
+1. Start the devserver:
+```bash
+cd floor
+python run-show.py --driver devserver
+```
+2. Open two browser windows. The dance floor renders at this address:
+   http://localhost:1979/
+
+3. The controller renders here:
+   http://0.0.0.0:1977/
+
+## OLD: Starting with OPC
 
 1. Start the `gl_server` with the dance floor layout:
 ```bash
