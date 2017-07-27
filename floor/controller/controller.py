@@ -100,6 +100,7 @@ class Controller(object):
             sys.exit(0)
 
         self.driver = getattr(module, driver_name.title())(driver_args)
+        logger.info("Loaded driver '{}' with max LED value {}".format(driver_name, self.driver.MAX_LED_VALUE))
 
     def run(self):
         while True:
