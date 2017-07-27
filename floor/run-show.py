@@ -1,5 +1,6 @@
 from controller import Controller
 from controller import Playlist
+from controller import Layout
 from server.server import run_server
 import argparse
 import os
@@ -54,10 +55,12 @@ def main():
 
     config_dir = get_config_dir()
     playlist = Playlist(config_dir, args.processor_name)
+    layout = Layout(config_dir)
 
     show = Controller(playlist)
     show.set_driver(args.driver_name, {
-        "opc_input": args.opc_input
+        "opc_input": args.opc_input,
+        "layout": layout
     })
 
     if args.server_port >= 0:

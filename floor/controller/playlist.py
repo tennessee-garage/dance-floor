@@ -1,6 +1,5 @@
 import json
 from time import time
-import sys
 import logging
 
 logger = logging.getLogger('playlist')
@@ -33,6 +32,7 @@ class Playlist(object):
     def item(name, duration=0, args=None):
         """Builds a playlist entry."""
         return {
+            'name': name,
             'name': name,
             'duration': int(duration),
             'args': args,

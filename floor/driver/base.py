@@ -8,6 +8,7 @@ class Base(object):
         self.weights = []
         self.leds = []
         self.args = driver_args
+        self.layout = driver_args["layout"]
 
     def get_weights(self):
         """

@@ -1,5 +1,40 @@
 {
   "queue": [
+        {
+      "name": "message",
+      "duration": "50",
+      "args": {
+        "text": "The quick brown fox jumps over the lazy dog. "
+      }
+    },
+    {
+      "name": "animator",
+      "duration": "30",
+      "args": {
+        "animation": "Color train"
+      }
+    },
+    {
+      "name": "animator",
+      "duration": "30",
+      "args": {
+        "animation": "gods_eye"
+      }
+    },
+    {
+      "name": "animator",
+      "duration": "30",
+      "args": {
+        "animation": "gods_eye_rainbow"
+      }
+    },
+    {
+      "name": "animator",
+      "duration": "30",
+      "args": {
+        "animation": "radiating"
+      }
+    },
     {
       "name": "hyperspace",
       "duration": "5"

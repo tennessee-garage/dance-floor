@@ -45,7 +45,7 @@ class Message(Base):
         # The current window position on the wall
         self.window = 0.0
         # How fast to scroll in pixels per frame
-        self.speed = 0.5
+        self.speed = 0.33
 
         if "text" in args:
             # Load a single message from the args

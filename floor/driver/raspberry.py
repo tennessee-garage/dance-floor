@@ -2,10 +2,11 @@ from base import Base
 import importlib
 from util.serial_read import SerialRead
 import time
-
 from threading import Thread
-
 import sys
+import logging
+
+logger = logging.getLogger('raspberry')
 
 
 class Raspberry(Base):
@@ -55,6 +56,11 @@ class Raspberry(Base):
         """
         data = list()
         for led in self.tile_order:
+
+            # Don't add this data to the list if this tile has been bypassed
+            if self.layout.is_bypassed(led):
+                continue
+
             rgb = self.leds[led]
 
             # Repack 3 10-bit values into 4 8-bit values
