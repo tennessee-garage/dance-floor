@@ -6,10 +6,6 @@ import logging
 logger = logging.getLogger('electricity')
 
 
-def create(args=None):
-    return Electricity()
-
-
 def dist(x1, y1, x2, y2):
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
@@ -19,8 +15,8 @@ class Electricity(Base):
     DECAY_RATE = 0.8
     DECAY_THRESHOLD = 0.001
 
-    def __init__(self):
-        super(Electricity, self).__init__()
+    def __init__(self, **kwargs):
+        super(Electricity, self).__init__(**kwargs)
 
         self.arcs = {}
 

@@ -6,10 +6,9 @@ class Base(object):
     FLOOR_WIDTH = 8
     FLOOR_HEIGHT = 8
 
-    def __init__(self, args=dict):
+    def __init__(self, **kwargs):
         self.weights = []
         self.max_value = self.DEFAULT_MAX_VALUE
-        self.args = args
         self.bpm = None
         self.downbeat = None
 

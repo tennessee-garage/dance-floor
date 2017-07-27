@@ -2,13 +2,9 @@ from base import Base
 import random
 
 
-def create(args=None):
-    return RandomDecay()
-
-
 class RandomDecay(Base):
-    def __init__(self):
-        super(RandomDecay, self).__init__()
+    def __init__(self, **kwargs):
+        super(RandomDecay, self).__init__(**kwargs)
         self.red = 0
         self.green = 0
         self.blue = 0

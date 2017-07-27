@@ -2,21 +2,14 @@ from base import Base
 import importlib
 
 
-def create(args=None):
-    return Animator(args)
-
-
 class Animator(Base):
 
     DEFAULT_ANIMATION = "gods_eye"
 
-    def __init__(self, args=None):
-        super(Animator, self).__init__()
+    def __init__(self, **kwargs):
+        super(Animator, self).__init__(**kwargs)
 
-        if "animation" in args:
-            animation = args["animation"]
-        else:
-            animation = self.DEFAULT_ANIMATION
+        animation = kwargs.get('animation', self.DEFAULT_ANIMATION)
 
         module = importlib.import_module("processor.animations.{}".format(animation))
         self.animation = module.anim()

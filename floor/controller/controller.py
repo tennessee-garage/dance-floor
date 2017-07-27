@@ -35,20 +35,24 @@ class Controller(object):
 
     def load_processors(self):
         """Loads (or reloads) all processors."""
-        processors = {}
         package = processor
         prefix = package.__name__ + "."
+
+        # Load or reload all processor modules.
         for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
             if ispkg:
                 continue
             basename = modname[len(prefix):]
             try:
                 module = self._load_processor(basename, modname)
-                processors[basename] = module
             except Exception as e:
                 logger.exception('Could not load processor "{}"'.format(basename))
 
-        self.processors = processors
+        # Regenerate processor map
+        new_processors = {}
+        for p in processor.Base.__subclasses__():
+            new_processors[p.__name__.lower()] = p
+        self.processors = new_processors
 
     def _load_processor(self, base_name, module_name):
         module = None
@@ -84,11 +88,12 @@ class Controller(object):
 
     def build_processor(self, name, args=None):
         """Builds a processor instance."""
+        args = args or {}
         processor = self.processors.get(name)
         if not processor:
             raise ValueError('Processor "{}" does not exist'.format(name))
         try:
-            return processor.create(args)
+            return processor(**args)
         except Exception as e:
             raise ValueError('Processor "{}" could not be created: {}'.format(name, str(e)))
 
@@ -124,6 +129,9 @@ class Controller(object):
             return
 
         processor, args = item['name'], item['args']
+        if processor not in self.processors:
+            return
+
         if processor and (processor, args) != (self.current_processor, self.current_args):
             logger.debug('Loading processor {}'.format(processor))
             self.set_processor(processor, args)

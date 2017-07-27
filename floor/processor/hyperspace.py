@@ -5,16 +5,12 @@ import random
 import math
 
 
-def create(args=None):
-    return Hyperspace()
-
-
 class Hyperspace(Base):
 
     LIFETIME = 1.0
 
-    def __init__(self):
-        super(Hyperspace, self).__init__()
+    def __init__(self, **kwargs):
+        super(Hyperspace, self).__init__(**kwargs)
         self.pixels = []
         self.times = [0 for _ in range(64)]
         # self.palette = color.get_random_palette(self.max_value)

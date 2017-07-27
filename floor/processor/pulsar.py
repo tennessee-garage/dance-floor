@@ -5,13 +5,9 @@ from random import randint
 import time
 
 
-def create(args=None):
-    return Pulsar()
-
-
 class Pulsar(Base):
-    def __init__(self):
-        super(Pulsar, self).__init__()
+    def __init__(self, **kwargs):
+        super(Pulsar, self).__init__(**kwargs)
         self.pixels = []
         self.wave_toggle = 1
         self.last_time = time.time()
