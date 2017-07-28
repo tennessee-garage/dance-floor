@@ -3,13 +3,19 @@ import importlib
 from util.serial_read import SerialRead
 import time
 from threading import Thread
-import sys
+
 import logging
 
 logger = logging.getLogger('raspberry')
 
 
 class Raspberry(Base):
+
+    # The number of bytes in a packet of data for weight values
+    WEIGHT_PACKET_SIZE = 2
+
+    # The number of packets in a message from the floor
+    WEIGHT_PACKETS = 64
 
     # Define the order in which we output the LEDs.  This could be calculated
     # but spelling it out here to reduce the time to display a frame
@@ -46,9 +52,12 @@ class Raspberry(Base):
         # Keep track of the last self.floor_sample values seen over the past self.floor_period seconds
         self.value_floor = [[0] for _ in range(64)]
 
-        self.worker = Thread(target=self.read_serial_data)
-        self.worker.daemon = True
-        self.worker.start()
+        self.reader = SerialRead()
+
+        # logger.info("Staring serial worker")
+        # self.worker = Thread(target=self.read_serial_data)
+        # self.worker.daemon = True
+        # self.worker.start()
 
     def send_data(self):
         """
@@ -91,17 +100,35 @@ class Raspberry(Base):
         The thread running in read_serial_data should be updating the weight values
         :return:
         """
-        pass
+
+        if not self.reader.data_ready():
+            logger.info("Data is not ready")
+            return
+
+        logger.info("Data ready")
+
+        # logger.info("Found {} bytes waiting".format(self.reader.ser.inWaiting()))
+
+        data_bytes = self.reader.read()
+        values = self.process_bytes(data_bytes)
+
+        self.print_weights(values)
+
+        # Setting a member variable should be atomic
+        self.weights = values
 
     def get_weights(self):
         return self.weights
 
     def read_serial_data(self):
+        logfile = open("/tmp/log.out", "w")
+        logfile.write("Staring serial read\n")
+
         reader = SerialRead()
         while True:
             data_bytes = reader.read()
             values = self.process_bytes(data_bytes)
-            values = self.pad_values(values)
+            # values = self.pad_values(values)
 
             # self.print_weights(values)
 
@@ -111,24 +138,20 @@ class Raspberry(Base):
     @staticmethod
     def print_weights(values):
         for x in range(8):
-            sys.stdout.write(" | ")
+            logger.info(" | ")
             for y in range(8):
-                sys.stdout.write("{:>3} | ".format(values[x*8 + y]))
-            sys.stdout.write("\n")
+                logger.info("{:>3} | ".format(values[x*8 + y]))
+            logger.info("\n")
 
-        sys.stdout.write("-----------------------------------------\n")
-        sys.stdout.flush()
+        logger.info("-----------------------------------------\n")
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
-        new_buf = [0 for _ in range(64)]
+        new_buf = [0 for _ in range(self.WEIGHT_PACKETS)]
 
-        for packet in range(64):
-            if len(data_bytes) <= packet * 4:
-                print "LENGTH: {}".format(len(data_bytes))
-
-            hi = ord(data_bytes[packet * 4])
-            lo = ord(data_bytes[packet * 4 + 1])
+        for packet in range(self.WEIGHT_PACKETS):
+            hi = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE])
+            lo = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE + 1])
             unsigned_val = (hi << 8) + lo
             signed_val = self.twos_comp(unsigned_val)
 
@@ -167,14 +190,3 @@ class Raspberry(Base):
         if (val & (1 << (bits - 1))) != 0:  # if sign bit is set e.g., 8bit: 128-255
             val -= 1 << bits  # compute negative value
         return val
-
-    @staticmethod
-    def pad_values(values):
-        """
-        Temporary padding to toss out bogus weight values when there aren't a full set of 64 squares
-        :param values:
-        :return:
-        """
-        padded = [0 for _ in range(48)]
-        padded.extend(values[0:16])
-        return padded

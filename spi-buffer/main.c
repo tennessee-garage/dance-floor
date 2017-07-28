@@ -105,19 +105,20 @@ void spi_receive() {
 }
 
 void send_to_host() {
-    for (int i = 0; i < head; i++) {
+    // Move through the buffer four bytes at a time.  Only the first two bytes will
+    // contain data.  The rest should be zero to pad out the SPI frame size
+    for (int i = 0; i < head; i += 4) {
         uart_transmit(buffer[i]);
+        uart_transmit(buffer[i+1]);
     }
     uart_transmit_stop();
 }
 
 void uart_transmit_stop() {
-    // Data received is always 4 bytes, but only the first two bytes ever have data.  Transmit
-    // any understood 4 byte pattern to signal the end of the transmission
-    uart_transmit('s');
-    uart_transmit('t');
-    uart_transmit('o');
-    uart_transmit('p');
+    // Data received is always 4 bytes, but only the first two bytes ever have data.  And then, only the
+    // first two bits of the first byte will ever be set.  This sequence should never naturally be received
+    uart_transmit((unsigned char) 0xFF);
+    uart_transmit((unsigned char) 0xFF);
 }
 
 int main() {
