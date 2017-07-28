@@ -24,17 +24,14 @@ There is a test mode of this code that allows running and debugging from a compu
 
 ## Setup
 
-1. Clone the OpenPixelControl repository:
-```bash
-git clone https://github.com/zestyping/openpixelcontrol.git
-```
-or use JB's fork, where lights are rendered as squares instead of points:
-```bash
-https://github.com/jbrecht/openpixelcontrol.git
-```
-2. Clone this repository
+1. Clone this repository
 ```bash
 git clone https://github.com/garthwebb/dance-floor.git
+```
+
+2. [OPTIONAL] If you will run the code on a RaspberryPi, an SPI library is needed.  If running in dev/virtual mode, SPI is not necessary.
+```bash
+git clone git://github.com/doceme/py-spidev
 ```
 
 3. Install simple websocket server and Flask
@@ -59,17 +56,31 @@ python run-show.py --driver devserver
 3. The controller renders here:
    http://0.0.0.0:1977/
 
-## OLD: Starting with OPC
+## Running with OPC
+
+This is the previous method for testing the dance floor code that used Open Pixel Control as a framework for mocking the floor.  It provides an OpenGL server that can simulate what the floor will look like when data is sent to it.  The web interface is the preferred way to test, so this is here primarly as an FYI.
+
+### Setup
+
+1. If on a linux machine (not necessary on a Mac) install a few required libraries
+```bash
+sudo apt-get install mesa-common-dev freeglut3-dev
+```
+2. Build a modified version of the OPC server that includes jbrecht's change to make the LEDs square rather than round:
+```bash
+cd floor/opc
+make
+```
+
+### Running
 
 1. Start the `gl_server` with the dance floor layout:
 ```bash
-# Replace $OPC_PATH with whereever you installed OpenPixelControl
-# and $DANCE_PATH with wherever this repo exists
-$OPC_PATH/bin/gl_server -l $DANCE_PATH/floor/opc-layouts/simple-dance-floor.json
+floor/opc/bin/gl_server -l floor/opc-layouts/simple-dance-floor.json
 ```
 2. Next start the show code:
 ```bash
-python run-show.py --driver opc --processor raver_plaid
+python floor/run-show.py --driver opc --processor raver_plaid
 ```
 
 ## Writing a new processor
