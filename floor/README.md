@@ -32,6 +32,9 @@ git clone https://github.com/garthwebb/dance-floor.git
 2. [OPTIONAL] If you will run the code on a RaspberryPi, an SPI library is needed.  If running in dev/virtual mode, SPI is not necessary.
 ```bash
 git clone git://github.com/doceme/py-spidev
+sudo apt-get install python-dev
+cd py-spidev
+sudo make install
 ```
 
 3. [Linux Only] Make sure `pip` is installed:
