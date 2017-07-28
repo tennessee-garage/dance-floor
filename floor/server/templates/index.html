@@ -159,19 +159,26 @@
 
     var playlistDiv = document.getElementById('playlist');
     var listGroup = document.createElement('ul');
+    var time_indicator = '';
     listGroup.className = 'list-group';
 
     for (var i = 0; i < playlist.queue.length; i++) {
       var playlistItem = document.createElement('a');
       var isActive = (i === playlist.current_position);
 
+
       if (isActive) {
         playlistItem.className = 'list-group-item list-group-item-success';
+
+        var seconds_remaining = parseInt(playlist.millis_remaining/1000);
+        time_indicator = ' <i>(Time Remaining: ' + seconds_remaining + 's)</i>';
       } else {
         playlistItem.className = 'list-group-item';
+        time_indicator = '';
       }
 
-      playlistItem.innerHTML = '' + (i+1) + '. ' + playlist.queue[i].name;
+      var seconds_remaining = parseInt(playlist.millis_remaining/1000)
+      playlistItem.innerHTML = '' + (i+1) + '. ' + playlist.queue[i].name + time_indicator;
       listGroup.appendChild(playlistItem);
     }
 
