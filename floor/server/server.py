@@ -7,13 +7,16 @@ MAX_BPM = 220
 
 app = Flask('server')
 
+
 @app.route('/')
 def main():
     return render_template('index.html')
 
+
 @app.route('/static/<path:path>')
 def static_assets(path):
     return send_from_directory('static', path)
+
 
 def view_playlist(playlist):
     if playlist.next_advance is not None:
@@ -27,11 +30,13 @@ def view_playlist(playlist):
         'queue': playlist.queue,
     }
 
+
 def view_tempo(bpm, downbeat):
     return {
         'bpm': bpm,
         'downbeat_millis': int(downbeat * 1000)
     }
+
 
 @app.route('/api/status', methods=['GET'])
 def api_status():
@@ -41,16 +46,33 @@ def api_status():
     }
     return jsonify(result)
 
+
 @app.route('/api/playlist', methods=['GET'])
 def api_playlist():
     playlist = app.controller.playlist
     return jsonify(view_playlist(playlist))
+
+
+@app.route('/api/playlist/start', methods=['POST'])
+def api_playlist_start():
+    playlist = app.controller.playlist
+    playlist.start_playlist()
+    return jsonify(view_playlist(playlist))
+
+
+@app.route('/api/playlist/stop', methods=['POST'])
+def api_playlist_stop():
+    playlist = app.controller.playlist
+    playlist.stop_playlist()
+    return jsonify(view_playlist(playlist))
+
 
 @app.route('/api/playlist/advance', methods=['POST'])
 def api_playlist_advance():
     playlist = app.controller.playlist
     playlist.advance()
     return jsonify(view_playlist(playlist))
+
 
 @app.route('/api/playlist/add', methods=['POST'])
 def api_playlist_add():
@@ -81,11 +103,13 @@ def api_playlist_add():
 
     return jsonify(view_playlist(playlist))
 
+
 @app.route('/api/playlist/stay', methods=['POST'])
 def api_playlist_stay():
     playlist = app.controller.playlist
     app.controller.playlist.stay()
     return jsonify(view_playlist(playlist))
+
 
 @app.route('/api/playlist/<int:position>', methods=['GET', 'DELETE'])
 def api_playlist_position(position):
@@ -99,6 +123,7 @@ def api_playlist_position(position):
     else:
         return jsonify(playlist.queue[position])
 
+
 @app.route('/api/tempo', methods=['GET', 'POST'])
 def api_tempo():
     controller = app.controller
@@ -110,6 +135,7 @@ def api_tempo():
         controller.set_bpm(bpm)
 
     return jsonify(view_tempo(controller.bpm, controller.downbeat))
+
 
 @app.route('/api/tempo/nudge', methods=['POST'])
 def api_tempo_nudge():
@@ -132,6 +158,7 @@ def api_tempo_nudge():
 
     controller.set_bpm(bpm, downbeat)
     return jsonify(view_tempo(controller.bpm, controller.downbeat))
+
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):
     app.controller = controller

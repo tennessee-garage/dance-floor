@@ -56,12 +56,14 @@
     <div class="col-sm-6">
       <h2>Control Panel</h2>
       <div id="playlist">
+        <button class="btn btn-default btn-block" id="stop-button">Stop</button>
+        <button class="btn btn-default btn-block" id="start-button" style="display: none">Start</button>
         <button class="btn btn-default btn-block" id="next-button">Next</button>
         <button class="btn btn-default btn-block" id="stay-button">Stay Put!</button>
       </div>
 
       <hr/>
-      <h4>Advanced Disco Zone <span class="glyphicon glyphicon-fire" aria-hidden="true"></h4>
+      <h4>Advanced Disco Zone <span class="glyphicon glyphicon-fire" aria-hidden="true"></span></h4>
 
       <button class="btn btn-default btn-block" id="tapper">
         Tap BPM
@@ -132,6 +134,26 @@
   var bpmSamples = [];
   var bpmAbortTimeoutHandle;
 
+  function handleShowStart() {
+    console.log('Playlist started');
+
+    var startButton = document.getElementById('start-button');
+    var stopButton = document.getElementById('stop-button');
+
+    startButton.style.display = 'none';
+    stopButton.style.display = 'block';
+  }
+
+  function handleShowStop() {
+    console.log('Playlist stopped');
+
+    var startButton = document.getElementById('start-button');
+    var stopButton = document.getElementById('stop-button');
+
+    startButton.style.display = 'block';
+    stopButton.style.display = 'none';
+  }
+
   function handlePlaylistUpdate(playlist) {
     console.log('Playlist:', playlist);
 
@@ -166,6 +188,26 @@
       var playlist = response.data.playlist;
       handlePlaylistUpdate(response.data.playlist);
       handleTempoUpdate(response.data.tempo);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function start_show() {
+    return axios.post('/api/playlist/start').then(function (response) {
+      handleShowStart(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
+  function stop_show() {
+    return axios.post('/api/playlist/stop').then(function (response) {
+      handleShowStop(response.data);
       rescheduleRefresh();
     }).catch(function (error) {
       handleError(error);
@@ -290,6 +332,12 @@
   }
 
   function installListeners() {
+    $('#start-button').click(function () {
+      start_show();
+    });
+    $('#stop-button').click(function () {
+      stop_show();
+    });
     $('#next-button').click(function () {
       advance();
     });

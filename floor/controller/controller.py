@@ -104,6 +104,11 @@ class Controller(object):
 
     def run(self):
         while True:
+            if not self.playlist.is_running():
+                # If the playlist is stopped/paused, sleep a bit then restart the loop
+                time.sleep(0.5)
+                continue
+
             self.init_loop()
             self.check_playlist()
             self.generate_frame()

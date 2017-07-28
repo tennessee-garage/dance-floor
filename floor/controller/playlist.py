@@ -14,6 +14,8 @@ class Playlist(object):
         self.next_advance = None
         self.queue = []
 
+        self.running = True
+
         # If a processor was passed in, use it, otherwise read the config file
         if processor:
             self.append(name=processor)
@@ -33,10 +35,32 @@ class Playlist(object):
         """Builds a playlist entry."""
         return {
             'name': name,
-            'name': name,
             'duration': int(duration),
             'args': args,
         }
+
+    def is_running(self):
+        return self.running
+
+    def stop_playlist(self):
+        current = self.queue[self.position]
+
+        # Save time remaining
+        current['remaining_duration'] = self.next_advance - time()
+        self.next_advance = None
+
+        self.running = False
+
+    def start_playlist(self):
+        current = self.queue[self.position]
+
+        if current['remaining_duration']:
+            # Restore time remaining
+            self.next_advance = time() + current['remaining_duration']
+        else:
+            self.next_advance = 0
+
+        self.running = True
 
     def append(self, name, duration=0, args=None):
         """Add an item at the end of the playlist."""
@@ -64,6 +88,9 @@ class Playlist(object):
         return self.queue[self.position]
 
     def advance(self):
+        if not self.is_running():
+            return
+
         """Go to the next playlist item."""
         if self.position is None:
             position = 0
