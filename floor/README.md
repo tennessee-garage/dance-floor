@@ -34,7 +34,12 @@ git clone https://github.com/garthwebb/dance-floor.git
 git clone git://github.com/doceme/py-spidev
 ```
 
-3. Install simple websocket server and Flask
+3. [Linux Only] Make sure `pip` is installed:
+```bash
+sudo apt-get install python-pip
+```
+
+4. Install simple websocket server and Flask
 ```bash
 sudo pip install git+https://github.com/dpallot/simple-websocket-server.git
 sudo pip install virtualenv
