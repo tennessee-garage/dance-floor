@@ -37,7 +37,7 @@ class Raspberry(Base):
     floor_samples = 5
 
     # Minimum value for a floor tile to register.  Anything under this will be treated as zero
-    floor_minimum = 5
+    floor_minimum = 6
 
     def __init__(self, args):
         super(Raspberry, self).__init__(args)
@@ -49,8 +49,13 @@ class Raspberry(Base):
 
         self.weights = [0 for _ in range(64)]
 
-        # Keep track of the last self.floor_sample values seen over the past self.floor_period seconds
+        # Keep track of the last self.floor_sample raw values seen over the past self.floor_period seconds.  These
+        # are the actual values returned from the floor and will vary from slightly negative to slightly positive
         self.value_floor = [[0] for _ in range(64)]
+
+        # Keep track of the last self.floor_sample adjusted values.  Only report a step if they are non-zero
+        # for the full history
+        self.value_history = [[0] for _ in range(64)]
 
         self.reader = SerialRead()
 
@@ -101,15 +106,13 @@ class Raspberry(Base):
         :return:
         """
 
-        if not self.reader.data_ready():
-            logger.info("Data is not ready")
+        # Read whatever we can
+        self.reader.read()
+
+        if not self.reader.data_ready:
             return
 
-        logger.info("Data ready")
-
-        # logger.info("Found {} bytes waiting".format(self.reader.ser.inWaiting()))
-
-        data_bytes = self.reader.read()
+        data_bytes = self.reader.get_frame()
         values = self.process_bytes(data_bytes)
 
         self.print_weights(values)
@@ -120,30 +123,15 @@ class Raspberry(Base):
     def get_weights(self):
         return self.weights
 
-    def read_serial_data(self):
-        logfile = open("/tmp/log.out", "w")
-        logfile.write("Staring serial read\n")
-
-        reader = SerialRead()
-        while True:
-            data_bytes = reader.read()
-            values = self.process_bytes(data_bytes)
-            # values = self.pad_values(values)
-
-            # self.print_weights(values)
-
-            # Setting a member variable should be atomic
-            self.weights = values
-
     @staticmethod
     def print_weights(values):
         for x in range(8):
-            logger.info(" | ")
+            log_line = " | "
             for y in range(8):
-                logger.info("{:>3} | ".format(values[x*8 + y]))
-            logger.info("\n")
+                log_line += "{:>3} | ".format(values[x*8 + y])
+            # logger.info(log_line)
 
-        logger.info("-----------------------------------------\n")
+        # logger.info("-----------------------------------------\n")
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
@@ -157,7 +145,8 @@ class Raspberry(Base):
 
             # Use tile_order to map the single stream back to a left to right, left to right orders
             position = self.tile_order[packet]
-            new_buf[position] = self.adjust_value(signed_val, position)
+            adjusted_val = self.adjust_value(signed_val, position)
+            new_buf[position] = self.filter_value(adjusted_val, position)
 
         return new_buf
 
@@ -183,6 +172,20 @@ class Raspberry(Base):
             return 0
         else:
             return value
+
+    def filter_value(self, value, position):
+        if len(self.value_history[position]) < self.floor_samples:
+            self.value_history[position].append(value)
+        else:
+            self.value_history[position] = self.value_history[position][1:] + [value]
+
+        for v in self.value_history[position]:
+            # If there are ANY zero values, ignore this for now
+            if v == 0:
+                return 0
+
+        # If all values in recent history are greater than zero, then return this value
+        return value
 
     @staticmethod
     def twos_comp(val, bits=10):

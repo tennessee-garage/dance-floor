@@ -7,6 +7,9 @@ def create(args=None):
 
 
 class TestStep(Base):
+
+    MAX_WEIGHT = 40
+
     def __init__(self):
         super(TestStep, self).__init__()
 
@@ -21,7 +24,7 @@ class TestStep(Base):
                 w = 0
 
             val = color_utils.clamp(w, 0, 50)
-            val = color_utils.remap(val, 0, 50, 0, self.max_value)
+            val = color_utils.remap(1.0 * val, 0, self.MAX_WEIGHT, 0, self.max_value)
             pixels.append((val, val, 0))
 
         return pixels
