@@ -95,8 +95,8 @@ class Controller(object):
     def set_driver(self, driver_name, driver_args):
         try:
             module = importlib.import_module("driver.{}".format(driver_name))
-        except ImportError:
-            print "Error: Driver '{}' does not exist or could not be loaded".format(driver_name)
+        except ImportError as e:
+            print "Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e)
             sys.exit(0)
 
         self.driver = getattr(module, driver_name.title())(driver_args)
