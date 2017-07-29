@@ -1,10 +1,18 @@
-import driver
+import importlib
 
 
 class Test(object):
 
     def __init__(self):
-        self.driver = driver.Raspberry([])
+        driver_name = "Raspberry"
+
+        try:
+            module = importlib.import_module("driver.{}".format(driver_name))
+        except ImportError as e:
+            print "Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e)
+            sys.exit(0)
+
+        self.driver = getattr(module, driver_name.title())()
 
     def run(self, leds):
         self.driver.set_leds(leds)

@@ -1,10 +1,12 @@
 {
   "queue": [
-        {
-      "name": "message",
-      "duration": "50",
+    {
+      "name": "stripes",
+      "duration": "30",
       "args": {
-        "text": "The quick brown fox jumps over the lazy dog. "
+        "length": 100,
+        "max_speed": 1.0,
+        "min_speed": 0.2
       }
     },
     {
@@ -36,68 +38,52 @@
       }
     },
     {
+      "name": "stripes",
+      "duration": "30",
+      "args": {
+        "length": 10,
+        "max_speed": 1.0,
+        "min_speed": 0.001
+      }
+    },
+    {
       "name": "hyperspace",
-      "duration": "5"
-    },
-    {
-      "name": "animator",
-      "duration": "5",
-      "args": {
-        "animation": "Color train"
-      }
-    },
-    {
-      "name": "message",
-      "duration": "5",
-      "args": {
-        "text": "Bleep bloop fazz!"
-      }
-    },
-    {
-      "name": "animator",
-      "duration": "5",
-      "args": {
-        "animation": "radiating"
-      }
+      "duration": "60"
     },
     {
       "name": "flash_bang",
-      "duration": "5"
+      "duration": "60"
     },
     {
       "name": "fishies",
-      "duration": "5"
+      "duration": "60"
     },
     {
       "name": "kaleidoscope",
-      "duration": "5"
+      "duration": "60"
     },
     {
       "name": "land_mines",
-      "duration": "5"
-    },
-    {
-      "name": "life",
-      "duration": "5"
+      "duration": "60"
     },
     {
       "name": "message",
-      "duration": "5",
+      "duration": "15",
       "args": {
         "text": "Dance, dance, dance!"
       }
     },
     {
       "name": "pulsar",
-      "duration": "5"
+      "duration": "60"
     },
     {
       "name": "random_decay",
-      "duration": "5"
+      "duration": "60"
     },
     {
       "name": "raver_plaid",
-      "duration": "5"
+      "duration": "60"
     }
   ]
 }

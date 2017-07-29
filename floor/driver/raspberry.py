@@ -37,7 +37,7 @@ class Raspberry(Base):
     floor_samples = 5
 
     # Minimum value for a floor tile to register.  Anything under this will be treated as zero
-    floor_minimum = 6
+    floor_minimum = 10
 
     def __init__(self, args):
         super(Raspberry, self).__init__(args)
@@ -49,9 +49,16 @@ class Raspberry(Base):
 
         self.weights = [0 for _ in range(64)]
 
+        # How often to take a sample of the current minimum floor value to (auto-tare)
+        self.next_sample = time.time() + self.floor_period
+
         # Keep track of the last self.floor_sample raw values seen over the past self.floor_period seconds.  These
         # are the actual values returned from the floor and will vary from slightly negative to slightly positive
         self.value_floor = [[0] for _ in range(64)]
+
+        self.start_time = time.time()
+        # The maximum value seen after filtering.
+        self.value_ceiling = [0 for _ in range(64)]
 
         # Keep track of the last self.floor_sample adjusted values.  Only report a step if they are non-zero
         # for the full history
@@ -72,7 +79,7 @@ class Raspberry(Base):
         for led in self.tile_order:
 
             # Don't add this data to the list if this tile has been bypassed
-            if self.layout.is_bypassed(led):
+            if self.layout and self.layout.is_bypassed(led):
                 continue
 
             rgb = self.leds[led]
@@ -115,7 +122,7 @@ class Raspberry(Base):
         data_bytes = self.reader.get_frame()
         values = self.process_bytes(data_bytes)
 
-        self.print_weights(values)
+        #self.print_weights(values)
 
         # Setting a member variable should be atomic
         self.weights = values
@@ -123,19 +130,38 @@ class Raspberry(Base):
     def get_weights(self):
         return self.weights
 
-    @staticmethod
-    def print_weights(values):
-        for x in range(8):
-            log_line = " | "
-            for y in range(8):
-                log_line += "{:>3} | ".format(values[x*8 + y])
-            # logger.info(log_line)
+    def print_weights(self, values):
 
-        # logger.info("-----------------------------------------\n")
+        log_line = " | "
+
+        for packet in range(self.WEIGHT_PACKETS):
+            position = self.tile_order[packet]
+
+            log_line += "{}: {:>2} ({:>2}/{:>2}) | ".format(
+                    position,
+                    values[position],
+                    min(self.value_floor[position]),
+                    self.value_ceiling[position]
+                )
+
+            if packet % 8 == 7:
+                logger.info(log_line)
+                log_line = " | "
+
+        logger.info("(1, 8): {} ({})".format(
+            self.value_floor[56],
+            1.0*sum(self.value_floor[56])/len(self.value_floor[56])
+        ))
+        logger.info("-----------------------------------------\n")
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
         new_buf = [0 for _ in range(self.WEIGHT_PACKETS)]
+
+        sample = False
+        if time.time() >= self.next_sample:
+            sample = True
+            self.next_sample = time.time() + self.floor_period
 
         for packet in range(self.WEIGHT_PACKETS):
             hi = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE])
@@ -145,14 +171,19 @@ class Raspberry(Base):
 
             # Use tile_order to map the single stream back to a left to right, left to right orders
             position = self.tile_order[packet]
-            adjusted_val = self.adjust_value(signed_val, position)
+            adjusted_val = self.adjust_value(signed_val, position, sample)
+
+            if (time.time() - self.start_time > 5) and (self.value_ceiling[position] < adjusted_val):
+                self.value_ceiling[position] = adjusted_val
+
             new_buf[position] = self.filter_value(adjusted_val, position)
 
         return new_buf
 
-    def adjust_value(self, value, position):
+    def adjust_value(self, value, position, sample):
+
         # See if self.floor_period seconds have elapsed
-        if int(time.time()) % self.floor_period == 0:
+        if sample:
 
             # See if we have a full set of samples yet
             if len(self.value_floor[position]) < self.floor_samples:
@@ -161,13 +192,9 @@ class Raspberry(Base):
                 # Shift in the new value and re-sort low to high
                 self.value_floor[position] = self.value_floor[position][1:] + [value]
 
-            self.value_floor[position].sort()
-            # sys.stdout.write("{}) ".format(position))
-            # print self.value_floor[position]
-
         # Subtract the lowest value we've seen for this position over the
         # last self.floor_period * self.floor_samples seconds
-        value -= self.value_floor[position][0]
+        value -= min(self.value_floor[position])
         if value <= self.floor_minimum:
             return 0
         else:

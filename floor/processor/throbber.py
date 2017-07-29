@@ -8,6 +8,7 @@ BLUE = (0x00, 0x00, 0xff)
 
 COLORS = [RED, YELLOW, GREEN, BLUE]
 
+
 def draw_line(arr, start, end, pixel):
     for x in range(start[0], end[0] + 1):
         for y in range(start[1], end[1] + 1):
