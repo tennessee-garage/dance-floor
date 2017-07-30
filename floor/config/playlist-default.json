@@ -1,6 +1,10 @@
 {
   "queue": [
     {
+      "name": "chachacha",
+      "duration": "60"
+    },
+    {
       "name": "stripes",
       "duration": "30",
       "args": {
