@@ -1,10 +1,17 @@
 from base import Base
 import math
 import random
+import logging
+
+logger = logging.getLogger('electricity')
 
 
 def create(args=None):
     return Electricity()
+
+
+def dist(x1, y1, x2, y2):
+    return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
 class Electricity(Base):
@@ -14,23 +21,46 @@ class Electricity(Base):
 
     def __init__(self):
         super(Electricity, self).__init__()
-        self.arc = Arc(1, 63)
 
-        self.pixels = []
-        for idx in range(0, 64):
-            self.pixels.append([0, 0, 0])
+        self.arcs = {}
+
+        # self.arc = Arc(1, 63)
+
+        self.pixels = [[0, 0, 0] for _ in range(64)]
 
     def get_next_frame(self, weights):
         self.fade_frame()
-        self.arc.advance()
-        for idx, val in enumerate(self.arc.frame):
-            if val > 0:
-                self.pixels[idx] = [val*self.max_value, val*self.max_value, val*self.max_value]
+
+        last_val = None
+        new_arcs = {}
+        for idx, w in enumerate(weights):
+            if w > 0:
+                if last_val is not None:
+                    pair = "{}-{}".format(last_val, idx)
+                    logger.info("Pair: {}".format(pair))
+                    if pair in self.arcs:
+                        new_arcs[pair] = self.arcs[pair]
+                    else:
+                        new_arcs[pair] = Arc(last_val, idx)
+
+                last_val = idx
+
+        self.arcs = new_arcs
+
+        for arc in self.arcs.values():
+            self.apply_arc(arc)
 
         return self.pixels
 
+    def apply_arc(self, arc):
+        arc.advance()
+
+        for idx, val in enumerate(arc.frame):
+            if len(val) > 0:
+                self.pixels[idx] = val  # [val * self.max_value, val * self.max_value, val * self.max_value]
+
     def fade_frame(self):
-        for idx in range(0, 64):
+        for idx in range(64):
             if self.pixels[idx][0] > self.DECAY_THRESHOLD:
                 self.pixels[idx][0] *= self.DECAY_RATE
                 self.pixels[idx][1] *= self.DECAY_RATE
@@ -55,6 +85,8 @@ class Arc(object):
         self.p2x = point2 % 8
         self.p2y = int(point2 / 8)
 
+        logger.info("p1:{}, p2:{} == x1:{}, y1:{}, x2:{}, y2:{}".format(point1, point2, self.p1x, self.p1y, self.p2x, self.p2y))
+
         # The position of the leading edge of the arc
         self.lead_x = self.p1x
         self.lead_y = self.p1y
@@ -66,9 +98,7 @@ class Arc(object):
         self.connected = False
 
         # Hold the arc pattern
-        self.frame = []
-        for idx in range(0, 64):
-            self.frame.append(0)
+        self.frame = [[0, 0, 0] for _ in range(64)]
 
     def advance(self):
         options = []
@@ -98,14 +128,17 @@ class Arc(object):
         # Middle left
         self.add_if_valid(options, self.lead_x - 1, self.lead_y)
 
+        if len(options) == 0:
+            return
+
         pick = random.randint(0, len(options) - 1)
         for idx, point in enumerate(options):
             if idx == pick:
-                self.frame[point[0] + point[1]*8] = self.LEAD_PATH
+                self.frame[point[0] + point[1]*8] = [0, 0, 1000]
                 self.lead_x = point[0]
                 self.lead_y = point[1]
             else:
-                self.frame[point[0] + point[1] * 8] = self.LEAD_ALTERNATE
+                self.frame[point[0] + point[1] * 8] = [500, 0, 0]
 
         if self.connected:
             # Start over again
@@ -128,8 +161,7 @@ class Arc(object):
         if x < 0 or x > 7 or y < 0 or y > 7:
             return -1
 
-        return math.sqrt((x - self.p2x)**2 + (y - self.p2y)**2)
+        return dist(x, y, self.p2x, self.p2y)
 
     def clear_frame(self):
-        for idx in range(0, 64):
-            self.frame[idx] = 0.0
+        self.frame = [[0, 0, 0] for _ in range(64)]

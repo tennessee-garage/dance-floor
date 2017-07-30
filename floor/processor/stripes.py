@@ -4,6 +4,8 @@ import random
 
 
 def create(args=None):
+    if args is None:
+        args = {}
     return Stripes(args)
 
 
