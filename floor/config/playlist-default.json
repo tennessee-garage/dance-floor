@@ -84,6 +84,10 @@
     {
       "name": "raver_plaid",
       "duration": "60"
+    },
+    {
+      "name": "throbber",
+      "duration": "60"
     }
   ]
 }
