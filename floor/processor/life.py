@@ -2,17 +2,12 @@ from base import Base
 import datetime
 
 
-def create(args=None):
-    # Simply return a new instance of your class here
-    return Life()
-
-
 class Life(Base):
 
     BPM = 94
 
-    def __init__(self):
-        super(Life, self).__init__()
+    def __init__(self, **kwargs):
+        super(Life, self).__init__(**kwargs)
 
         # used to track floor state
         self.active_px = self.init_frame(False)

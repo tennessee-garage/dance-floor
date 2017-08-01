@@ -37,12 +37,21 @@ def view_tempo(bpm, downbeat):
         'downbeat_millis': int(downbeat * 1000)
     }
 
+def view_processors(processors):
+    ret = {}
+    for k, v in processors.iteritems():
+        ret[k] = {
+            'name': k,
+        }
+    return ret
+
 
 @app.route('/api/status', methods=['GET'])
 def api_status():
     result = {
         'playlist': view_playlist(app.controller.playlist),
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
+        'processors': view_processors(app.controller.processors),
     }
     return jsonify(result)
 

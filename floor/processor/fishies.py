@@ -4,13 +4,9 @@ import random
 from random import randint
 import time
 
-def create(args=None):
-    return Fishies()
-
-
 class Fishies(Base):
-    def __init__(self):
-        super(Fishies, self).__init__()
+    def __init__(self, **kwargs):
+        super(Fishies, self).__init__(**kwargs)
         self.pixels = []
         # self.palette = color.get_random_palette(self.max_value)
         self.palette = color.get_palette('rainbow_bunny', self.max_value)

@@ -52,7 +52,3 @@ class Throbber(Base):
             draw_line(pixels, (0, 7), (7, 7), color)
 
         return pixels
-
-
-def create(args=None):
-    return Throbber()

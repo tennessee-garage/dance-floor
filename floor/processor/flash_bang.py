@@ -3,10 +3,6 @@ import random
 import math
 
 
-def create(args=None):
-    return FlashBang()
-
-
 class FlashBang(Base):
 
     # Random range for how long the main burst lasts
@@ -25,8 +21,8 @@ class FlashBang(Base):
     SPARKLE_PERCENT = 0.40
     SPARKLE_SPACING = 5
 
-    def __init__(self):
-        super(FlashBang, self).__init__()
+    def __init__(self, **kwargs):
+        super(FlashBang, self).__init__(**kwargs)
         self.burst_pixels = []
         self.sparkles = []
 

@@ -1,18 +1,13 @@
 from base import Base
 
 
-def create(args=None):
-    # Simply return a new instance of your class here
-    return Test()
-
-
 class Test(Base):
 
     SLOW_CYCLE = 30
     FAST_CYCLE = 2
 
-    def __init__(self):
-        super(Test, self).__init__()
+    def __init__(self, **kwargs):
+        super(Test, self).__init__(**kwargs)
 
         # helpful colors
         dark = (0, 0, 0)

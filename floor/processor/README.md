@@ -7,20 +7,15 @@
 from base import Base
 
 
-def create():
-    # Simply return a new instance of your class here
-    return YourPattern()
-
-
 class YourPattern(Base):
 
-    def __init__(self):
-        super(YourPattern, self).__init__()
+    def __init__(self, **kwargs):
+        super(YourPattern, self).__init__(**kwargs)
         # Set/initialize any state variables here
 
     def get_next_frame(self, weights):
         # This gets called once every 1/fps seconds
-    
+
         # Do something with list of weight values
 
         # Compute a list of RGB tuples, limit by self.max_value

@@ -1,13 +1,9 @@
 from base import Base
 
 
-def create(args=None):
-    return ColorWash()
-
-
 class ColorWash(Base):
-    def __init__(self):
-        super(ColorWash, self).__init__()
+    def __init__(self, **kwargs):
+        super(ColorWash, self).__init__(**kwargs)
         self.red = 0
         self.green = 0
         self.blue = 0

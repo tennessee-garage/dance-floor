@@ -4,16 +4,12 @@ import time
 import random
 
 
-def create(args=None):
-    return Kaleidoscope()
-
-
 class Kaleidoscope(Base):
 
     LIFETIME = 1.0
 
-    def __init__(self):
-        super(Kaleidoscope, self).__init__()
+    def __init__(self, **kwargs):
+        super(Kaleidoscope, self).__init__(**kwargs)
         self.active_px = []
         self.times = [0 for _ in range(64)]
         self.palette = color.get_random_palette(self.max_value)

@@ -3,27 +3,21 @@ from util import color_utils
 import random
 
 
-def create(args=None):
-    if args is None:
-        args = {}
-    return Stripes(args)
-
-
 class Stripes(Base):
     DEFAULT_FADE_LENGTH = 100
 
     DEFAULT_MAX_SPEED = 1.0
     DEFAULT_MIN_SPEED = 0.2
 
-    def __init__(self, args):
-        super(Stripes, self).__init__()
+    def __init__(self, **kwargs):
+        super(Stripes, self).__init__(**kwargs)
         self.palette = color_utils.get_random_palette(self.max_value)
         self.gradient = [[] for _ in range(len(self.palette))]
         self.stripes = [None for _ in range(8)]
 
-        fade_length = args.get("length", self.DEFAULT_FADE_LENGTH)
-        self.max_speed = args.get("max_speed", self.DEFAULT_MAX_SPEED)
-        self.min_speed = args.get("min_speed", self.DEFAULT_MIN_SPEED)
+        fade_length = kwargs.get("length", self.DEFAULT_FADE_LENGTH)
+        self.max_speed = kwargs.get("max_speed", self.DEFAULT_MAX_SPEED)
+        self.min_speed = kwargs.get("min_speed", self.DEFAULT_MIN_SPEED)
 
         for idx, p in enumerate(self.palette):
             for n in range(fade_length, 1, -1):
@@ -107,4 +101,3 @@ class Stripe:
             if int(self.start) <= 0:
                 self.done = True
                 self.start = 0
-

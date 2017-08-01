@@ -8,13 +8,9 @@ import math
 
 life_time = 4
 
-def create(args=None):
-    return LandMines()
-
-
 class LandMines(Base):
-    def __init__(self):
-        super(LandMines, self).__init__()
+    def __init__(self, **kwargs):
+        super(LandMines, self).__init__(**kwargs)
         self.pixels = []
         self.mines = []
         self.walkers = self.init_walkers()

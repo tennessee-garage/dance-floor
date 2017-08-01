@@ -5,14 +5,10 @@ import time
 import math
 
 
-def create(args=None):
-    return RaverPlaid()
-
-
 class RaverPlaid(Base):
 
-    def __init__(self):
-        super(RaverPlaid, self).__init__()
+    def __init__(self, **kwargs):
+        super(RaverPlaid, self).__init__(**kwargs)
 
         self.n_pixels = 64
 
