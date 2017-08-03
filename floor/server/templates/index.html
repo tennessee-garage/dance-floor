@@ -14,6 +14,9 @@
     .btn:focus,.btn:active {
       outline: none !important;
     }
+    .playlist-button {
+      min-height: 48px;
+    }
     #tapper {
       margin-top: 24px;
       min-height: 128px;
@@ -56,10 +59,32 @@
     <div class="col-sm-6">
       <h2>Control Panel</h2>
       <div id="playlist">
-        <button class="btn btn-default btn-block" id="stop-button">Stop</button>
-        <button class="btn btn-default btn-block" id="start-button" style="display: none">Start</button>
-        <button class="btn btn-default btn-block" id="next-button">Next</button>
-        <button class="btn btn-default btn-block" id="stay-button">Stay Put!</button>
+        <div class="btn-group btn-group-justified" role="group" aria-label="...">
+          <div class="btn-group" role="group">
+            <button class="btn btn-default btn-block playlist-button" id="previous-button">
+              <span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="btn-group" role="group">
+            <button class="btn btn-default btn-block playlist-button" id="stay-button">
+              <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="btn-group" role="group">
+            <button class="btn btn-default btn-block playlist-button" id="next-button">
+              <span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <br/>
+        <div>
+          <button class="btn btn-default btn-block playlist-button" id="stop-button">
+            <span class="glyphicon glyphicon-stop" aria-hidden="true"></span> Stop
+          </button>
+          <button class="btn btn-default btn-block playlist-button" id="start-button" style="display: none">
+            <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start
+          </button>
+        </div>
       </div>
 
       <hr/>
@@ -232,6 +257,16 @@
     });
   }
 
+  function previous() {
+    return axios.post('/api/playlist/previous').then(function (response) {
+      handlePlaylistUpdate(response.data);
+      rescheduleRefresh();
+    }).catch(function (error) {
+      handleError(error);
+      rescheduleRefresh();
+    });
+  }
+
   function stay() {
     return axios.post('/api/playlist/stay').then(function (response) {
       handlePlaylistUpdate(response.data);
@@ -344,6 +379,9 @@
     });
     $('#stop-button').click(function () {
       stop_show();
+    });
+    $('#previous-button').click(function () {
+      previous();
     });
     $('#next-button').click(function () {
       advance();
