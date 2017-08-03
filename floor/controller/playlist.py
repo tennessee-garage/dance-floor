@@ -88,9 +88,6 @@ class Playlist(object):
         return self.queue[self.position]
 
     def advance(self):
-        if not self.is_running():
-            return
-
         """Go to the next playlist item."""
         if self.position is None:
             position = 0
@@ -98,8 +95,19 @@ class Playlist(object):
             position = (self.position + 1) % len(self.queue)
         self.go_to(position)
 
+    def previous(self):
+        """Go to the previous playlist item."""
+        if self.position is None:
+            position = 0
+        else:
+            position = (self.position - 1) % len(self.queue)
+        self.go_to(position)
+
     def go_to(self, position):
         """Go to a specific playlist item."""
+        if not self.is_running():
+            return
+
         queue_length = len(self.queue)
         if position >= queue_length:
             raise ValueError('Position {} out of range ({})'.format(position, queue_length))
