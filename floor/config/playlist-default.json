@@ -92,6 +92,10 @@
     {
       "name": "throbber",
       "duration": "60"
+    },
+    {
+      "name": "zap",
+      "duration": "60"
     }
   ]
 }
