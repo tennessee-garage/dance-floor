@@ -130,6 +130,8 @@ class Controller(object):
 
         processor, args = item['name'], item['args']
         if processor not in self.processors:
+            logger.error('Unknown processor "{}"; removing it.'.format(processor))
+            self.playlist.remove(self.playlist.position)
             return
 
         if processor and (processor, args) != (self.current_processor, self.current_args):
@@ -141,8 +143,16 @@ class Controller(object):
     def generate_frame(self):
         if not self.processor:
             return
-        leds = self.processor.get_next_frame(self.driver.get_weights())
-        self.driver.set_leds(leds)
+        try:
+            leds = self.processor.get_next_frame(self.driver.get_weights())
+        except KeyboardInterrupt:
+            raise
+        except Exception:
+            logger.exception('Error generating frame for processor {}'.format(self.processor))
+            logger.warning('Removing processor due to error.')
+            self.playlist.remove(self.playlist.position)
+        else:
+            self.driver.set_leds(leds)
 
     def transfer_data(self):
         self.driver.send_data()

@@ -128,6 +128,19 @@ None.
 The playlist object.
 
 
+### `POST /api/playlist/previous`
+
+Moves the playlist to the previous item, returning the playlist object.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The playlist object.
+
+
 ### `POST /api/playlist/add`
 
 Adds a new item to the playlist, at the end of the playlist.

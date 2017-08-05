@@ -83,6 +83,13 @@ def api_playlist_advance():
     return jsonify(view_playlist(playlist))
 
 
+@app.route('/api/playlist/previous', methods=['POST'])
+def api_playlist_previous():
+    playlist = app.controller.playlist
+    playlist.previous()
+    return jsonify(view_playlist(playlist))
+
+
 @app.route('/api/playlist/add', methods=['POST'])
 def api_playlist_add():
     content = request.get_json(silent=True)
