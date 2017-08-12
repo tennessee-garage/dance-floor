@@ -90,6 +90,8 @@ class Devserver(Base):
 
     """
 
+    MAX_LED_VALUE = 256
+
     def __init__(self, args):
         super(Devserver, self).__init__(args)
         self.websocket_server = SimpleWebSocketServer('', 1980, FloorWebsocketHandler)
