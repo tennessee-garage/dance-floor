@@ -4,21 +4,21 @@
 
 The code in this directory controls all the lights on the floor as well as reads the weight data sent by the floor.
 
-This code is intended to run on a Raspberry Pi with a special communication sheild that facilitates communication with the floor.  The code is started via:
+This code is intended to run on a Raspberry Pi with a special communication sheild that facilitates communication with the floor.  It is started via:
 ```bash
-  python run-show.py --driver raspberry
+  python run-show.py
 ```
-There is a test mode of this code that allows running and debugging from a computer rather than a Raspberry Pi.  It uses OpenPixelControl talking to an Open GL server (`gl_server`) to simulate the dancefloor   It can be run via:
+For development and testing, use the devserver driver. It allows you to run the code and preview a mock dance floor in a web browser.  It can be run via:
 ```bash
-  python run-show.py --driver opc
+  python run-show.py --driver devserver
 ```
 
 ## Files/Directories
 
 * **bin** - General executables
 * **controller** - The main class, acts a framework for controllers and drivers
-* **driver** - Different I/O drivers.  Currently they are `raspberry` for running on a Raspberry Pi and interfacing with its hardware or `opc` for connecting to an existing Open GL server (`gl_server`) that simulates the floor.
-* **opc-layouts** - Different OPC pixel layout files.  These are used by `gl_server` to draw a representation of the floor.
+* **driver** - Different I/O drivers.  Currently they are `raspberry` for running on a Raspberry Pi and interfacing with its hardware, 'devserver' for development or `opc` (deprecated) for connecting to an existing Open GL server (`gl_server`) that simulates the floor.
+* **opc-layouts** - Different OPC pixel layout files when using the opc driver.  These are used by `gl_server` to draw a representation of the floor.
 * **processor** - Each file here generates different pixel patterns
 * **run-show.py** - The main program that drives the dancefloor
 
@@ -56,7 +56,7 @@ sudo pip install Flask
 
 ## Running the code
 
-Don't have a light up dance floor?  No problem!  You can see a visualization of the dance floor by running the `gl_server` provided by OpenPixelControl.
+Don't have a light up dance floor?  No problem!  You can see a visualization of the dance floor by running devserver.
 
 1. Start the devserver:
 ```bash
@@ -69,32 +69,6 @@ python run-show.py --driver devserver
 3. The controller renders here:
    http://0.0.0.0:1977/
 
-## Running with OPC
-
-This is the previous method for testing the dance floor code that used Open Pixel Control as a framework for mocking the floor.  It provides an OpenGL server that can simulate what the floor will look like when data is sent to it.  The web interface is the preferred way to test, so this is here primarly as an FYI.
-
-### Setup
-
-1. If on a linux machine (not necessary on a Mac) install a few required libraries
-```bash
-sudo apt-get install mesa-common-dev freeglut3-dev
-```
-2. Build a modified version of the OPC server that includes jbrecht's change to make the LEDs square rather than round:
-```bash
-cd floor/opc
-make
-```
-
-### Running
-
-1. Start the `gl_server` with the dance floor layout:
-```bash
-floor/opc/bin/gl_server -l floor/opc-layouts/simple-dance-floor.json
-```
-2. Next start the show code:
-```bash
-python floor/run-show.py --driver opc --processor raver_plaid
-```
 
 ## Writing a new processor
 
