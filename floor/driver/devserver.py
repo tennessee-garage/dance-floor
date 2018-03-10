@@ -10,13 +10,7 @@ import logging
 logger = logging.getLogger('devserver')
 
 from base import Base
-
-try:
-    from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
-except ImportError:
-    print('Error: Could not find the websocket server library. Install with:')
-    print('pip install git+https://github.com/dpallot/simple-websocket-server.git')
-    sys.exit(1)
+from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
