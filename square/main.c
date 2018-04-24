@@ -28,9 +28,9 @@
 #define IS_CHIP_SELECTED() (CHIP_SELECT() == 0)
 
 // Pull 10-bit values
-#define DECODE_RED(byte1, byte2) (((byte1 & 0x3F) << 4) | (byte2 >> 4))
-#define DECODE_GREEN(byte1, byte2) (((byte1 & 0x0F) << 6) | (byte2 >> 2))
-#define DECODE_BLUE(byte1, byte2) (((byte1 & 0x03) << 8) | byte2)
+#define DECODE_RED(byte1, byte2) ((((byte1) & 0x3F) << 4) | ((byte2) >> 4))
+#define DECODE_GREEN(byte1, byte2) ((((byte1) & 0x0F) << 6) | ((byte2) >> 2))
+#define DECODE_BLUE(byte1, byte2) ((((byte1) & 0x03) << 8) | (byte2))
 
 // Each packet transmitted has 4 bytes.  The dance floor has 64 squares so will need
 // to have 64 packets sent to set LED values.  Using 96 to give some extra room
