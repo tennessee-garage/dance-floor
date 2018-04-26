@@ -117,12 +117,9 @@ void init_adc(void) {
     // clock to a reasonable value for the ADC
     ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
 
-    // Set bipolar input mode (BIN), 32x gain (GSEL), see below for MUX5 info
-    ADCSRB = _BV(BIN) | _BV(GSEL) | _BV(MUX5);
-
-    // 1.1v reference voltage (REFS1),
-    // PA5: positive, PA6: negative (MUX5, MUX3, MUX2, see table 15-5 in datasheet)
-    ADMUX = _BV(REFS1) | _BV(MUX3) | _BV(MUX2);
+    // Vcc reference voltage (REFS1),
+    // Measure @ PA5 (MUX2, see table 15-5 in data sheet)
+    ADMUX = _BV(MUX2);
 
     START_ADC_CONVERSION();
 }
@@ -161,14 +158,17 @@ void set_green(uint16_t val) {
 }
 
 void handle_spi(void) {
-    uint8_t transferred = 0;
     uint8_t val_in;
 
     // Start the head at 4 since 0..3 are the weight values
     uint16_t head = 4;
 
-    // When we enter this method USIDR already has buffer[head-4] loaded.  When we
-    // write out val_out it will be for the next byte, which is buffer[head+1-4] or buffer[head-3]
+    // Ready the first byte out for this transfer
+    USIDR = buffer[0];
+    CLEAR_OVERFLOW();
+
+    // Since buffer[head-4] is loaded, we write out val_out for the next byte.
+    // This is buffer[head+1-4] or buffer[head-3]
     uint8_t val_out = buffer[head-3];
 
     // Wait for the next cycle to start
@@ -176,7 +176,6 @@ void handle_spi(void) {
 
     // While in chip select, read data
     while (IS_CHIP_SELECTED()) {
-        transferred = 1;
 
         // Wait for bytes to be read in, at which point overflow will trigger
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
@@ -193,11 +192,6 @@ void handle_spi(void) {
         // Set the value we'll output on the next round.  Now that head has been incremented, the
         // value in USIDR is buffer[head-4].  To ready the next value we grab buffer[head+1-4]
         val_out = buffer[head-3];
-    }
-
-    // If we didn't just transfer some bytes, don't decode and set LEDs
-    if (!transferred) {
-        return;
     }
 
     // The value of head is incremented after the last byte is written, and then incremented again when
@@ -222,24 +216,8 @@ void handle_adc(void) {
         buffer[2] = 0;
         buffer[3] = 0;
 
-        // Ready the first byte for the next transfer
-        USIDR = buffer[0];
-
         START_ADC_CONVERSION();
     }
-}
-
-void sync_spi(void) {
-    // Wait out a full cycle to make sure we are fully synced up
-
-    // Wait for any current cycle to finish
-    while (IS_CHIP_SELECTED());
-
-    // Wait for the next cycle to start
-    while (!IS_CHIP_SELECTED());
-
-    // Wait out this cycle
-    while (IS_CHIP_SELECTED());
 }
 
 int main(void) {
@@ -249,7 +227,7 @@ int main(void) {
     init_spi();
 
     // Get ourselves synced up by waiting out one cycle
-    sync_spi();
+    //sync_spi();
 
     while (1) {
         handle_spi();

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(dance-floor-square)
+project(square-velostat-test)
 
 SET(MCU "attiny861")
 SET(F_CPU "16000000")
@@ -24,4 +24,4 @@ SET(SOURCE_FILES
         main.c
         main.h)
 
-add_executable(dance-floor-square ${SOURCE_FILES})
+add_executable(square-velostat-test ${SOURCE_FILES})
