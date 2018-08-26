@@ -3,7 +3,6 @@ import itertools
 
 from base import Base
 from utils import clocked
-import time
 
 BLACK = (0, 0, 0)
 RED = (0xff, 0x00, 0x00)
@@ -33,6 +32,6 @@ class ChaChaCha(Base):
     @clocked(frames_per_beat=2)
     def get_next_frame(self, weights):
         lines = list(itertools.islice(self.lines, 0, 8))
-        self.lines.rotate()
+        self.lines.rotate(n=1)
         pixels = [pixel for line in lines for pixel in line]
         return pixels
