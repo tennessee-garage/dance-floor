@@ -1,8 +1,6 @@
 from base import Base
 import importlib
 from util.serial_read import SerialRead
-import time
-from threading import Thread
 
 import logging
 
@@ -30,12 +28,6 @@ class Raspberry(Base):
         63, 62, 61, 60, 59, 58, 57, 56,
     ]
 
-    # Take a floor sample every floor_period seconds
-    floor_period = 5
-
-    # Keep a maximum of floor_sample samples
-    floor_samples = 5
-
     # Minimum value for a floor tile to register.  Anything under this will be treated as zero
     floor_minimum = 10
 
@@ -49,20 +41,9 @@ class Raspberry(Base):
 
         self.weights = [0 for _ in range(64)]
 
-        # How often to take a sample of the current minimum floor value to (auto-tare)
-        self.next_sample = time.time() + self.floor_period
-
-        # Keep track of the last self.floor_sample raw values seen over the past self.floor_period seconds.  These
-        # are the actual values returned from the floor and will vary from slightly negative to slightly positive
-        self.value_floor = [[0] for _ in range(64)]
-
-        self.start_time = time.time()
         # The maximum value seen after filtering.
         self.value_ceiling = [0 for _ in range(64)]
-
-        # Keep track of the last self.floor_sample adjusted values.  Only report a step if they are non-zero
-        # for the full history
-        self.value_history = [[0] for _ in range(64)]
+        self.value_floor = [0 for _ in range(64)]
 
         self.reader = SerialRead()
 
@@ -122,7 +103,7 @@ class Raspberry(Base):
         data_bytes = self.reader.get_frame()
         values = self.process_bytes(data_bytes)
 
-        #self.print_weights(values)
+        # self.print_weights(values)
 
         # Setting a member variable should be atomic
         self.weights = values
@@ -148,71 +129,31 @@ class Raspberry(Base):
                 logger.info(log_line)
                 log_line = " | "
 
-        logger.info("(1, 8): {} ({})".format(
-            self.value_floor[56],
-            1.0*sum(self.value_floor[56])/len(self.value_floor[56])
-        ))
         logger.info("-----------------------------------------\n")
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
         new_buf = [0 for _ in range(self.WEIGHT_PACKETS)]
 
-        sample = False
-        if time.time() >= self.next_sample:
-            sample = True
-            self.next_sample = time.time() + self.floor_period
-
         for packet in range(self.WEIGHT_PACKETS):
-            hi = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE])
-            lo = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE + 1])
-            unsigned_val = (hi << 8) + lo
-            signed_val = self.twos_comp(unsigned_val)
+            value = self.value_from_packet(data_bytes, packet)
 
             # Use tile_order to map the single stream back to a left to right, left to right orders
             position = self.tile_order[packet]
-            adjusted_val = self.adjust_value(signed_val, position, sample)
+            adjusted_val = self.adjust_value(value)
 
-            if (time.time() - self.start_time > 5) and (self.value_ceiling[position] < adjusted_val):
-                self.value_ceiling[position] = adjusted_val
+            self.value_ceiling[position] = max(self.value_ceiling[position], adjusted_val)
+            self.value_floor[position] = min(self.value_floor[position], adjusted_val)
 
-            new_buf[position] = self.filter_value(adjusted_val, position)
+            new_buf[position] = adjusted_val
 
         return new_buf
 
-    def adjust_value(self, value, position, sample):
-
-        # See if self.floor_period seconds have elapsed
-        if sample:
-
-            # See if we have a full set of samples yet
-            if len(self.value_floor[position]) < self.floor_samples:
-                self.value_floor[position].append(value)
-            else:
-                # Shift in the new value and re-sort low to high
-                self.value_floor[position] = self.value_floor[position][1:] + [value]
-
-        # Subtract the lowest value we've seen for this position over the
-        # last self.floor_period * self.floor_samples seconds
-        value -= min(self.value_floor[position])
-        if value <= self.floor_minimum:
-            return 0
-        else:
-            return value
-
-    def filter_value(self, value, position):
-        if len(self.value_history[position]) < self.floor_samples:
-            self.value_history[position].append(value)
-        else:
-            self.value_history[position] = self.value_history[position][1:] + [value]
-
-        for v in self.value_history[position]:
-            # If there are ANY zero values, ignore this for now
-            if v == 0:
-                return 0
-
-        # If all values in recent history are greater than zero, then return this value
-        return value
+    def value_from_packet(self, data_bytes, packet):
+        hi = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE])
+        lo = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE + 1])
+        unsigned_val = (hi << 8) + lo
+        return self.twos_comp(unsigned_val)
 
     @staticmethod
     def twos_comp(val, bits=10):
@@ -220,3 +161,9 @@ class Raspberry(Base):
         if (val & (1 << (bits - 1))) != 0:  # if sign bit is set e.g., 8bit: 128-255
             val -= 1 << bits  # compute negative value
         return val
+
+    def adjust_value(self, value):
+        if value <= self.floor_minimum:
+            return 0
+        else:
+            return value
