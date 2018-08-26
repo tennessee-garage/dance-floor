@@ -14,8 +14,8 @@ class Base(object):
 
     # accept (x,y) tuple reflecting a coordinate
     # return the array index suitable for use in weights or pixels arrays
-    def idx(self,pixel):
-        (x,y) = pixel
+    def idx(self, pixel):
+        (x, y) = pixel
         return (x * self.FLOOR_WIDTH) + y
 
     def set_max_value(self, max_value):
