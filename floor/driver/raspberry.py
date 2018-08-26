@@ -103,7 +103,7 @@ class Raspberry(Base):
         data_bytes = self.reader.get_frame()
         values = self.process_bytes(data_bytes)
 
-        # self.print_weights(values)
+        self.print_weights(values)
 
         # Setting a member variable should be atomic
         self.weights = values
@@ -112,6 +112,9 @@ class Raspberry(Base):
         return self.weights
 
     def print_weights(self, values):
+        # Skip all this processing if we aren't going to output anything in the end
+        if logger.getEffectiveLevel() > logging.DEBUG:
+            return
 
         log_line = " | "
 
@@ -126,10 +129,10 @@ class Raspberry(Base):
                 )
 
             if packet % 8 == 7:
-                logger.info(log_line)
+                logger.debug(log_line)
                 log_line = " | "
 
-        logger.info("-----------------------------------------\n")
+        logger.debug("-----------------------------------------\n")
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
