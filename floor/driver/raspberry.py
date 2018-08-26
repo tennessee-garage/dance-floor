@@ -124,7 +124,7 @@ class Raspberry(Base):
             log_line += "{}: {:>2} ({:>2}/{:>2}) | ".format(
                     position,
                     values[position],
-                    min(self.value_floor[position]),
+                    self.value_floor[position],
                     self.value_ceiling[position]
                 )
 
