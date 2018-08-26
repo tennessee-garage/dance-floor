@@ -33,7 +33,7 @@ class SerialRead:
         :return:
         """
 
-        if not self.data_ready():
+        if not self.data_ready:
             return
 
         packet = self.generate_null_packet()
