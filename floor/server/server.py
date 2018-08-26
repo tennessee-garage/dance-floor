@@ -2,15 +2,23 @@ import time
 import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
 
+from controller import Controller
+
 MIN_BPM = 40
 MAX_BPM = 220
 
 app = Flask('server')
+app.controller = None  # type: Controller
 
 
 @app.route('/')
 def main():
     return render_template('index.html')
+
+
+@app.route('/layout')
+def layout():
+    return render_template('layout.html', nav="layout")
 
 
 @app.route('/static/<path:path>')
@@ -36,6 +44,7 @@ def view_tempo(bpm, downbeat):
         'bpm': bpm,
         'downbeat_millis': int(downbeat * 1000)
     }
+
 
 def view_processors(processors):
     ret = {}
@@ -174,6 +183,15 @@ def api_tempo_nudge():
 
     controller.set_bpm(bpm, downbeat)
     return jsonify(view_tempo(controller.bpm, controller.downbeat))
+
+
+@app.route('/api/layout', methods=['POST'])
+def api_layout():
+    """
+    Updates the floor layout for when tiles have been bridged or are missing
+    :return:
+    """
+    pass
 
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):
