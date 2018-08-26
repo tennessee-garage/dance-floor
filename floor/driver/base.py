@@ -6,7 +6,7 @@ class Base(object):
 
     def __init__(self, driver_args):
         self.weights = []
-        self.leds = []
+        self.leds = [[0, 0, 0, 0] for _ in range(64)]
         self.args = driver_args
 
         if "layout" in driver_args:
