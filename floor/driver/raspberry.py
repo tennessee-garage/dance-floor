@@ -153,8 +153,12 @@ class Raspberry(Base):
         return new_buf
 
     def value_from_packet(self, data_bytes, packet):
-        hi = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE])
-        lo = ord(data_bytes[packet * self.WEIGHT_PACKET_SIZE + 1])
+        idx = packet * self.WEIGHT_PACKET_SIZE
+        if idx + 1 >= len(data_bytes):
+            return 0
+
+        hi = ord(data_bytes[idx])
+        lo = ord(data_bytes[idx + 1])
         unsigned_val = (hi << 8) + lo
         return self.twos_comp(unsigned_val)
 
