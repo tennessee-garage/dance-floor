@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="8.1.0">
+<eagle version="8.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
+<setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
@@ -2991,6 +2992,9 @@ Based on the following sources:&lt;p&gt;
 <sheets>
 <sheet>
 <plain>
+<text x="40.64" y="-25.4" size="1.778" layer="91">R</text>
+<text x="40.64" y="-27.94" size="1.778" layer="91">W</text>
+<text x="40.64" y="-30.48" size="1.778" layer="91">B</text>
 </plain>
 <instances>
 <instance part="BLUE-FET" gate="G$1" x="121.92" y="71.12"/>
