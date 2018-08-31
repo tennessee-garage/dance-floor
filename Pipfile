@@ -4,8 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
+nose = "*"
+mock = "*"
+freezegun = "*"
 
 [packages]
 pyserial = "*"
 flask = "*"
 simple-websocket-server = {git = "https://github.com/dpallot/simple-websocket-server.git"}
+nose = "*"
