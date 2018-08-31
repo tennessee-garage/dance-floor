@@ -8,6 +8,7 @@ import sys
 import logging
 
 LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
+DEFAULT_PLAYLIST = 'floor/playlists/default.json'
 
 def main():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
@@ -22,6 +23,12 @@ def main():
         dest='processor_name',
         default=None,
         help='Sets the LED processor to generate each frame of light data'
+    )
+    parser.add_argument(
+        '--playlist',
+        dest='playlist',
+        default=DEFAULT_PLAYLIST,
+        help='Load and run this playlist on start'
     )
     parser.add_argument(
         '--no-opc-input',
@@ -54,7 +61,7 @@ def main():
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     config_dir = get_config_dir()
-    playlist = Playlist(config_dir, args.processor_name)
+    playlist = Playlist(args.playlist, args.processor_name)
     layout = Layout(config_dir)
 
     show = Controller(playlist)
