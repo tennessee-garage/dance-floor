@@ -6,29 +6,19 @@ logger = logging.getLogger('playlist')
 
 
 class Playlist(object):
-
-    def __init__(self, config_dir='', processor=None):
+    def __init__(self, filename=None, processor=None):
         # The index into the queue array
         self.position = None
         # Time when the playlist should auto advance.
         self.next_advance = None
         self.queue = []
-
         self.running = True
 
         # If a processor was passed in, use it, otherwise read the config file
         if processor:
-            self.append(name=processor)
-        else:
-            filename = config_dir + "/playlist-default.json"
-            with open(filename) as json_data:
-                items = json.load(json_data).get('queue', [])
-                for item in items:
-                    self.append(
-                        item['name'],
-                        item.get('duration', 0),
-                        item.get('args')
-                    )
+            self.queue.append(name=processor)
+        elif filename:
+            self.load_from(filename)
 
     @staticmethod
     def item(name, duration=0, args=None):
@@ -38,6 +28,33 @@ class Playlist(object):
             'duration': int(duration),
             'args': args,
         }
+
+    def clear(self):
+        self.position = None
+        self.next_advance = None
+        self.queue = []
+
+    def load_from(self, input_filename):
+        """Replaces the current playlist with contents of the file."""
+        self.clear()
+        with open(input_filename) as json_data:
+            items = json.load(json_data).get('queue', [])
+            for item in items:
+                name = item['name']
+                try:
+                    duration = int(item.get('duration', 0))
+                except ValueError:
+                    duration = 0
+                args = item.get('args')
+                self.append(name, duration, args)
+
+    def save_to(self, output_filename):
+        playlist = {
+            "queue": self.queue,
+        }
+        with open(output_filename, 'w') as fp:
+            fp.write(json.dumps(playlist, indent=2))
+            fp.write('\n')
 
     def is_running(self):
         return self.running
