@@ -2,9 +2,9 @@ import time
 import sys
 import importlib
 import logging
-import driver
 import pkgutil
-import processor
+from floor import driver
+from floor import processor
 
 logger = logging.getLogger('controller')
 
