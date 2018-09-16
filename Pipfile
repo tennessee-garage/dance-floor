@@ -11,5 +11,4 @@ freezegun = "*"
 [packages]
 pyserial = "*"
 flask = "*"
-simple-websocket-server = {git = "https://github.com/dpallot/simple-websocket-server.git"}
-nose = "*"
+SimpleWebSocketServer = {git = "https://github.com/dpallot/simple-websocket-server.git"}

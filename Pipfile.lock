@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "527d22ce87c0bcd88b2bd99d7a64d560a26ba0cb0fc8ab794cfeee30dc9281fc"
+            "sha256": "551b880cf08c13248b626e77e40592c4635eaa5cbcf20efcc402ffd249b13feb"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -48,15 +48,6 @@
             ],
             "version": "==1.0"
         },
-        "nose": {
-            "hashes": [
-                "sha256:9ff7c6cc443f8c51994b34a667bbcf45afd6d945be7477b52e97516fd17c53ac",
-                "sha256:dadcddc0aefbf99eea214e0f1232b94f2fa9bd98fa8353711dacb112bfcbbb2a",
-                "sha256:f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98"
-            ],
-            "index": "pypi",
-            "version": "==1.3.7"
-        },
         "pyserial": {
             "hashes": [
                 "sha256:6e2d401fdee0eab996cf734e67773a0143b932772ca8b42451440cfed942c627",
@@ -65,7 +56,7 @@
             "index": "pypi",
             "version": "==3.4"
         },
-        "simple-websocket-server": {
+        "simplewebsocketserver": {
             "git": "https://github.com/dpallot/simple-websocket-server.git"
         },
         "werkzeug": {

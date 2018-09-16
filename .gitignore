@@ -42,6 +42,9 @@ cmake-build-debug/
 
 # Python cruft
 *.pyc
+*.egg-info/
+.eggs/
+dist/
 
 # Vim temporary files
 *.swp
