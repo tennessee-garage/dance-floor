@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "551b880cf08c13248b626e77e40592c4635eaa5cbcf20efcc402ffd249b13feb"
+            "sha256": "dfe5341bfeeddf30bb207c591492ce157c97440533e183e921f27c9e2ed822e9"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -20,6 +20,12 @@
                 "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
             ],
             "version": "==6.7"
+        },
+        "construct": {
+            "hashes": [
+                "sha256:2271a0efd0798679dea825ff47e22a4c550456a5db0ba8baa82f7eae0af0118c"
+            ],
+            "version": "==2.9.45"
         },
         "flask": {
             "hashes": [
@@ -47,6 +53,13 @@
                 "sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665"
             ],
             "version": "==1.0"
+        },
+        "pymidi": {
+            "hashes": [
+                "sha256:622f64fa8d72cde974916cd5d594867c52779ec11f40432c5714bf78ab7d8e65"
+            ],
+            "index": "pypi",
+            "version": "==0.1.0"
         },
         "pyserial": {
             "hashes": [

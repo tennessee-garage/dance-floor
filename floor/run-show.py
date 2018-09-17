@@ -1,7 +1,9 @@
 from floor.controller import Controller
 from floor.controller import Playlist
 from floor.controller import Layout
+from floor.controller import MidiManager
 from floor.server.server import run_server
+
 import argparse
 import os
 import sys
@@ -54,6 +56,13 @@ def main():
         type=int,
         help='Web server port; -1 to disable.'
     )
+    parser.add_argument(
+        '--midi_server_port',
+        dest='midi_server_port',
+        default=None,
+        type=int,
+        help='MIDI server port; disabled if unset.'
+    )
     parser.set_defaults(opc_input=True, server_port=1977)
     args = parser.parse_args()
 
@@ -69,6 +78,13 @@ def main():
         "opc_input": args.opc_input,
         "layout": layout
     })
+
+    if args.midi_server_port:
+        midi_manager = MidiManager(
+            port=args.midi_server_port,
+            controller=show,
+        )
+        midi_manager.run_server()
 
     if args.server_port >= 0:
         run_server(show, port=args.server_port)
