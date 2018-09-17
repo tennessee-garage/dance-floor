@@ -56,10 +56,10 @@
         },
         "pymidi": {
             "hashes": [
-                "sha256:622f64fa8d72cde974916cd5d594867c52779ec11f40432c5714bf78ab7d8e65"
+                "sha256:79bc6d8ebb115c67811326c7ea44a1e45d96068d77cf52af2325b27a5bb63078"
             ],
             "index": "pypi",
-            "version": "==0.1.0"
+            "version": "==0.2.1"
         },
         "pyserial": {
             "hashes": [
