@@ -9,6 +9,9 @@ logger = logging.getLogger('raspberry')
 
 class Raspberry(Base):
 
+    # For debugging high frequency loops, only output 1 out of this many times.
+    DEBUG_SKIP_RESET = 10
+
     # The number of bytes in a packet of data for weight values
     WEIGHT_PACKET_SIZE = 2
 
@@ -35,6 +38,9 @@ class Raspberry(Base):
         super(Raspberry, self).__init__(args)
 
         module = importlib.import_module("spidev")
+
+        # For debugging high frequency loops, only print when this reaches zero (and then reset to DEBUG_SKIP_RESET)
+        self.debug_skip_read = 0
 
         self.spi = module.SpiDev()
         self.spi.open(0, 0)
@@ -108,15 +114,23 @@ class Raspberry(Base):
         # Setting a member variable should be atomic
         self.weights = values
 
+        self.debug_skip_read -= 1
+        if self.debug_skip_read < 0:
+            self.debug_skip_read = self.DEBUG_SKIP_RESET
+
     def get_weights(self):
         return self.weights
 
     def print_weights(self, values):
+        # Only output 1 out of DEBUG_SKIP_RESET times
+        if self.debug_skip_read != 0:
+            return
+
         # Skip all this processing if we aren't going to output anything in the end
         if logger.getEffectiveLevel() > logging.DEBUG:
             return
 
-        log_line = " | "
+        log_line = "\n | "
 
         for packet in range(self.WEIGHT_PACKETS):
             position = self.tile_order[packet]
@@ -129,10 +143,10 @@ class Raspberry(Base):
                 )
 
             if packet % 8 == 7:
-                logger.debug(log_line)
-                log_line = " | "
+                log_line += " | \n"
 
-        logger.debug("-----------------------------------------\n")
+        log_line += "-----------------------------------------\n"
+        logger.debug(log_line)
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
