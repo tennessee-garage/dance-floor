@@ -1,7 +1,7 @@
-from controller import Controller
-from controller import Playlist
-from controller import Layout
-from server.server import run_server
+from floor.controller import Controller
+from floor.controller import Playlist
+from floor.controller import Layout
+from floor.server.server import run_server
 import argparse
 import os
 import sys

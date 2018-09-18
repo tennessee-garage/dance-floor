@@ -1,6 +1,5 @@
 import importlib
 
-
 class Test(object):
 
     def __init__(self):
@@ -10,7 +9,7 @@ class Test(object):
             module = importlib.import_module("driver.{}".format(driver_name))
         except ImportError as e:
             print "Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e)
-            sys.exit(0)
+            raise
 
         self.driver = getattr(module, driver_name.title())()
 

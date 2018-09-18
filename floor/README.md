@@ -24,6 +24,39 @@ For development and testing, use the devserver driver. It allows you to run the 
 
 ## Setup
 
+### Prerequisites
+
+You'll need `pip` and `pipenv`.
+
+On Linux/Debian environment, install with:
+
+```
+$ sudo apt-get install python-pip
+$ sudo pip install pipenv
+```
+On a Mac with Homebrew, install with:
+
+```
+$ brew install pipenv
+```
+
+### Developer setup
+
+```
+$ pipenv shell
+$ pipenv install
+$ python setup.py develop
+```
+
+To run tests:
+
+```
+$ pipenv run nosetests
+```
+
+### Production setup (Raspberry Pi)
+
+
 1. Clone this repository
 ```bash
 git clone https://github.com/garthwebb/dance-floor.git
@@ -37,21 +70,15 @@ cd py-spidev
 sudo make install
 ```
 
-3. [OPTIONAL] Also needed if running code on a RaspberryPi is the serial module:
-```bash
-sudo apt-get install python-serial
-```
-
-4. [Linux Only] Make sure `pip` is installed:
+3. Make sure `pip` and `pipenv` are installed:
 ```bash
 sudo apt-get install python-pip
+pip install pipenv
 ```
 
-5. Install simple websocket server and Flask
+4. Install
 ```bash
-sudo pip install git+https://github.com/dpallot/simple-websocket-server.git
-sudo pip install virtualenv
-sudo pip install Flask
+pipenv install --system
 ```
 
 ## Running the code
