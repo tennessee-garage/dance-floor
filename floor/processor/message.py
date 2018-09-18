@@ -20,7 +20,7 @@ class Message(Base):
     def __init__(self, **kwargs):
         super(Message, self).__init__(**kwargs)
 
-        font_module = importlib.import_module("processor.fonts.{}".format(self.DEFAULT_FONT))
+        font_module = importlib.import_module("floor.processor.fonts.{}".format(self.DEFAULT_FONT))
 
         self.font = font_module.alpha()
         # The list of messages to scroll
