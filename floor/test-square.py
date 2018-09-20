@@ -1,4 +1,4 @@
-from controller import Test
+from floor.controller import Test
 import sys
 
 def main():

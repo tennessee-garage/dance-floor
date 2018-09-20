@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from floor.controller import Controller
 from floor.controller import Playlist
 from floor.controller import Layout
