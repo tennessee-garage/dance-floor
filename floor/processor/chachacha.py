@@ -32,6 +32,6 @@ class ChaChaCha(Base):
     @clocked(frames_per_beat=2)
     def get_next_frame(self, weights):
         lines = list(itertools.islice(self.lines, 0, 8))
-        self.lines.rotate(n=1)
+        self.lines.rotate()
         pixels = [pixel for line in lines for pixel in line]
         return pixels

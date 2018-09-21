@@ -2,7 +2,6 @@ import time
 import sys
 import importlib
 import logging
-import pkgutil
 from floor import driver
 from floor import processor
 
@@ -21,8 +20,7 @@ class Controller(object):
         self.fps = None
         self.frame_seconds = None
 
-        self.processors = {}
-        self.load_processors()
+        self.processors = processor.ALL_PROCESSORS
 
         self.current_processor = None
         self.current_args = None
@@ -32,37 +30,6 @@ class Controller(object):
         self.bpm = None
         self.downbeat = None
         self.set_bpm(self.DEFAULT_BPM)
-
-    def load_processors(self):
-        """Loads (or reloads) all processors."""
-        package = processor
-        prefix = package.__name__ + "."
-
-        # Load or reload all processor modules.
-        for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
-            if ispkg:
-                continue
-            basename = modname[len(prefix):]
-            try:
-                module = self._load_processor(basename, modname)
-            except Exception as e:
-                logger.exception('Could not load processor "{}"'.format(basename))
-
-        # Regenerate processor map
-        new_processors = {}
-        for p in processor.Base.__subclasses__():
-            new_processors[p.__name__.lower()] = p
-        self.processors = new_processors
-
-    def _load_processor(self, base_name, module_name):
-        module = None
-        if base_name in self.processors:
-            module = reload(module_name)
-            logger.info('Reloaded processor "{}"'.format(base_name))
-        else:
-            module = importlib.import_module(module_name)
-            logger.info('Loaded processor "{}"'.format(base_name))
-        return module
 
     def set_fps(self, fps):
         self.fps = fps

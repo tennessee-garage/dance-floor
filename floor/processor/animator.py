@@ -11,7 +11,7 @@ class Animator(Base):
 
         animation = kwargs.get('animation', self.DEFAULT_ANIMATION)
 
-        module = importlib.import_module("processor.animations.{}".format(animation))
+        module = importlib.import_module("floor.processor.animations.{}".format(animation))
         self.animation = module.anim()
         self.floor_frame = 0
         self.animation_frame = 0

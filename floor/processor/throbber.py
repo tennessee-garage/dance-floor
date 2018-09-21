@@ -21,7 +21,7 @@ class Throbber(Base):
         now = time.time()
         downbeat = self.downbeat or now
 
-        seconds_per_measure = (1 / (self.bpm / 60)) * 4
+        seconds_per_measure = (1 / (self.bpm / 60.0)) * 4
         position_in_measure = (now - downbeat) % seconds_per_measure
         beat_in_measure = int(position_in_measure / seconds_per_measure * 4)
 
