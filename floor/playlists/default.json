@@ -5,12 +5,26 @@
       "duration": "60"
     },
     {
+      "name": "spiral",
+      "duration": "120",
+      "args": {
+        "palatte": 0
+      }
+    },
+    {
       "name": "stripes",
       "duration": "30",
       "args": {
         "length": 100,
         "max_speed": 1.0,
         "min_speed": 0.2
+      }
+    },
+    {
+      "name": "spiral",
+      "duration": "120",
+      "args": {
+        "palatte": 1
       }
     },
     {
@@ -21,10 +35,24 @@
       }
     },
     {
+      "name": "spiral",
+      "duration": "120",
+      "args": {
+        "palatte": 2
+      }
+    },
+    {
       "name": "animator",
       "duration": "30",
       "args": {
         "animation": "gods_eye"
+      }
+    },
+    {
+      "name": "spiral",
+      "duration": "120",
+      "args": {
+        "palatte": 3
       }
     },
     {

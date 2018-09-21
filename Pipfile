@@ -13,3 +13,6 @@ pyserial = "*"
 flask = "*"
 SimpleWebSocketServer = {git = "https://github.com/dpallot/simple-websocket-server.git"}
 pymidi = "*"
+
+[scripts]
+show = "python floor/run-show.py"
