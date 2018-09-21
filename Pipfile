@@ -12,3 +12,4 @@ freezegun = "*"
 pyserial = "*"
 flask = "*"
 SimpleWebSocketServer = {git = "https://github.com/dpallot/simple-websocket-server.git"}
+pymidi = "*"
