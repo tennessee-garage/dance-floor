@@ -4,6 +4,7 @@ import random
 from random import randint
 import time
 
+
 class Fishies(Base):
     def __init__(self, **kwargs):
         super(Fishies, self).__init__(**kwargs)

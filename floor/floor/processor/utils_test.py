@@ -4,8 +4,10 @@ from freezegun import freeze_time
 from unittest import TestCase
 from floor.processor.utils import clocked
 
+
 class FakeProcessor:
     bpm = 120
+
 
 class UtilsTestCase(TestCase):
     def test_clocked(self):

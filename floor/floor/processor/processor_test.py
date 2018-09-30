@@ -4,6 +4,7 @@ from freezegun import freeze_time
 import time
 import datetime
 
+
 def test_run_all_processors():
     """Run each processor for 30 fake seconds."""
     # Note: This test uses a fancy `nosetests` feature to generate

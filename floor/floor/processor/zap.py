@@ -48,10 +48,12 @@ FRAMES = [
     [(0, 0, 0)] * 64,
 ]
 
+
 def draw_line(arr, start, end, pixel):
     for x in range(start[0], end[0] + 1):
         for y in range(start[1], end[1] + 1):
             arr[x + y * 8] = pixel
+
 
 # Pre-render all frames. `FRAME_SETS` is a list-of-lists; each item
 # in FRAME_SETS is a frameset of 4 frames for a particular color.

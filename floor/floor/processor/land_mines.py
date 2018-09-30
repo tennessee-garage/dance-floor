@@ -8,6 +8,7 @@ import math
 
 life_time = 4
 
+
 class LandMines(Base):
     def __init__(self, **kwargs):
         super(LandMines, self).__init__(**kwargs)

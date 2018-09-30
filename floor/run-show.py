@@ -14,6 +14,7 @@ import logging
 LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 DEFAULT_PLAYLIST = 'floor/playlists/default.json'
 
+
 def main():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
     parser.add_argument(

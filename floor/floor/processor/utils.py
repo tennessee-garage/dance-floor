@@ -2,6 +2,7 @@ import time
 
 BLANK_FRAME = [(0, 0, 0)] * 64
 
+
 class clocked(object):
     """Utility decorator that interpolates a `get_next_frame` call according to bpm.
 

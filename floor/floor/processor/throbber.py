@@ -14,6 +14,7 @@ def draw_line(arr, start, end, pixel):
         for y in range(start[1], end[1] + 1):
             arr[x + y * 8] = pixel
 
+
 class Throbber(Base):
     """Shows an outward moving square according to bpm."""
 
