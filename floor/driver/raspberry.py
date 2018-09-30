@@ -18,6 +18,15 @@ class Raspberry(Base):
     # The number of packets in a message from the floor
     WEIGHT_PACKETS = 64
 
+    # Weight sensors are measured using 10-bit ADC.  2^10 - 1 == 1023
+    MAX_FLOOR_VALUE = 1023
+
+    # Default minimum value for a floor tile to register as a step.  The weight sensors have a 10-bit
+    # range, so this number could be anything from 0 - 1023 with 0 being lowest pressure (nobody stepping)
+    # to 1023 (heaviest step).  However note that physical limits and sensor construction limit this
+    # to about 700-800 max.
+    DEFAULT_FLOOR_THRESHOLD = 200
+
     # Define the order in which we output the LEDs.  This could be calculated
     # but spelling it out here to reduce the time to display a frame
     tile_order = [
@@ -31,11 +40,10 @@ class Raspberry(Base):
         63, 62, 61, 60, 59, 58, 57, 56,
     ]
 
-    # Minimum value for a floor tile to register.  Anything under this will be treated as zero
-    floor_minimum = 10
-
     def __init__(self, args):
         super(Raspberry, self).__init__(args)
+
+        self.floor_threshold = args['floor_threshold'] or self.DEFAULT_FLOOR_THRESHOLD
 
         module = importlib.import_module("spidev")
 
@@ -52,11 +60,6 @@ class Raspberry(Base):
         self.value_floor = [0 for _ in range(64)]
 
         self.reader = SerialRead()
-
-        # logger.info("Staring serial worker")
-        # self.worker = Thread(target=self.read_serial_data)
-        # self.worker.daemon = True
-        # self.worker.start()
 
     def send_data(self):
         """
@@ -157,12 +160,11 @@ class Raspberry(Base):
 
             # Use tile_order to map the single stream back to a left to right, left to right orders
             position = self.tile_order[packet]
-            adjusted_val = self.adjust_value(value)
 
-            self.value_ceiling[position] = max(self.value_ceiling[position], adjusted_val)
-            self.value_floor[position] = min(self.value_floor[position], adjusted_val)
+            self.value_ceiling[position] = max(self.value_ceiling[position], value)
+            self.value_floor[position] = min(self.value_floor[position], value)
 
-            new_buf[position] = adjusted_val
+            new_buf[position] = value
 
         return new_buf
 
@@ -173,18 +175,8 @@ class Raspberry(Base):
 
         hi = ord(data_bytes[idx])
         lo = ord(data_bytes[idx + 1])
-        unsigned_val = (hi << 8) + lo
-        return self.twos_comp(unsigned_val)
-
-    @staticmethod
-    def twos_comp(val, bits=10):
-        """compute the 2's complement of int value val"""
-        if (val & (1 << (bits - 1))) != 0:  # if sign bit is set e.g., 8bit: 128-255
-            val -= 1 << bits  # compute negative value
-        return val
-
-    def adjust_value(self, value):
-        if value <= self.floor_minimum:
-            return 0
-        else:
+        value = (hi << 8) + lo
+        if value >= self.floor_threshold or value <= self.MAX_FLOOR_VALUE:
             return value
+        else:
+            return 0
