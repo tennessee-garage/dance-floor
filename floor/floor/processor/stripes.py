@@ -1,6 +1,7 @@
+import random
+
 from base import Base
 from floor.util import color_utils
-import random
 
 
 class Stripes(Base):
@@ -13,7 +14,7 @@ class Stripes(Base):
         super(Stripes, self).__init__(**kwargs)
         self.palette = color_utils.get_random_palette(self.max_value)
         self.gradient = [[] for _ in range(len(self.palette))]
-        self.stripes = [None for _ in range(8)]
+        self.stripes = [None for _ in range(8)]  # list[Stripe]
 
         fade_length = kwargs.get("length", self.DEFAULT_FADE_LENGTH)
         self.max_speed = kwargs.get("max_speed", self.DEFAULT_MAX_SPEED)

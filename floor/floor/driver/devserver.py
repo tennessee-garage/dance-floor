@@ -1,17 +1,14 @@
 import json
 import BaseHTTPServer
-import SimpleHTTPServer
 import SocketServer
 import threading
 import os
-import sys
-
 import logging
-logger = logging.getLogger('devserver')
-
-from base import Base
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
+from base import Base
+
+logger = logging.getLogger('devserver')
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 HTML_FILE = os.path.join(BASE_DIR, 'devserver', 'index.html')

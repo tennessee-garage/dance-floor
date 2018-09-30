@@ -1,6 +1,7 @@
-from base import Base
 import random
 import math
+
+from base import Base
 
 
 class FlashBang(Base):

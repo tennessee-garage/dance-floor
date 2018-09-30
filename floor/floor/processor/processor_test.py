@@ -1,8 +1,8 @@
-from unittest import TestCase
-from floor import processor
 from freezegun import freeze_time
 import time
 import datetime
+
+from floor import processor
 
 
 def test_run_all_processors():

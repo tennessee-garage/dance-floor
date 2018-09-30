@@ -1,9 +1,7 @@
 import collections
-import itertools
 
 from base import Base
 from utils import clocked
-import time
 
 
 def tint(color, percent):
@@ -12,7 +10,7 @@ def tint(color, percent):
     new_r = r + (255 - r) * percent
     new_g = g + (255 - g) * percent
     new_b = b + (255 - b) * percent
-    return (new_r, new_g, new_b)
+    return new_r, new_g, new_b
 
 
 def gradient(color, steps=4):
@@ -107,7 +105,7 @@ class Zap(Base):
             self.last_downbeat = self.downbeat
 
         if self.beat_counter % 4 == 0:
-            self.frame_sets.rotate()
+            self.frame_sets.rotate(n=1)
             self.frames = collections.deque(self.frame_sets[0])
 
         self.beat_counter += 1

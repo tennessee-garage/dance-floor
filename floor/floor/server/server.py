@@ -2,7 +2,7 @@ import time
 import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
 
-from controller import Controller
+from floor.controller import Controller
 
 MIN_BPM = 40
 MAX_BPM = 220

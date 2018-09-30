@@ -1,5 +1,6 @@
-from base import Base
 import random
+
+from base import Base
 
 
 class RandomDecay(Base):

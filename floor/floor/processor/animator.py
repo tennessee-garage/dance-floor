@@ -1,5 +1,6 @@
-from base import Base
 import importlib
+
+from base import Base
 
 
 class Animator(Base):

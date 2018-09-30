@@ -1,8 +1,8 @@
-from base import Base
-from floor.util import color_utils
-
 import time
 import math
+
+from base import Base
+from floor.util import color_utils
 
 
 class RaverPlaid(Base):

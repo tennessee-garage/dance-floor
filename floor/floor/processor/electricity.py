@@ -1,7 +1,8 @@
-from base import Base
 import math
 import random
 import logging
+
+from base import Base
 
 logger = logging.getLogger('electricity')
 

@@ -1,8 +1,8 @@
+import random
+import time
+
 from base import Base
 import floor.util.color_utils as color
-import random
-from random import randint
-import time
 
 
 class Fishies(Base):
@@ -35,7 +35,7 @@ class Fishies(Base):
         #swim in a random direction
         chance = random.random()
         if chance > 0.9:
-            fish['dx'] = randint(-1, 1)
+            fish['dx'] = random.randint(-1, 1)
         fish['x'] += fish['dx']
         if fish['x']<0:
             fish['x'] = 0
@@ -46,7 +46,7 @@ class Fishies(Base):
 
         chance = random.random()
         if chance > 0.9:
-            fish['dy'] = randint(-1, 1)
+            fish['dy'] = random.randint(-1, 1)
         fish['y'] += fish['dy']
         if fish['y']<0:
             fish['y'] = 0

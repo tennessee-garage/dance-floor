@@ -1,8 +1,5 @@
 import collections
-import random
 import colorsys
-import math
-from utils import clocked
 
 from base import Base
 

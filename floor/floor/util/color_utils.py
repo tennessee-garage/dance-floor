@@ -78,9 +78,12 @@ def clip_black_by_channels(color, threshold):
 
     """
     r, g, b = color
-    if r < threshold: r = 0
-    if g < threshold: g = 0
-    if b < threshold: b = 0
+    if r < threshold:
+        r = 0
+    if g < threshold:
+        g = 0
+    if b < threshold:
+        b = 0
     return r, g, b
 
 
@@ -96,12 +99,12 @@ def mod_dist(a, b, n):
     return min((a-b) % n, (b-a) % n)
 
 
-def gamma(color, gamma):
+def gamma(color, gamma_val):
     """
     Apply a gamma curve to the color.  The color values should be in the range 0-1.
     """
     r, g, b = color
-    return max(r, 0) ** gamma, max(g, 0) ** gamma, max(b, 0) ** gamma
+    return max(r, 0) ** gamma_val, max(g, 0) ** gamma_val, max(b, 0) ** gamma_val
 
 
 def add_color(color1, color2):

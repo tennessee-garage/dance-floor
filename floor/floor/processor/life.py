@@ -1,5 +1,6 @@
-from base import Base
 import datetime
+
+from base import Base
 
 
 class Life(Base):
@@ -100,14 +101,14 @@ class Life(Base):
 
 
 def main():
-    l = Life()
-    frame = l.init_frame(False)
+    life = Life()
+    frame = life.init_frame(False)
 
     # conway_count_neighbors
     on = [(1, 1), (1, 3), (2, 2), (2, 3)]
     for p in on:
-        frame[l.idx(p)] = True
-    count = l.conway_count_neighbors(frame, 2, 2)
+        frame[life.idx(p)] = True
+    count = life.conway_count_neighbors(frame, 2, 2)
     assert (count == 3), "it counts neighbors correctly"
 
 

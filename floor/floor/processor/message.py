@@ -1,7 +1,8 @@
-from base import Base
 import os.path
 import colorsys
 import importlib
+
+from base import Base
 
 
 class Message(Base):

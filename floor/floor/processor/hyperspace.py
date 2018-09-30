@@ -1,8 +1,8 @@
+import time
+import math
+
 from base import Base
 import floor.util.color_utils as color
-import time
-import random
-import math
 
 
 class Hyperspace(Base):

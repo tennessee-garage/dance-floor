@@ -1,8 +1,7 @@
-from base import Base
 import random
-from random import randint
-
 import time
+
+from base import Base
 
 
 class Pulsar(Base):
@@ -63,10 +62,10 @@ class Pulsar(Base):
                     self.max_value * random.random())
 
     def random_weight_input(self):
-        count = randint(1, 5)
+        count = random.randint(1, 5)
         for i in range(0, count):
             # index: pick a random square for the source
-            index = randint(0, 63)
+            index = random.randint(0, 63)
             self.pixels[index] = (
                 self.max_value*random.random(),
                 self.max_value*random.random(),
@@ -96,27 +95,31 @@ class Pulsar(Base):
 #            self.random_weight_input()
 
         # after a certain amount of time, toggle wave direction and make it recede, but weakly
-        elif (next_time - self.last_time) > (0.5*reset_time):
+        elif (next_time - self.last_time) > (0.5 * reset_time):
             self.wave_toggle = -0.2
 
         # propagate the blossoms
         self_decay = 0.9
         wave_decay = 0.5
-        max = 0.8*self.max_value
+        adjusted_max = 0.8 * self.max_value
 
         next_pixels = []
         for y in range(0, 8):
             for x in range(0, 8):
-                last_pixel = self.pixels[y*8 + x]
-                next_red = self_decay * (last_pixel[0] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 0) / 8)
-                next_blue = self_decay * (last_pixel[1] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 1) / 8)
-                next_green = self_decay * (last_pixel[2] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 2) / 8)
-                if next_red > max:
-                    next_red = max
-                if next_blue > max:
-                    next_blue = max
-                if next_green > max:
-                    next_green = max
+                last_pixel = self.pixels[y * 8 + x]
+                next_red = self_decay * \
+                    (last_pixel[0] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 0) / 8)
+                next_blue = self_decay * \
+                    (last_pixel[1] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 1) / 8)
+                next_green = self_decay *\
+                    (last_pixel[2] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 2) / 8)
+
+                if next_red > adjusted_max:
+                    next_red = adjusted_max
+                if next_blue > adjusted_max:
+                    next_blue = adjusted_max
+                if next_green > adjusted_max:
+                    next_green = adjusted_max
                 next_pixel = (next_red, next_blue, next_green)
 
                 next_pixels.append(next_pixel)
