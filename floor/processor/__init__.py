@@ -3,6 +3,7 @@ from .animator import Animator
 from .chachacha import ChaChaCha
 from .color_wash import ColorWash
 from .electricity import Electricity
+from .fire import Fire
 from .fishies import Fishies
 from .flash_bang import FlashBang
 from .hyperspace import Hyperspace
@@ -13,6 +14,7 @@ from .message import Message
 from .pulsar import Pulsar
 from .random_decay import RandomDecay
 from .raver_plaid import RaverPlaid
+from .spiral import Spiral
 from .stripes import Stripes
 from .test_step import TestStep
 from .test import Test
@@ -24,6 +26,7 @@ ALL_PROCESSORS = {
     'chachacha': ChaChaCha,
     'color_wash': ColorWash,
     'electricity': Electricity,
+    'fire': Fire,
     'fishies': Fishies,
     'flash_bang': FlashBang,
     'hyperspace': Hyperspace,
@@ -34,6 +37,7 @@ ALL_PROCESSORS = {
     'pulsar': Pulsar,
     'random_decay': RandomDecay,
     'raver_plaid': RaverPlaid,
+    'spiral': Spiral,
     'stripes': Stripes,
     'test_step': TestStep,
     'test': Test,
