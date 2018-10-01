@@ -1,6 +1,7 @@
 from floor.controller import Test
 import sys
 
+
 def main():
     square = int(sys.argv[1])
     red = int(sys.argv[2])
@@ -16,6 +17,7 @@ def main():
 
     test = Test()
     test.run(leds)
+
 
 if __name__ == '__main__':
     main()
