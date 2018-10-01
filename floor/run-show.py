@@ -12,7 +12,9 @@ import sys
 import logging
 
 LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
-DEFAULT_PLAYLIST = 'floor/playlists/default.json'
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+DEFAULT_PLAYLIST = script_dir + '/floor/playlists/default.json'
 
 
 def main():
