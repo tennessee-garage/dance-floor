@@ -43,7 +43,7 @@ class Raspberry(Base):
     def __init__(self, args):
         super(Raspberry, self).__init__(args)
 
-        self.floor_threshold = args.get('floor_threshold', default=self.DEFAULT_FLOOR_THRESHOLD)
+        self.floor_threshold = args.get('floor_threshold', self.DEFAULT_FLOOR_THRESHOLD)
 
         module = importlib.import_module("spidev")
 

@@ -42,7 +42,7 @@ class Controller(object):
         if self.processor:
             self.processor.set_bpm(bpm, self.downbeat)
 
-    def set_processor(self, processor_name, processor_args=None):
+    def set_processor(self, processor_name, processor_args=dict):
         """Sets the active processor, which must already be loaded into
         `self.processors`.
 
