@@ -174,51 +174,51 @@ class MidiFunctions(object):
 
 
 MidiFunctions.add('playlist_next',
-    help_text='Advance to the next item in the current playlist.')
+                  help_text='Advance to the next item in the current playlist.')
 MidiFunctions.add('playlist_previous',
-    help_text='Go to previous item in the current playlist.')
+                  help_text='Go to previous item in the current playlist.')
 MidiFunctions.add('playlist_pause',
-    help_text='Pause the current playlist.')
+                  help_text='Pause the current playlist.')
 MidiFunctions.add('playlist_play',
-    help_text='Pause the current playlist.')
+                  help_text='Pause the current playlist.')
 MidiFunctions.add('playlist_stay',
-    help_text='Loop/repeat the current item in the playlist.')
+                  help_text='Loop/repeat the current item in the playlist.')
 MidiFunctions.add('playlist_stop',
-    help_text='Stop playback of the current playlist.')
+                  help_text='Stop playback of the current playlist.')
 MidiFunctions.add('playlist_goto_1',
-    help_text='Go to playlist position 1.')
+                  help_text='Go to playlist position 1.')
 MidiFunctions.add('playlist_goto_2',
-    help_text='Go to playlist position 2.')
+                  help_text='Go to playlist position 2.')
 MidiFunctions.add('playlist_goto_3',
-    help_text='Go to playlist position 3.')
+                  help_text='Go to playlist position 3.')
 MidiFunctions.add('playlist_goto_4',
-    help_text='Go to playlist position 4.')
+                  help_text='Go to playlist position 4.')
 MidiFunctions.add('playlist_goto_5',
-    help_text='Go to playlist position 5.')
+                  help_text='Go to playlist position 5.')
 MidiFunctions.add('playlist_goto_6',
-    help_text='Go to playlist position 6.')
+                  help_text='Go to playlist position 6.')
 MidiFunctions.add('playlist_goto_7',
-    help_text='Go to playlist position 7.')
+                  help_text='Go to playlist position 7.')
 MidiFunctions.add('playlist_goto_8',
-    help_text='Go to playlist position 8.')
+                  help_text='Go to playlist position 8.')
 MidiFunctions.add('playlist_goto_9',
-    help_text='Go to playlist position 9.')
+                  help_text='Go to playlist position 9.')
 MidiFunctions.add('playlist_goto_10',
-    help_text='Go to playlist position 10.')
+                  help_text='Go to playlist position 10.')
 MidiFunctions.add('playlist_goto_11',
-    help_text='Go to playlist position 11.')
+                  help_text='Go to playlist position 11.')
 MidiFunctions.add('playlist_goto_12',
-    help_text='Go to playlist position 12.')
+                  help_text='Go to playlist position 12.')
 MidiFunctions.add('playlist_goto_13',
-    help_text='Go to playlist position 13.')
+                  help_text='Go to playlist position 13.')
 MidiFunctions.add('playlist_goto_14',
-    help_text='Go to playlist position 14.')
+                  help_text='Go to playlist position 14.')
 MidiFunctions.add('playlist_goto_15',
-    help_text='Go to playlist position 15.')
+                  help_text='Go to playlist position 15.')
 MidiFunctions.add('playlist_goto_16',
-    help_text='Go to playlist position 16.')
+                  help_text='Go to playlist position 16.')
 MidiFunctions.add('set_bpm',
-    help_text='Set the global bpm based on note velocity or controller value.')
+                  help_text='Set the global bpm based on note velocity or controller value.')
 
 
 class MidiMapping(object):
@@ -278,10 +278,10 @@ class MidiMapping(object):
 
     def to_json(self):
         mappings_list = []
-        for command, function in self.mappings.iteritems():
+        for command, func in self.mappings.iteritems():
             mappings_list.append({
                 'command': command,
-                'function': function.name,
+                'function': func.name,
             })
         return {
             'name': self.name,
@@ -302,10 +302,10 @@ class MidiMapping(object):
             command = item['command']
             if command[0] not in SUPPORTED_COMMANDS:
                 continue
-            function = MidiFunctions.ALL_FUNCTIONS.get(item['function'])
-            if not function:
+            func = MidiFunctions.ALL_FUNCTIONS.get(item['function'])
+            if not func:
                 continue
-            mapping_dict[tuple(command)] = function
+            mapping_dict[tuple(command)] = func
         return cls(name, mapping_dict)
 
 
@@ -339,7 +339,8 @@ class MidiManager(object):
         """Returns the midi mapping for this peer."""
         return self.midi_peers_to_mappings.get(peer.ssrc, self.default_midi_mapping)
 
-    def command_to_tuple(self, cmd):
+    @staticmethod
+    def command_to_tuple(cmd):
         """Canonicalizes a pymidi command to its internal representation."""
         if cmd.command in (COMMAND_NOTE_ON, COMMAND_NOTE_OFF):
             command = cmd.command
@@ -349,9 +350,9 @@ class MidiManager(object):
                 # MIDI protocol specifies note on with velocity zero as a logical
                 # note off; make the translation here.
                 command = COMMAND_NOTE_OFF
-            return (command, note_name, value)
+            return command, note_name, value
         elif cmd.command == COMMAND_CONTROL_MODE_CHANGE:
-            return (cmd.command, cmd.params.controller, cmd.params.value)
+            return cmd.command, cmd.params.controller, cmd.params.value
         return None
 
     def on_midi_peer_connected(self, peer):
@@ -363,7 +364,7 @@ class MidiManager(object):
         del self.midi_peers_to_mappings[peer.ssrc]
 
     def on_midi_commands(self, peer, commands):
-        commands = map(self.command_to_tuple, commands)
+        commands = map(MidiManager.command_to_tuple, commands)
 
         # Pass all midi messages through to the current processor.
         processor = self.controller.processor
@@ -374,9 +375,9 @@ class MidiManager(object):
         # Handle any special command bindings.
         mapping = self.get_midi_mapping(peer)
         for command in commands:
-            function = mapping.get_function(command)
-            if function:
-                self.execute_midi_function(function, command)
+            func = mapping.get_function(command)
+            if func:
+                self.execute_midi_function(func, command)
 
     def execute_midi_function(self, midi_function, command):
         self.logger.info('MIDI function: {}'.format(midi_function))
