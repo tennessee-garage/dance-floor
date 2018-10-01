@@ -7,7 +7,7 @@ class Test(object):
         driver_name = "Raspberry"
 
         try:
-            module = importlib.import_module("driver.{}".format(driver_name))
+            module = importlib.import_module("floor.driver.{}".format(driver_name))
         except ImportError as e:
             print "Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e)
             raise
