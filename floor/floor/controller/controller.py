@@ -50,8 +50,14 @@ class Controller(object):
         """
         self.processor = self.build_processor(processor_name, processor_args)
         self.processor.set_bpm(self.bpm, self.downbeat)
+
+        fps = self.processor.requested_fps() or self.DEFAULT_FPS
+        self.set_fps(fps)
+
         self.current_processor = processor_name
         self.current_args = processor_args
+
+        logger.info("Started processor '{}' at {} fps".format(processor_name, fps))
 
     def build_processor(self, name, args=None):
         """Builds a processor instance."""
@@ -127,6 +133,8 @@ class Controller(object):
 
     def delay(self):
         elapsed = time.time() - self.frame_start
+
         if elapsed < self.frame_seconds:
-            # print "Remain: {}".format(self.frame_seconds - elapsed)
             time.sleep(self.frame_seconds - elapsed)
+        else:
+            logger.debug("Over by {}".format(elapsed - self.frame_seconds))

@@ -28,6 +28,13 @@ class Base(object):
         """
         pass
 
+    def requested_fps(self):
+        """
+        If this processor wants a specific FPS, it can override this method
+        :return: integer - a number giving the Frames per Second to run this processor at
+        """
+        return None
+
     def set_bpm(self, bpm, downbeat):
         """
         Sets the current BPM and the time of the downbeat.
