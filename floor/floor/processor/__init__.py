@@ -14,6 +14,8 @@ from .message import Message
 from .pulsar import Pulsar
 from .random_decay import RandomDecay
 from .raver_plaid import RaverPlaid
+from .ripple import Ripple
+from .ripple_pulse import RipplePulse
 from .spiral import Spiral
 from .stripes import Stripes
 from .test_step import TestStep
@@ -37,6 +39,8 @@ ALL_PROCESSORS = {
     'pulsar': Pulsar,
     'random_decay': RandomDecay,
     'raver_plaid': RaverPlaid,
+    'ripple': Ripple,
+    'ripple_pulse': RipplePulse,
     'spiral': Spiral,
     'stripes': Stripes,
     'test_step': TestStep,
