@@ -6,6 +6,8 @@ class Base(object):
     FLOOR_WIDTH = 8
     FLOOR_HEIGHT = 8
 
+    PIXELS_ALL_OFF = [[0 for _ in range(3)] for _ in range(64)]
+
     def __init__(self, **kwargs):
         self.weights = []
         self.max_value = self.DEFAULT_MAX_VALUE

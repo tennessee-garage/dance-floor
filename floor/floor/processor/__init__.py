@@ -9,6 +9,7 @@ from .flash_bang import FlashBang
 from .hyperspace import Hyperspace
 from .kaleidoscope import Kaleidoscope
 from .land_mines import LandMines
+from .line_slam import LineSlam
 from .life import Life
 from .message import Message
 from .pulsar import Pulsar
@@ -35,6 +36,7 @@ ALL_PROCESSORS = {
     'kaleidoscope': Kaleidoscope,
     'land_mines': LandMines,
     'life': Life,
+    'line_slam': LineSlam,
     'message': Message,
     'pulsar': Pulsar,
     'random_decay': RandomDecay,
