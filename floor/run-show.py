@@ -3,7 +3,7 @@
 from floor.controller import Controller
 from floor.controller import Playlist
 from floor.controller import Layout
-#from floor.controller import MidiManager
+from floor.controller import MidiManager
 from floor.server.server import run_server
 
 import argparse
@@ -84,12 +84,12 @@ def main():
         "layout": layout
     })
 
-    # if args.midi_server_port:
-    #     midi_manager = MidiManager(
-    #         port=args.midi_server_port,
-    #         controller=show,
-    #     )
-    #     midi_manager.run_server()
+    if args.midi_server_port:
+        midi_manager = MidiManager(
+            port=args.midi_server_port,
+            controller=show,
+        )
+        midi_manager.run_server()
 
     if args.server_port >= 0:
         run_server(show, port=args.server_port)
