@@ -219,6 +219,8 @@ MidiFunctions.add('playlist_goto_16',
                   help_text='Go to playlist position 16.')
 MidiFunctions.add('set_bpm',
                   help_text='Set the global bpm based on note velocity or controller value.')
+MidiFunctions.add('set_brightness',
+                  help_text='Adjust the max brightness of the floor')
 
 
 class MidiMapping(object):
@@ -430,6 +432,9 @@ class MidiManager(object):
             bpm = 90
             bpm += float(value) / 127.0 * 80
             self.controller.set_bpm(bpm)
+        elif midi_function == MidiManager.set_brightness:
+            value = command.params.value
+
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)

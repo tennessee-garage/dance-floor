@@ -22,6 +22,7 @@ class Controller(object):
 
         self.processors = processor.ALL_PROCESSORS
 
+        # The name of the current processor
         self.current_processor = None
         self.current_args = None
 
@@ -30,6 +31,11 @@ class Controller(object):
         self.bpm = None
         self.downbeat = None
         self.set_bpm(self.DEFAULT_BPM)
+
+        # Max value is dictated by the driver used
+        self.max_led_value = None
+        # Effective max value accounts for any scaling factor in effect (e.g. to reduce brightness)
+        self.max_effective_led_value = None
 
     def set_fps(self, fps):
         self.fps = fps
@@ -41,6 +47,15 @@ class Controller(object):
         self.downbeat = downbeat or time.time()
         if self.processor:
             self.processor.set_bpm(bpm, self.downbeat)
+
+    def scale_brightness(self, factor):
+        """Scale the default brightness from 0 to max for driver
+
+        :param factor: a scaling factor from 0.0 to 1.0
+        :return: none
+        """
+        new_max = factor * self.driver.MAX_LED_VALUE
+        self.processor.set_max_value(new_max)
 
     def set_processor(self, processor_name, processor_args=dict):
         """Sets the active processor, which must already be loaded into
@@ -78,6 +93,8 @@ class Controller(object):
             sys.exit(0)
 
         self.driver = getattr(module, driver_name.title())(driver_args)
+        self.max_led_value = self.driver.MAX_LED_VALUE
+        self.max_effective_led_value = self.max_led_value
         logger.info("Loaded driver '{}' with max LED value {}".format(driver_name, self.driver.MAX_LED_VALUE))
 
     def run(self):
@@ -111,7 +128,7 @@ class Controller(object):
             logger.debug('Loading processor {}'.format(processor))
             self.set_processor(processor, args)
             # Make sure the processor is limited to the bit depth of the driver
-            self.processor.set_max_value(self.driver.MAX_LED_VALUE)
+            self.processor.set_max_value(self.max_effective_led_value)
 
     def generate_frame(self):
         if not self.processor:

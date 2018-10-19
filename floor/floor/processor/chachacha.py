@@ -5,10 +5,10 @@ from base import Base
 from utils import clocked
 
 BLACK = (0, 0, 0)
-RED = (0xff, 0x00, 0x00)
-YELLOW = (0xff, 0xf0, 0x00)
-GREEN = (0x00, 0xff, 0x00)
-WHITE = (0xff, 0xff, 0xff)
+RED = (1, 0, 0)
+YELLOW = (1, 0xf0/float(0xff), 0)
+GREEN = (0, 1, 0)
+WHITE = (1, 1, 1)
 
 COLORS = [RED, YELLOW, GREEN, WHITE]
 
@@ -33,5 +33,6 @@ class ChaChaCha(Base):
     def get_next_frame(self, weights):
         lines = list(itertools.islice(self.lines, 0, 8))
         self.lines.rotate()
-        pixels = [pixel for line in lines for pixel in line]
+        pixels = [(pixel[0] * self.max_value, pixel[1] * self.max_value, pixel[2] * self.max_value)
+                  for line in lines for pixel in line]
         return pixels
