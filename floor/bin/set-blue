@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python /home/disco/dance-floor/floor/test-square.py $1 0 0 255
