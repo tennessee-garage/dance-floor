@@ -16,3 +16,6 @@ pymidi = "*"
 
 [scripts]
 show = "python floor/run-show.py"
+
+[requires]
+python_version = "2.7"
