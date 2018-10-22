@@ -1,9 +1,13 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from freezegun import freeze_time
 import time
 import datetime
 
 from floor import processor
-
 
 def test_run_all_processors():
     """Run each processor for 30 fake seconds."""
@@ -11,13 +15,11 @@ def test_run_all_processors():
     # N tests, one for each processor. Mostly this makes reporting
     # a little nicer when a test fails. More info here:
     # https://nose.readthedocs.io/en/latest/writing_tests.html#test-generators
-    processors = processor.ALL_PROCESSORS
     fake_weights = [0] * 64
     num_frames = 30 * 30
     clock_time_per_frame = datetime.timedelta(seconds=1/30.0)
 
-    def run_test(processor_name):
-        cls = processor.ALL_PROCESSORS[processor_name]
+    def run_test(processor_name, cls):
         with freeze_time('Jan 1, 2001') as fake_time:
             now = time.time()
             instance = cls()
@@ -26,5 +28,6 @@ def test_run_all_processors():
                 instance.get_next_frame(fake_weights)
                 fake_time.tick(delta=clock_time_per_frame)
 
-    for processor_name in processor.ALL_PROCESSORS.keys():
-        yield run_test, processor_name
+    processors = processor.all_processors()
+    for processor_name, cls in processors.iteritems():
+        yield run_test, processor_name, cls

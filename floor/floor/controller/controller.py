@@ -20,7 +20,7 @@ class Controller(object):
         self.fps = None
         self.frame_seconds = None
 
-        self.processors = processor.ALL_PROCESSORS
+        self.processors = processor.all_processors()
 
         # The name of the current processor
         self.current_processor = None
