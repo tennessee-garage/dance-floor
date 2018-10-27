@@ -44,8 +44,7 @@ $ brew install pipenv
 
 ```
 $ pipenv shell
-$ pipenv install
-$ python setup.py develop
+$ pipenv install --dev
 ```
 
 To run tests:

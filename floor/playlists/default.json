@@ -1,18 +1,18 @@
 {
   "queue": [
     {
-      "name": "chachacha",
+      "name": "ChaChaCha",
       "duration": "60"
     },
     {
-      "name": "spiral",
+      "name": "Spiral",
       "duration": "120",
       "args": {
         "palette": 0
       }
     },
     {
-      "name": "stripes",
+      "name": "Stripes",
       "duration": "30",
       "args": {
         "length": 100,
@@ -21,56 +21,56 @@
       }
     },
     {
-      "name": "spiral",
+      "name": "Spiral",
       "duration": "120",
       "args": {
         "palette": 1
       }
     },
     {
-      "name": "animator",
+      "name": "Animator",
       "duration": "30",
       "args": {
         "animation": "Color train"
       }
     },
     {
-      "name": "spiral",
+      "name": "Spiral",
       "duration": "120",
       "args": {
         "palette": 2
       }
     },
     {
-      "name": "animator",
+      "name": "Animator",
       "duration": "30",
       "args": {
         "animation": "gods_eye"
       }
     },
     {
-      "name": "spiral",
+      "name": "Spiral",
       "duration": "120",
       "args": {
         "palette": 3
       }
     },
     {
-      "name": "animator",
+      "name": "Animator",
       "duration": "30",
       "args": {
         "animation": "gods_eye_rainbow"
       }
     },
     {
-      "name": "animator",
+      "name": "Animator",
       "duration": "30",
       "args": {
         "animation": "radiating"
       }
     },
     {
-      "name": "stripes",
+      "name": "Stripes",
       "duration": "30",
       "args": {
         "length": 10,
@@ -79,50 +79,50 @@
       }
     },
     {
-      "name": "hyperspace",
+      "name": "Hyperspace",
       "duration": "60"
     },
     {
-      "name": "fire",
+      "name": "Fire",
       "duration": "120"
     },
     {
-      "name": "flash_bang",
+      "name": "FlashBang",
       "duration": "60"
     },
     {
-      "name": "fishies",
+      "name": "Fishies",
       "duration": "60"
     },
     {
-      "name": "land_mines",
+      "name": "LandMines",
       "duration": "60"
     },
     {
-      "name": "message",
+      "name": "Message",
       "duration": "15",
       "args": {
         "text": "Dance, dance, dance!"
       }
     },
     {
-      "name": "pulsar",
+      "name": "Pulsar",
       "duration": "60"
     },
     {
-      "name": "random_decay",
+      "name": "RandomDecay",
       "duration": "60"
     },
     {
-      "name": "raver_plaid",
+      "name": "RaverPlaid",
       "duration": "60"
     },
     {
-      "name": "throbber",
+      "name": "Throbber",
       "duration": "60"
     },
     {
-      "name": "zap",
+      "name": "Zap",
       "duration": "60"
     }
   ]
