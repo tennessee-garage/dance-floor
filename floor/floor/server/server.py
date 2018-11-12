@@ -1,3 +1,4 @@
+import os
 import time
 import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
@@ -7,7 +8,9 @@ from floor.controller import Controller
 MIN_BPM = 40
 MAX_BPM = 220
 
-app = Flask('server')
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+
+app = Flask(__name__, root_path=BASE_DIR)
 app.controller = None  # type: Controller
 
 

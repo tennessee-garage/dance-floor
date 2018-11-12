@@ -1,6 +1,7 @@
 from gevent import monkey
 monkey.patch_all()
 
+import os
 import collections
 import threading
 import json
@@ -9,13 +10,17 @@ logger = logging.getLogger('devserver')
 
 import gevent
 from geventwebsocket.handler import WebSocketHandler
+
 from flask import Flask
-from flask import send_from_directory
+from flask import render_template
 from flask_sockets import Sockets
 
 from floor.driver.base import Base
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'devserver')
+
+app = Flask(__name__, root_path=BASE_DIR, template_folder=TEMPLATE_DIR)
 sockets_app = Sockets(app)
 
 WAITER = gevent.event.Event()
@@ -36,7 +41,7 @@ def echo_socket(ws):
 
 @app.route('/')
 def hello():
-    return send_from_directory('devserver', 'index.html')
+    return render_template('index.html')
 
 def sender():
     while True:
