@@ -7,22 +7,35 @@ from floor.controller.midi import MidiManager
 from floor.server.server import run_server
 
 import argparse
+import importlib
 import os
 import sys
 import logging
 
 LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-config_dir = script_dir + '/config'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+CONFIG_DIR = os.path.join(SCRIPT_DIR, 'config')
+PLAYLIST_DIR = os.path.join(CONFIG_DIR, 'playlists')
+MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, '/midi_maps')
+DEFAULT_PLAYLIST = os.path.join(PLAYLIST_DIR, 'default.json')
+DEFAULT_FLOOR_CONFIG_FILE = os.path.join(SCRIPT_DIR, 'config/floor-layout.json')
 
-PLAYLIST_DIR = config_dir + '/playlists'
-MIDI_MAPPING_DIR = config_dir + '/midi_maps'
+logger = logging.getLogger('show')
 
-DEFAULT_PLAYLIST = PLAYLIST_DIR + '/default.json'
+def load_driver(driver_name, driver_args):
+    try:
+        module = importlib.import_module("floor.driver.{}".format(driver_name))
+    except ImportError as e:
+        logger.exception("Driver '{}' does not exist or could not be loaded".format(driver_name))
+        return None
+
+    driver = getattr(module, driver_name.title())(driver_args)
+    logger.info("Loaded driver '{}' with max LED value {}".format(driver_name, driver.MAX_LED_VALUE))
+    return driver
 
 
-def main():
+def get_options():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
     parser.add_argument(
         '--driver',
@@ -41,6 +54,12 @@ def main():
         dest='playlist',
         default=DEFAULT_PLAYLIST,
         help='Load and run this playlist on start'
+    )
+    parser.add_argument(
+        '--floor_config',
+        dest='floor_config',
+        default=DEFAULT_FLOOR_CONFIG_FILE,
+        help='Use this floor configuration'
     )
     parser.add_argument(
         '--no-opc-input',
@@ -80,19 +99,23 @@ def main():
         help='Function mapping between a MIDI device and floor functions'
     )
     parser.set_defaults(opc_input=True, server_port=1977)
-    args = parser.parse_args()
+    return parser.parse_args()
 
+def main():
+    args = get_options()
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
-    playlist = Playlist(args.playlist, args.processor_name)
-    layout = Layout(config_dir)
-
-    show = Controller(playlist)
-    show.set_driver(args.driver_name, {
+    driver = load_driver(args.driver_name, {
         "opc_input": args.opc_input,
-        "layout": layout
+        "layout": Layout(args.floor_config),
     })
+    if not driver:
+        logger.error('No driver, exiting.')
+        sys.exit(1)
+
+    playlist = Playlist(args.playlist, args.processor_name)
+    show = Controller(driver, playlist)
 
     if args.midi_server_port:
         midi_manager = MidiManager(
@@ -108,9 +131,13 @@ def main():
         run_server(show, port=args.server_port)
 
     try:
-        show.run()
+        show.run_forever()
     except KeyboardInterrupt:
+        logger.info('Got CTRL-C, quitting.')
         sys.exit(0)
+    except Exception as e:
+        logger.exception('Unexpected error, aborting.')
+        sys.exit(1)
 
-
-main()
+if __name__ == '__main__':
+    main()

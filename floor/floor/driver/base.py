@@ -15,6 +15,12 @@ class Base(object):
         else:
             self.layout = None
 
+    def get_max_led_value(self):
+        return self.MAX_LED_VALUE
+
+    def get_max_floor_value(self):
+        return self.MAX_FLOOR_VALUE
+
     def get_weights(self):
         """
         Returns the last retrieved list of weight values
