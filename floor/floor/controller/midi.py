@@ -4,6 +4,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import json
+import os
 import threading
 from pymidi import server as pymidi_server
 
@@ -291,6 +293,14 @@ class MidiMapping(object):
         }
 
     @classmethod
+    def from_file(cls, input_filename):
+        """Load midi key to function mapping from JSON."""
+        with open(input_filename) as json_data:
+            json_obj = json.load(json_data)
+
+        return cls.from_json(json_obj)
+
+    @classmethod
     def from_json(cls, obj):
         """Creates an instance from a parsed JSON object.
 
@@ -336,6 +346,19 @@ class MidiManager(object):
         self.midi_peers_to_mappings = {}
         self.logger.info('Midi enabled, port={}'.format(port))
         self.default_midi_mapping = default_midi_mapping or MidiMapping(name='default')
+
+    def load_default_midi_mapping(self, mapping_dir, map_name):
+        """Can be used to load a mapping JSON file to use as the default MIDI mapping"""
+
+        mapping_file = mapping_dir + '/' + map_name + '.json'
+        if os.path.isfile(mapping_file):
+            try:
+                self.default_midi_mapping = MidiMapping.from_file(mapping_file)
+            except (KeyError, ValueError) as e:
+                self.logger.error("Could not load mapping {}: {}".format(map_name, e))
+            self.logger.info("Loaded MIDI mapping: {}".format(map_name))
+        else:
+            self.logger.error("Mapping file does not exist: {}".format(mapping_file))
 
     def get_midi_mapping(self, peer):
         """Returns the midi mapping for this peer."""
@@ -428,13 +451,13 @@ class MidiManager(object):
         elif midi_function == MidiFunctions.playlist_goto_16:
             playlist.go_to(16)
         elif midi_function == MidiFunctions.set_bpm:
-            value = command.params.value
+            value = command[2]
             bpm = 90
             bpm += float(value) / 127.0 * 80
-            self.controller.set_bpm(bpm)
-        elif midi_function == MidiManager.set_brightness:
-            value = command.params.value
-
+            self.controller.set_bpm(int(bpm))
+        elif midi_function == MidiFunctions.set_brightness:
+            value = command[2]
+            self.controller.scale_brightness(value/127.0)
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)

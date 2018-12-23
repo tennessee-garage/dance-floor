@@ -2,9 +2,13 @@ import colorsys
 import math
 import time
 from utils import clocked
+import logging
+from floor.controller import midi
 
 from base import Base
 
+
+logger = logging.getLogger('ripple')
 
 # The distance from the center for every square
 DISTANCE = [
@@ -23,13 +27,20 @@ class Ripple(Base):
     """Spiral out from the center."""
 
     # 0.75 is good for long pulses
-    DECAY = 0.75
+    DECAY_MAX = 2.0
+    DECAY_MIN = 0.25
+    DECAY_DELTA = DECAY_MAX - DECAY_MIN
+    DECAY_DEFAULT = 0.75
+
     OMEGA = 2 * math.pi
     # How much distance translates the time value sent to the decay method.
     # A number between 0.02 and 0.18 seems to look best.
     #  - Lower than 0.02 and the whole floor seems to flash at once
     #  - higher than 0.18 and there are too many striations and it looks noisy, not smooth
-    DISTANCE_FACTOR = 0.03
+    DISTANCE_FACTOR_MAX = 0.18
+    DISTANCE_FACTOR_MIN = 0.02
+    DISTANCE_FACTOR_DELTA = DISTANCE_FACTOR_MAX - DISTANCE_FACTOR_MIN
+    DISTANCE_FACTOR_DEFAULT = 0.03
 
     RESTART_THRESHHOLD = 0.01
 
@@ -38,9 +49,22 @@ class Ripple(Base):
         self.t_start = None
         self.hue = 0.0
         self.hue_rotation = 0.05
+        self.distance_factor = self.DISTANCE_FACTOR_DEFAULT
+        self.decay = self.DECAY_DEFAULT
 
     def requested_fps(self):
         return 120
+
+    def handle_midi_command(self, command):
+        if command[0] == midi.COMMAND_CONTROL_MODE_CHANGE:
+            if command[1] == 48:
+                value = command[2]
+                self.distance_factor = (self.DISTANCE_FACTOR_DELTA * (value/127.0))+self.DISTANCE_FACTOR_MIN
+                logger.info("Set distance factor to {}".format(self.distance_factor))
+            if command[1] == 49:
+                value = command[2]
+                self.decay = (self.DECAY_DELTA * (value / 127.0)) + self.DECAY_MIN
+                logger.info("Set decay to {}".format(self.decay))
 
     @clocked(frames_per_beat=0.125)
     def reset_on_beat(self):
@@ -60,7 +84,7 @@ class Ripple(Base):
 
         pixels = []
         for dist in DISTANCE:
-            factor = self.sin_decay((now-self.t_start) - dist*self.DISTANCE_FACTOR)
+            factor = self.sin_decay((now-self.t_start) - dist*self.distance_factor)
             if factor > 1.0:
                 factor = 0.0
 
@@ -88,4 +112,4 @@ class Ripple(Base):
             omega = angular frequency
             phi = phase angle at t=0 which for us will be 0.0
         """
-        return (math.e**(-self.DECAY * t)) * math.cos(self.OMEGA * t)
+        return (math.e**(-self.decay * t)) * math.cos(self.OMEGA * t)

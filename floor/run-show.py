@@ -4,6 +4,7 @@ from floor.controller import Controller
 from floor.controller import Playlist
 from floor.controller import Layout
 from floor.controller import MidiManager
+from floor.controller import MidiMapping
 from floor.server.server import run_server
 
 import argparse
@@ -15,7 +16,7 @@ LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_PLAYLIST = script_dir + '/playlists/default.json'
-
+MIDI_MAPPING_DIR = script_dir + '/config/midi_maps'
 
 def main():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
@@ -68,6 +69,12 @@ def main():
         type=int,
         help='MIDI server port; disabled if unset.'
     )
+    parser.add_argument(
+        '--midi_mapping',
+        dest='midi_mapping',
+        default=None,
+        help='Function mapping between a MIDI device and floor functions'
+    )
     parser.set_defaults(opc_input=True, server_port=1977)
     args = parser.parse_args()
 
@@ -89,6 +96,9 @@ def main():
             port=args.midi_server_port,
             controller=show,
         )
+        if args.midi_mapping:
+            midi_manager.load_default_midi_mapping(MIDI_MAPPING_DIR, args.midi_mapping)
+
         midi_manager.run_server()
 
     if args.server_port >= 0:

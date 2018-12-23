@@ -1,0 +1,33 @@
+{
+  "name": "AKAI - APCmini",
+  "mappings": [
+    {
+      "command": ["note_on", "G4"],
+      "function": "playlist_next"
+    },
+    {
+      "command": ["note_on", "F#4"],
+      "function": "playlist_previous"
+    },
+        {
+      "command": ["note_on", "F4"],
+      "function": "playlist_stop"
+    },
+    {
+      "command": ["note_on", "E4"],
+      "function": "playlist_play"
+    },
+    {
+      "command": ["note_on", "D7"],
+      "function": "playlist_stay"
+    },
+    {
+      "command": ["control_mode_change", 55],
+      "function": "set_bpm"
+    },
+    {
+      "command": ["control_mode_change", 56],
+      "function": "set_brightness"
+    }
+  ]
+}
