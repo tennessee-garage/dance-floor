@@ -7,13 +7,15 @@ name = "pypi"
 nose = "*"
 mock = "*"
 freezegun = "*"
-"e1839a8" = {path = ".", editable = true}
+e1839a8 = {path = ".",editable = true}
 
 [packages]
 pyserial = "*"
 flask = "*"
-SimpleWebSocketServer = {git = "https://github.com/dpallot/simple-websocket-server.git"}
 pymidi = "*"
+simplewebsocketserver = {editable = true,git = "https://github.com/dpallot/simple-websocket-server.git"}
+mock = "*"
+freezegun = "*"
 
 [scripts]
 show = "python floor/run-show.py"

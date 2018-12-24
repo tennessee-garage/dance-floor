@@ -77,11 +77,11 @@ class Controller(object):
     def build_processor(self, name, args=None):
         """Builds a processor instance."""
         args = args or {}
-        processor = self.processors.get(name)
-        if not processor:
+        processor_cls = self.processors.get(name)
+        if not processor_cls:
             raise ValueError('Processor "{}" does not exist'.format(name))
         try:
-            return processor(**args)
+            return processor_cls(**args)
         except Exception as e:
             raise ValueError('Processor "{}" could not be created: {}'.format(name, str(e)))
 
@@ -89,7 +89,7 @@ class Controller(object):
         try:
             module = importlib.import_module("floor.driver.{}".format(driver_name))
         except ImportError as e:
-            print "Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e)
+            print("Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e))
             sys.exit(0)
 
         self.driver = getattr(module, driver_name.title())(driver_args)
@@ -118,15 +118,15 @@ class Controller(object):
         if not item:
             return
 
-        processor, args = item['name'], item['args']
-        if processor not in self.processors:
-            logger.error('Unknown processor "{}"; removing it.'.format(processor))
+        processor_name, args = item['name'], item['args']
+        if processor_name not in self.processors:
+            logger.error('Unknown processor "{}"; removing it.'.format(processor_name))
             self.playlist.remove(self.playlist.position)
             return
 
-        if processor and (processor, args) != (self.current_processor, self.current_args):
-            logger.debug('Loading processor {}'.format(processor))
-            self.set_processor(processor, args)
+        if processor_name and (processor_name, args) != (self.current_processor, self.current_args):
+            logger.debug('Loading processor {}'.format(processor_name))
+            self.set_processor(processor_name, args)
             # Make sure the processor is limited to the bit depth of the driver
             self.processor.set_max_value(self.max_effective_led_value)
 

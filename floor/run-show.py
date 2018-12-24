@@ -4,7 +4,6 @@ from floor.controller import Controller
 from floor.controller import Playlist
 from floor.controller import Layout
 from floor.controller import MidiManager
-from floor.controller import MidiMapping
 from floor.server.server import run_server
 
 import argparse
@@ -15,8 +14,13 @@ import logging
 LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-DEFAULT_PLAYLIST = script_dir + '/playlists/default.json'
-MIDI_MAPPING_DIR = script_dir + '/config/midi_maps'
+config_dir = script_dir + '/config'
+
+PLAYLIST_DIR = config_dir + '/playlists'
+MIDI_MAPPING_DIR = config_dir + '/midi_maps'
+
+DEFAULT_PLAYLIST = PLAYLIST_DIR + '/default.json'
+
 
 def main():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
@@ -81,7 +85,6 @@ def main():
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
-    config_dir = get_config_dir()
     playlist = Playlist(args.playlist, args.processor_name)
     layout = Layout(config_dir)
 
@@ -109,9 +112,5 @@ def main():
     except KeyboardInterrupt:
         sys.exit(0)
 
-
-def get_config_dir():
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    return script_dir + "/config"
 
 main()

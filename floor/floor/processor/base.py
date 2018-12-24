@@ -3,9 +3,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+
 class ProcessorRegistry(type):
-    """Python metclass which automatically adds the class to `ALL_PROCESSORS`."""
+    """Python metaclass which automatically adds the class to `ALL_PROCESSORS`."""
     ALL_PROCESSORS = {}
+
     def __new__(cls, clsname, bases, attrs):
         new_class = super(ProcessorRegistry, cls).__new__(cls, clsname, bases, attrs)
         class_name = new_class.__name__

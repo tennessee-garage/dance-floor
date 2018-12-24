@@ -8,6 +8,8 @@ from glob import glob
 from collections import OrderedDict
 
 from .base import ProcessorRegistry
+from .base import Base
+
 
 def _import_all():
     """Import all processors, to trigger registration."""
@@ -16,9 +18,11 @@ def _import_all():
         name, ext = os.path.splitext(os.path.basename(filename))
         __import__(name, globals(), locals())
 
+
 def all_processors():
     """Returns a dict of processor name -> processor class"""
     _import_all()
     return OrderedDict(sorted(ProcessorRegistry.ALL_PROCESSORS.items()))
+
 
 __all__ = ['all_processors']
