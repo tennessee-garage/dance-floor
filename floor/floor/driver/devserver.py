@@ -42,7 +42,7 @@ class FloorWebsocketHandler(WebSocket):
         event_type = event.get('event')
         if event_type == 'click':
             pixel_id = event['payload']['pixel']
-            FloorWebsocketHandler.WEIGHTS[pixel_id] = 1
+            FloorWebsocketHandler.WEIGHTS[pixel_id] = Devserver.MAX_FLOOR_VALUE
         else:
             logger.warning('unknown client event: {}'.format(event_type))
 
@@ -82,6 +82,7 @@ class Devserver(Base):
     """
 
     MAX_LED_VALUE = 256
+    MAX_FLOOR_VALUE = 1
 
     def __init__(self, args):
         super(Devserver, self).__init__(args)

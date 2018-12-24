@@ -4,14 +4,19 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from unittest import TestCase
-from floor.controller import midi
+
+from floor.controller.midi.constants import *
+from floor.controller.midi.functions import MidiFunctions
+from floor.controller.midi.manager import MidiManager
+from floor.controller.midi.mapping import MidiMapping
+
 import mock
 
 
-DEMO_MAPPING = midi.MidiMapping(name='demo', mappings={
-    (midi.COMMAND_NOTE_ON, 'C3'): midi.MidiFunctions.playlist_next,
-    (midi.COMMAND_NOTE_ON, 'C4'): midi.MidiFunctions.playlist_previous,
-    (midi.COMMAND_CONTROL_MODE_CHANGE, 21, 127): midi.MidiFunctions.playlist_stop,
+DEMO_MAPPING = MidiMapping(name='demo', mappings={
+    (COMMAND_NOTE_ON, 'C3'): MidiFunctions.playlist_next,
+    (COMMAND_NOTE_ON, 'C4'): MidiFunctions.playlist_previous,
+    (COMMAND_CONTROL_MODE_CHANGE, 21, 127): MidiFunctions.playlist_stop,
 })
 
 
@@ -20,23 +25,23 @@ class MidiMappingTestCase(TestCase):
         self.mapping = DEMO_MAPPING
 
     def test_basic_mapping(self):
-        match = self.mapping.get_function((midi.COMMAND_NOTE_ON, 'C3'))
-        self.assertEqual(midi.MidiFunctions.playlist_next, match)
+        match = self.mapping.get_function((COMMAND_NOTE_ON, 'C3'))
+        self.assertEqual(MidiFunctions.playlist_next, match)
 
-        match = self.mapping.get_function((midi.COMMAND_NOTE_ON, 'C3', 101))
-        self.assertEqual(midi.MidiFunctions.playlist_next, match)
+        match = self.mapping.get_function((COMMAND_NOTE_ON, 'C3', 101))
+        self.assertEqual(MidiFunctions.playlist_next, match)
 
-        match = self.mapping.get_function((midi.COMMAND_NOTE_ON, 'C1'))
+        match = self.mapping.get_function((COMMAND_NOTE_ON, 'C1'))
         self.assertEqual(None, match)
 
-        match = self.mapping.get_function((midi.COMMAND_CONTROL_MODE_CHANGE, 21, 127))
-        self.assertEqual(midi.MidiFunctions.playlist_stop, match)
+        match = self.mapping.get_function((COMMAND_CONTROL_MODE_CHANGE, 21, 127))
+        self.assertEqual(MidiFunctions.playlist_stop, match)
 
-        match = self.mapping.get_function((midi.COMMAND_CONTROL_MODE_CHANGE, 21, 99))
+        match = self.mapping.get_function((COMMAND_CONTROL_MODE_CHANGE, 21, 99))
         self.assertEqual(None, match)
 
     def test_to_from_json(self):
-        clone = midi.MidiMapping.from_json(self.mapping.to_json())
+        clone = MidiMapping.from_json(self.mapping.to_json())
         self.assertEqual(clone, self.mapping)
 
 
@@ -46,7 +51,7 @@ class MidiManagerTestCase(TestCase):
         self.controller.processor = mock.Mock()
         self.controller.processor.handle_midi_command = mock.Mock()
         self.mapping = DEMO_MAPPING
-        self.manager = midi.MidiManager(
+        self.manager = MidiManager(
             port=1234,
             controller=self.controller,
             default_midi_mapping=self.mapping)

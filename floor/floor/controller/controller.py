@@ -12,6 +12,12 @@ class Controller(object):
     DEFAULT_FPS = 24
     DEFAULT_BPM = 120.0
 
+    # Give outside controllers a chance to fake foot steps on the floor
+    # Use the SYNTHETIC_WEIGHT_ACTIVE flag to determine if we need to spend
+    # cycles mixing in the weight values.
+    SYNTHETIC_WEIGHT_ACTIVE = False
+    SYNTHETIC_WEIGHTS = [0]*64
+
     def __init__(self, playlist):
         self.playlist = playlist
         self.driver = None  # type: driver.Base
@@ -56,6 +62,27 @@ class Controller(object):
         """
         new_max = factor * self.driver.MAX_LED_VALUE
         self.processor.set_max_value(new_max)
+
+    def square_weight_on(self, index):
+        if index > 63 or index < 0:
+            logger.error("Ignoring square_weight_on() value beyond bounds")
+            return
+        self.SYNTHETIC_WEIGHTS[index] = self.driver.MAX_FLOOR_VALUE
+        self.SYNTHETIC_WEIGHT_ACTIVE = True
+
+    def square_weight_off(self, index):
+        if index > 63 or index < 0:
+            logger.error("Ignoring square_weight_on() value beyond bounds")
+            return
+        self.SYNTHETIC_WEIGHTS[index] = 0
+
+        # Scan the weighs and see if anything is still set
+        for index in self.SYNTHETIC_WEIGHTS:
+            if self.SYNTHETIC_WEIGHTS[index]:
+                return
+
+        # If nothing is set, there are no longer any synthetic weights active
+        self.SYNTHETIC_WEIGHT_ACTIVE = False
 
     def set_processor(self, processor_name, processor_args=dict):
         """Sets the active processor, which must already be loaded into
@@ -134,7 +161,7 @@ class Controller(object):
         if not self.processor:
             return
         try:
-            leds = self.processor.get_next_frame(self.driver.get_weights())
+            leds = self.processor.get_next_frame(self.get_weights())
         except KeyboardInterrupt:
             raise
         except Exception:
@@ -143,6 +170,16 @@ class Controller(object):
             self.playlist.remove(self.playlist.position)
         else:
             self.driver.set_leds(leds)
+
+    def get_weights(self):
+        weights = self.driver.get_weights()
+        if self.SYNTHETIC_WEIGHT_ACTIVE:
+            for idx in range(64):
+                val = self.SYNTHETIC_WEIGHTS[idx]
+                if val:
+                    weights[idx] = val
+
+        return weights
 
     def transfer_data(self):
         self.driver.send_data()

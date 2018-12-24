@@ -3,6 +3,7 @@
 class Base(object):
 
     MAX_LED_VALUE = 1023
+    MAX_FLOOR_VALUE = 1023
 
     def __init__(self, driver_args):
         self.weights = []

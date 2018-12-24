@@ -3,7 +3,7 @@
 from floor.controller import Controller
 from floor.controller import Playlist
 from floor.controller import Layout
-from floor.controller import MidiManager
+from floor.controller.midi import MidiManager
 from floor.server.server import run_server
 
 import argparse
