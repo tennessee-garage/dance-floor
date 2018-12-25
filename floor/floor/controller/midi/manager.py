@@ -91,8 +91,6 @@ class MidiManager(object):
             for command in commands:
                 processor.handle_midi_command(command)
 
-        logging.info("Key: {}".format(commands[0][1]))
-
         # Handle any special command bindings.
         mapping = self.get_midi_mapping(peer)
         for command in commands:
