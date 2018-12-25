@@ -89,7 +89,7 @@ h1 small {
   function connect() {
     var socket;
     try {
-      socket = new WebSocket("ws://" + location.hostname + ":1980");
+      socket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/events");
     } catch (err) {
       console.error(err);
       scheduleReconnect();

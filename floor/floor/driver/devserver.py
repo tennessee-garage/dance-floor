@@ -1,105 +1,70 @@
-import json
-import BaseHTTPServer
-import SocketServer
+from gevent import monkey
+monkey.patch_all()
+
+import collections
 import threading
-import os
+import json
 import logging
-from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
-
-from base import Base
-
 logger = logging.getLogger('devserver')
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-HTML_FILE = os.path.join(BASE_DIR, 'devserver', 'index.html')
+import gevent
+from geventwebsocket.handler import WebSocketHandler
+from flask import Flask
+from flask import send_from_directory
+from flask_sockets import Sockets
 
+from floor.driver.base import Base
 
-class FloorWebsocketHandler(WebSocket):
-    # Singleton set of connected websocket clients.
-    WEBSOCKET_CLIENTS = []
+app = Flask(__name__)
+sockets_app = Sockets(app)
 
-    # Singleton set of weights.
-    WEIGHTS = [0] * 64
+WAITER = gevent.event.Event()
+MESSAGE_QUEUE = collections.deque()
+SOCKETS = set()
 
-    @classmethod
-    def broadcast(cls, message):
-        for client in FloorWebsocketHandler.WEBSOCKET_CLIENTS:
-            client.sendMessage(unicode(json.dumps(message)))
+@sockets_app.route('/events')
+def echo_socket(ws):
+    logger.info('Socket connected: {}'.format(ws))
+    SOCKETS.add(ws)
+    try:
+        while not ws.closed:
+            message = ws.receive()
+            logger.info('Got message: {}'.format(message))
+    finally:
+        SOCKETS.remove(ws)
+    logger.info('Socket disconnected.')
 
-    @classmethod
-    def getAndClearWeights(cls):
-        ret = cls.WEIGHTS
-        cls.WEIGHTS = [0] * 64
-        return ret
+@app.route('/')
+def hello():
+    return send_from_directory('devserver', 'index.html')
 
-    def handleMessage(self):
-        try:
-            event = json.loads(self.data)
-        except ValueError:
-            logger.warning('bad client message: {}'.format(self.data))
-            return
+def sender():
+    while True:
+        WAITER.wait()
+        WAITER.clear()
+        while MESSAGE_QUEUE:
+            message = json.dumps(MESSAGE_QUEUE.popleft())
+            for socket in SOCKETS:
+                socket.send(message)
 
-        event_type = event.get('event')
-        if event_type == 'click':
-            pixel_id = event['payload']['pixel']
-            FloorWebsocketHandler.WEIGHTS[pixel_id] = Devserver.MAX_FLOOR_VALUE
-        else:
-            logger.warning('unknown client event: {}'.format(event_type))
+def _broadcast(message):
+    MESSAGE_QUEUE.append(message)
+    WAITER.set()
 
-    def handleConnected(self):
-        logger.info('>>> WebSocket connected: {}'.format(self.address))
-        FloorWebsocketHandler.WEBSOCKET_CLIENTS.append(self)
-
-    def handleClose(self):
-        logger.info('<<< WebSocket closed: {}'.format(self.address))
-        FloorWebsocketHandler.WEBSOCKET_CLIENTS.remove(self)
-
-
-class WebserverHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        data = open(HTML_FILE).read()
-        self.wfile.write(data)
-
-    def log_request(self, code='-', size='-'):
-        logger.info('{} [{}]'.format(self.requestline, code))
+def serve_forever(port=1979):
+    logger.info('Starting devserver on port {}'.format(port))
+    gevent.spawn(sender)
+    server = gevent.pywsgi.WSGIServer(('', port), app, handler_class=WebSocketHandler)
+    server.serve_forever()
 
 
 class Devserver(Base):
-    """The devserver driver.
-
-    Run a local webserver on port 1979, and websocket server on port 1980.
-    LED updates are sent to all connected clients as a JSON-serialized
-    message of the form:
-
-        {
-            "event": "leds",
-            "payload": [ [r, g, b], [r, g, b], ... ]
-        }
-
-    """
-
-    MAX_LED_VALUE = 256
-    MAX_FLOOR_VALUE = 1
-
+    """Floor driver interface."""
     def __init__(self, args):
-        super(Devserver, self).__init__(args)
-        self.websocket_server = SimpleWebSocketServer('', 1980, FloorWebsocketHandler)
-        SocketServer.TCPServer.allow_reuse_address = True
-        self.web_server = SocketServer.TCPServer(("", 1979), WebserverHandler)
-
         self.weights = [0] * 64
-
-        self.websocket_thread = threading.Thread(target=self.websocket_server.serveforever)
-        self.websocket_thread.daemon = True
-        self.websocket_thread.start()
-
-        self.web_thread = threading.Thread(target=self.web_server.serve_forever)
-        self.web_thread.daemon = True
-        self.web_thread.start()
-        logger.info('Serving on http://localhost:1979/')
+        self.thr = threading.Thread(target=serve_forever)
+        self.thr.daemon = True
+        self.thr.start()
 
     def send_data(self):
         # Ensure all RGB values are integral.
@@ -108,10 +73,10 @@ class Devserver(Base):
             "event": "leds",
             "payload": leds,
         }
-        FloorWebsocketHandler.broadcast(message)
+        _broadcast(message)
 
     def read_data(self):
         pass
 
     def get_weights(self):
-        return FloorWebsocketHandler.getAndClearWeights()
+        return self.weights
