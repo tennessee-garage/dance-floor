@@ -1,5 +1,7 @@
 # Floor Code
 
+[![Build Status](https://travis-ci.org/tennessee-garage/dance-floor.svg?branch=master)](https://travis-ci.org/tennessee-garage/dance-floor)
+
 ## Overview
 
 The code in this directory controls all the lights on the floor as well as reads the weight data sent by the floor.
