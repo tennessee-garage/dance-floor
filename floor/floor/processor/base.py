@@ -66,3 +66,7 @@ class Base(object):
         assert downbeat is not None
         self.bpm = bpm
         self.downbeat = downbeat
+
+    @staticmethod
+    def zeroed_pixel_array():
+        return [[0, 0, 0] for _ in range(64)]
