@@ -9,7 +9,7 @@ from floor.processor import all_processors
 from unittest import TestCase
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-DEFAULT_PLAYLIST = BASE_DIR + '/../../playlists/default.json'
+DEFAULT_PLAYLIST = BASE_DIR + '/../../config/playlists/default.json'
 
 
 class PlaylistTest(TestCase):

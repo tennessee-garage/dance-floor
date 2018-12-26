@@ -105,7 +105,7 @@ class Zap(Base):
             self.last_downbeat = self.downbeat
 
         if self.beat_counter % 4 == 0:
-            self.frame_sets.rotate(n=1)
+            self.frame_sets.rotate(1)
             self.frames = collections.deque(self.frame_sets[0])
 
         self.beat_counter += 1

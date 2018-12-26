@@ -18,9 +18,9 @@ class Controller(object):
     SYNTHETIC_WEIGHT_ACTIVE = False
     SYNTHETIC_WEIGHTS = [0]*64
 
-    def __init__(self, playlist):
+    def __init__(self, driver, playlist):
+        self.driver = driver
         self.playlist = playlist
-        self.driver = None  # type: driver.Base
         self.processor = None  # type: processor.Base
         self.frame_start = 0
         self.fps = None
@@ -39,9 +39,13 @@ class Controller(object):
         self.set_bpm(self.DEFAULT_BPM)
 
         # Max value is dictated by the driver used
-        self.max_led_value = None
+        self.max_led_value = self.driver.get_max_led_value()
+
         # Effective max value accounts for any scaling factor in effect (e.g. to reduce brightness)
-        self.max_effective_led_value = None
+        self.max_effective_led_value = self.max_led_value
+
+        # Maximum sensor value.
+        self.max_floor_value = self.driver.get_max_floor_value()
 
     def set_fps(self, fps):
         self.fps = fps
@@ -60,14 +64,14 @@ class Controller(object):
         :param factor: a scaling factor from 0.0 to 1.0
         :return: none
         """
-        new_max = factor * self.driver.MAX_LED_VALUE
+        new_max = factor * self.max_led_value
         self.processor.set_max_value(new_max)
 
     def square_weight_on(self, index):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index] = self.driver.MAX_FLOOR_VALUE
+        self.SYNTHETIC_WEIGHTS[index] = self.max_floor_value
         self.SYNTHETIC_WEIGHT_ACTIVE = True
 
     def square_weight_off(self, index):
@@ -112,30 +116,21 @@ class Controller(object):
         except Exception as e:
             raise ValueError('Processor "{}" could not be created: {}'.format(name, str(e)))
 
-    def set_driver(self, driver_name, driver_args):
-        try:
-            module = importlib.import_module("floor.driver.{}".format(driver_name))
-        except ImportError as e:
-            print("Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e))
-            sys.exit(0)
-
-        self.driver = getattr(module, driver_name.title())(driver_args)
-        self.max_led_value = self.driver.MAX_LED_VALUE
-        self.max_effective_led_value = self.max_led_value
-        logger.info("Loaded driver '{}' with max LED value {}".format(driver_name, self.driver.MAX_LED_VALUE))
-
-    def run(self):
+    def run_forever(self):
         while True:
-            if not self.playlist.is_running():
-                # If the playlist is stopped/paused, sleep a bit then restart the loop
-                time.sleep(0.5)
-                continue
+            self.run_one_frame()
 
-            self.init_loop()
-            self.check_playlist()
-            self.generate_frame()
-            self.transfer_data()
-            self.delay()
+    def run_one_frame(self):
+        if not self.playlist.is_running():
+            # If the playlist is stopped/paused, sleep a bit then restart the loop
+            time.sleep(0.5)
+            return
+
+        self.init_loop()
+        self.check_playlist()
+        self.generate_frame()
+        self.transfer_data()
+        self.delay()
 
     def init_loop(self):
         self.frame_start = time.time()
