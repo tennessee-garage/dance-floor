@@ -2,17 +2,13 @@ import json
 
 
 class Layout(object):
-
-    CONFIG_FILE = "floor-layout.json"
-
-    def __init__(self, config_dir=''):
+    def __init__(self, config_filename):
         self.squares = None
         self.rows = None
         self.cols = None
         self.layout = None
 
-        filename = config_dir + "/" + self.CONFIG_FILE
-        with open(filename) as json_data:
+        with open(config_filename) as json_data:
             config = json.load(json_data)
 
             # NOTE: The only thing currently used from config is the layout definition to
