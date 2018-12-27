@@ -53,7 +53,7 @@ class LandMines(Base):
     # 1. If delta_time < life_time/2 Increment by: velocity * delta_time / radius
     # 2. If delta_time > life_time/2 Decrement by: velocity * delta_time / radius
     # 3. If delta_time > life_time, remove mine
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
 
         chance = random.random()
         if chance > 0.95:

@@ -45,9 +45,7 @@ class Stripes(Base):
 
         return Stripe(gradient, speed, direction)
 
-    def get_next_frame(self, weights):
-        # Ignore weights
-
+    def get_next_frame(self, context):
         pixels = []
 
         for row in range(0, 8):

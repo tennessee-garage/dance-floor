@@ -1,4 +1,3 @@
-import time
 import random
 
 from base import Base
@@ -20,13 +19,13 @@ class Kaleidoscope(Base):
             self.active_px.append((0, 0, 0))
             self.times.append(0)
 
-    def handle_weight_input(self, weights):
+    def handle_weight_input(self, context):
         # Weight values are either 0 or 1.  If 1 consider it a step and add a pixel
         for i in range(0, 64):
-            if weights[i] > 0 and self.times[i] == 0:
+            if context.weights[i] > 0 and self.times[i] == 0:
                 col = random.randint(0, self.palette_length-1)
                 self.active_px[i] = self.palette[col]
-                self.times[i] = time.time()
+                self.times[i] = context.clock
 
     def init_frame(self):
         frame = []
@@ -34,13 +33,12 @@ class Kaleidoscope(Base):
             frame.append((0, 0, 0))
         return frame
 
-    def get_next_frame(self, weights):
-
+    def get_next_frame(self, context):
         # Read from weight input
-        self.handle_weight_input(weights)
+        self.handle_weight_input(context)
 
         next_frame = self.init_frame()
-        t = time.time()
+        t = context.clock
         for x in range(0, 8):
             for y in range(0, 8):
                 index = y*8 + x

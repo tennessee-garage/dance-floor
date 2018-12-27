@@ -13,10 +13,10 @@ class YourPattern(Base):
         super(YourPattern, self).__init__(**kwargs)
         # Set/initialize any state variables here
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         # This gets called once every 1/fps seconds
 
-        # Do something with list of weight values
+        # Do something with list of context.weight values
 
         # Compute a list of RGB tuples, limit by self.max_value
         # which gets set for you based on driver at object creation

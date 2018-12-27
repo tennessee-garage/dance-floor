@@ -16,6 +16,18 @@ class ProcessorRegistry(type):
         cls.ALL_PROCESSORS[class_name] = new_class
         return new_class
 
+class RenderContext:
+    """An object that a `Controller` will pass to `Processor.get_next_frame`.
+
+    This class is how the `Controller` passes state to the `Processor`. As such,
+    it can be considered write-only for the Controller, and read-only for the Processor.
+    """
+    def __init__(self, clock, downbeat, weights, bpm):
+        self.clock = clock
+        self.downbeat = downbeat
+        self.weights = weights
+        self.bpm = bpm
+
 
 class Base(object):
     __metaclass__ = ProcessorRegistry
@@ -40,7 +52,7 @@ class Base(object):
     def set_max_value(self, max_value):
         self.max_value = max_value
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         """
         Generate the LED values needed for the next frame
         :return:

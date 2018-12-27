@@ -74,7 +74,7 @@ class Spiral(Base):
         self.train = collections.deque([[0 for _ in range(3)] for _ in range(64)])
 
 #    @clocked(frames_per_beat=1)
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         self.hue += self.hue_drift
         # Wrap around if we hit 1.0
         if self.hue > 1.0:

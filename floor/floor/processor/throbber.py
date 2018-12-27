@@ -1,5 +1,3 @@
-import time
-
 from base import Base
 
 RED = (0xff, 0x00, 0x00)
@@ -19,8 +17,8 @@ def draw_line(arr, start, end, pixel):
 class Throbber(Base):
     """Shows an outward moving square according to bpm."""
 
-    def get_next_frame(self, weights):
-        now = time.time()
+    def get_next_frame(self, context):
+        now = context.clock
         downbeat = self.downbeat or now
 
         seconds_per_measure = (1 / (self.bpm / 60.0)) * 4

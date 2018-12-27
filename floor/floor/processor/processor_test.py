@@ -8,6 +8,7 @@ import time
 import datetime
 
 from floor import processor
+from floor.processor.base import RenderContext
 
 def test_run_all_processors():
     """Run each processor for 30 fake seconds."""
@@ -25,7 +26,13 @@ def test_run_all_processors():
             instance = cls()
             instance.set_bpm(120, downbeat=now)
             for i in xrange(num_frames):
-                instance.get_next_frame(fake_weights)
+                context = RenderContext(
+                    clock=now,
+                    downbeat=0,
+                    weights=fake_weights,
+                    bpm=120.0,
+                )
+                instance.get_next_frame(context)
                 fake_time.tick(delta=clock_time_per_frame)
 
     processors = processor.all_processors()

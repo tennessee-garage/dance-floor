@@ -25,7 +25,8 @@ class Electricity(Base):
 
         self.pixels = [[0, 0, 0] for _ in range(64)]
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
+        weights = context.weights
         self.fade_frame()
 
         last_val = None

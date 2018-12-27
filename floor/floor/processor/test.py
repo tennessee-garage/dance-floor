@@ -50,7 +50,7 @@ class Test(Base):
             frame.append(initial_value)
         return frame
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         self.countdown -= 1
         if self.countdown == 0:
             self.current_cycle += 1

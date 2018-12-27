@@ -1,5 +1,4 @@
 import random
-import time
 
 from base import Base
 
@@ -9,7 +8,7 @@ class Pulsar(Base):
         super(Pulsar, self).__init__(**kwargs)
         self.pixels = []
         self.wave_toggle = 1
-        self.last_time = time.time()
+        self.last_time = None
 
         for x in range(0, 8):
             for y in range(0, 8):
@@ -72,8 +71,12 @@ class Pulsar(Base):
                 self.max_value*random.random()
             )
 
-    def get_next_frame(self, weights):
-        next_time = time.time()
+    def get_next_frame(self, context):
+        weights = context.weights
+
+        if self.last_time is None:
+            self.last_time = context.clock
+        next_time = context.clock
 
         # reset_time could be beat driven
         reset_time = 1.2

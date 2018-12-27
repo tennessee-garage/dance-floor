@@ -8,7 +8,7 @@ class clocked(object):
 
     You can think of this decorator as providing a TTL cache decorator for
     the method it decorates, the TTL being dynamically computed from
-    `processor.bpm`.
+    `context.bpm`.
 
     Here is an example of a trivial processor which changes colors once per
     quarter note:
@@ -16,7 +16,7 @@ class clocked(object):
         COLORS = [RED, GREEN, BLUE]
 
         @clocked
-        def get_next_frame(self, weights):
+        def get_next_frame(self, context):
             self.position += 1
             self.position %= len(COLORS)
             color = COLORS[self.position]
@@ -37,9 +37,9 @@ class clocked(object):
 
     def __call__(self, fn, *args, **kwargs):
         def new_fn(*args, **kwargs):
-            now = time.time()
-            processor = args[0]
-            bpm = processor.bpm or 120.0
+            context = args[1]
+            now = context.clock
+            bpm = context.bpm or 120.0
             beats_per_second = 60.0/bpm
             frame_period = beats_per_second / float(self.frames_per_beat)
 

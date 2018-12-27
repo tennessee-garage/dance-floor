@@ -111,7 +111,7 @@ class Zap(Base):
         self.beat_counter += 1
 
     @clocked(frames_per_beat=1)
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         self.change_color_if_needed()
         frame = self.frames[0]
         self.frames.rotate(-1)

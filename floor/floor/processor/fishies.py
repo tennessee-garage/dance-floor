@@ -13,7 +13,7 @@ class Fishies(Base):
         self.palette = color.get_palette('rainbow_bunny', self.max_value)
         self.palette_length = len(self.palette)
         self.fishies = self.init_fishies()
-        self.last_time = time.time()
+        self.last_time = None
         for x in range(0, 8):
             for y in range(0, 8):
                 self.pixels.append((0, 0, 0))
@@ -55,8 +55,10 @@ class Fishies(Base):
             fish['y'] = 7
             fish['dy'] = -1 * fish['dy']
 
-    def get_next_frame(self, weights):
-        next_time = time.time()
+    def get_next_frame(self, context):
+        if self.last_time is None:
+            self.last_time = context.clock
+        next_time = context.clock
         d_time = next_time - self.last_time
 
         for index in xrange(len(self.fishies)):

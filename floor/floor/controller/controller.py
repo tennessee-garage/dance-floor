@@ -1,6 +1,7 @@
 import time
 import logging
 from floor import processor
+from floor.processor.base import RenderContext
 
 logger = logging.getLogger('controller')
 
@@ -152,8 +153,16 @@ class Controller(object):
     def generate_frame(self):
         if not self.processor:
             return
+
+        context = RenderContext(
+            clock=self.frame_start,
+            downbeat=self.downbeat,
+            weights=self.get_weights(),
+            bpm=self.bpm,
+        )
+
         try:
-            leds = self.processor.get_next_frame(self.get_weights())
+            leds = self.processor.get_next_frame(context)
         except KeyboardInterrupt:
             raise
         except Exception:

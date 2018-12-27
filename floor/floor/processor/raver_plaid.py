@@ -1,4 +1,3 @@
-import time
 import math
 
 from base import Base
@@ -23,10 +22,13 @@ class RaverPlaid(Base):
         self.speed_g = -13
         self.speed_b = 19
 
-        self.start_time = time.time()
+        self.start_time = None
 
-    def get_next_frame(self, weights):
-        t = (time.time() - self.start_time) * 5
+    def get_next_frame(self, context):
+        if self.start_time is None:
+            self.start_time = context.clock
+
+        t = (context.clock - self.start_time) * 5
         pixels = []
         for ii in range(self.n_pixels):
             pct = 1.0 * ii / self.n_pixels
