@@ -106,7 +106,7 @@ class MidiManager(object):
         if function not in self.GLOBAL_CALLBACKS:
             return
 
-        context_value = function.value
+        context_value = function.context_value
         callbacks = self.GLOBAL_CALLBACKS[function]
         for fn in callbacks:
             fn(context_value, value)
