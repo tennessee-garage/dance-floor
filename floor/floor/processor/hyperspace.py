@@ -18,7 +18,7 @@ class Hyperspace(Base):
         self.palette_length = len(self.palette)
         self.radius_map_1 = [None] * 64
         self.radius_map_2 = [None] * 64
-        self.start_time = time.time()
+        self.start_time = None
 
         self.radius_map_1 = self.build_radius_map({'x':3.5, 'y':3.5});
         self.radius_map_2 = self.build_radius_map({'x':3, 'y':4});
@@ -65,7 +65,9 @@ class Hyperspace(Base):
         return offset
 
     def get_next_frame(self, context):
-        delta = time.time() - self.start_time
+        if self.start_time is None:
+            self.start_time = context.clock
+        delta = context.clock - self.start_time
         pulse = 2*math.sin(0.5*delta)
         frame = [None] * 64
         for y in range(0, self.FLOOR_HEIGHT):

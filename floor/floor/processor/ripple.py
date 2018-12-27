@@ -1,6 +1,5 @@
 import colorsys
 import math
-import time
 from utils import clocked
 import logging
 from floor.controller import midi
@@ -68,20 +67,20 @@ class Ripple(Base):
                 logger.info("Set decay to {}".format(self.decay))
 
     @clocked(frames_per_beat=0.125)
-    def reset_on_beat(self):
-        self.t_start = time.time()
+    def reset_on_beat(self, context):
+        self.t_start = context.clock
         self.hue += self.hue_rotation
         if self.hue > 1.0:
             self.hue -= 1.0
 
     def get_next_frame(self, context):
-        now = time.time()
+        now = context.clock
 
         if self.t_start is None:
             self.t_start = now
 
         # Enact a reset whenever a beat hits
-        self.reset_on_beat()
+        self.reset_on_beat(context)
 
         pixels = []
         for dist in DISTANCE:

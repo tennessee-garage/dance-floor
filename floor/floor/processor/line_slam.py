@@ -1,6 +1,5 @@
 import colorsys
 import math
-import time
 
 from floor.util.easing import Easing
 from utils import clocked

@@ -1,6 +1,5 @@
 import colorsys
 import math
-import time
 from utils import clocked
 
 from ripple import Ripple
@@ -22,8 +21,8 @@ class RipplePulse(Ripple):
         super(RipplePulse, self).__init__(**kwargs)
 
     @clocked(frames_per_beat=.5)
-    def reset_on_beat(self):
-        self.t_start = time.time()
+    def reset_on_beat(self, context):
+        self.t_start = context.clock
         self.hue += self.hue_rotation
         if self.hue > 1.0:
             self.hue -= 1.0

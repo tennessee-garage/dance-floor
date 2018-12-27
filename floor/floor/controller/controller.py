@@ -116,7 +116,7 @@ class Controller(object):
 
     def run_forever(self):
         while True:
-            self.run_one_frame(context)
+            self.run_one_frame()
 
     def run_one_frame(self):
         if not self.playlist.is_running():
