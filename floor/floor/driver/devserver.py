@@ -27,6 +27,7 @@ WAITER = gevent.event.Event()
 MESSAGE_QUEUE = collections.deque()
 SOCKETS = set()
 
+
 @sockets_app.route('/events')
 def echo_socket(ws):
     logger.info('Socket connected: {}'.format(ws))
@@ -39,9 +40,11 @@ def echo_socket(ws):
         SOCKETS.remove(ws)
     logger.info('Socket disconnected.')
 
+
 @app.route('/')
 def hello():
     return render_template('index.html')
+
 
 def sender():
     while True:
@@ -52,9 +55,11 @@ def sender():
             for socket in SOCKETS:
                 socket.send(message)
 
+
 def _broadcast(message):
     MESSAGE_QUEUE.append(message)
     WAITER.set()
+
 
 def serve_forever(port=1979):
     logger.info('Starting devserver on port {}'.format(port))
@@ -84,4 +89,6 @@ class Devserver(Base):
         pass
 
     def get_weights(self):
-        return self.weights
+        # Until the devserver responds to clicks again, return a fresh, cleared array of weight
+        # values so that any synthetic weights are not persisted
+        return [0] * 64

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d36833a3c43ee03e6021899b31a8f638299ca5872b7b7260da273c10f688bfec"
+            "sha256": "1bc48018dedb1407f9bd9e631d57d35b3c24f1766724f0fa9b18a9edae6fc599"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -53,6 +53,12 @@
             "markers": "python_version < '3.3'",
             "version": "==1.0.2"
         },
+        "future": {
+            "hashes": [
+                "sha256:67045236dcfd6816dc439556d009594abf643e5eb48992e36beac09c2ca659b8"
+            ],
+            "version": "==0.17.1"
+        },
         "gevent": {
             "hashes": [
                 "sha256:1f277c5cf060b30313c5f9b91588f4c645e11839e14a63c83fcf6f24b1bc9b95",
@@ -79,6 +85,7 @@
                 "sha256:d26b57c50bf52fb38dadf3df5bbecd2236f49d7ac98f3cf32d6b8a2d25afc27f",
                 "sha256:fd23b27387d76410eb6a01ea13efc7d8b4b95974ba212c336e8b1d6ab45a9578"
             ],
+            "index": "pypi",
             "version": "==1.3.7"
         },
         "gevent-websocket": {
@@ -177,10 +184,10 @@
         },
         "pymidi": {
             "hashes": [
-                "sha256:80537181710a2a5a967984e5ec763345d24f15b34c31405c33e55da8e256333a"
+                "sha256:b1b05970ea67aabb9f04b88373929041926906d06f9f84c26dedf9608979365c"
             ],
             "index": "pypi",
-            "version": "==0.3.0"
+            "version": "==0.4.0"
         },
         "pyserial": {
             "hashes": [

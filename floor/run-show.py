@@ -17,7 +17,7 @@ LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 CONFIG_DIR = os.path.join(SCRIPT_DIR, 'config')
 PLAYLIST_DIR = os.path.join(CONFIG_DIR, 'playlists')
-MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, '/midi_maps')
+MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, 'midi_maps')
 DEFAULT_PLAYLIST = os.path.join(PLAYLIST_DIR, 'default.json')
 DEFAULT_FLOOR_CONFIG_FILE = os.path.join(SCRIPT_DIR, 'config/floor-layout.json')
 
