@@ -1,8 +1,10 @@
 import colorsys
 import math
 from utils import clocked
+from utils import midictrl
 import logging
-from floor.controller import midi
+
+from floor.controller.midi.functions import MidiFunctions
 
 from base import Base
 
@@ -30,6 +32,7 @@ class Ripple(Base):
     DECAY_MIN = 0.25
     DECAY_DELTA = DECAY_MAX - DECAY_MIN
     DECAY_DEFAULT = 0.75
+    DECAY = DECAY_DEFAULT
 
     OMEGA = 2 * math.pi
     # How much distance translates the time value sent to the decay method.
@@ -40,6 +43,7 @@ class Ripple(Base):
     DISTANCE_FACTOR_MIN = 0.02
     DISTANCE_FACTOR_DELTA = DISTANCE_FACTOR_MAX - DISTANCE_FACTOR_MIN
     DISTANCE_FACTOR_DEFAULT = 0.03
+    DISTANCE_FACTOR = DISTANCE_FACTOR_DEFAULT
 
     RESTART_THRESHHOLD = 0.01
 
@@ -48,23 +52,21 @@ class Ripple(Base):
         self.t_start = None
         self.hue = 0.0
         self.hue_rotation = 0.05
-        self.distance_factor = self.DISTANCE_FACTOR_DEFAULT
-        self.decay = self.DECAY_DEFAULT
 
     def requested_fps(self):
         return 120
 
-    def handle_midi_command(self, command):
-        logging.info("Command: [{}, {}, {}]".format(command[0], command[1], command[2]))
-        if command[0] == midi.COMMAND_CONTROL_MODE_CHANGE:
-            if command[1] == 48:
-                value = command[2]
-                self.distance_factor = (self.DISTANCE_FACTOR_DELTA * (value/127.0))+self.DISTANCE_FACTOR_MIN
-                logger.info("Set distance factor to {}".format(self.distance_factor))
-            if command[1] == 49:
-                value = command[2]
-                self.decay = (self.DECAY_DELTA * (value / 127.0)) + self.DECAY_MIN
-                logger.info("Set decay to {}".format(self.decay))
+    @classmethod
+    @midictrl(function=MidiFunctions.ranged_value_1)
+    def update_distance_factor(cls, context_value, value):
+        cls.DISTANCE_FACTOR = (cls.DISTANCE_FACTOR_DELTA * (value / 127.0)) + cls.DISTANCE_FACTOR_MIN
+        logger.info("Set distance factor to {}".format(cls.DISTANCE_FACTOR))
+
+    @classmethod
+    @midictrl(function=MidiFunctions.ranged_value_2)
+    def update_distance_factor(cls, context_value, value):
+        cls.DECAY = (cls.DECAY_DELTA * (value / 127.0)) + cls.DECAY_MIN
+        logger.info("Set decay to {}".format(cls.DECAY))
 
     @clocked(frames_per_beat=0.125)
     def reset_on_beat(self, context):
@@ -84,7 +86,7 @@ class Ripple(Base):
 
         pixels = []
         for dist in DISTANCE:
-            factor = self.sin_decay((now-self.t_start) - dist*self.distance_factor)
+            factor = self.sin_decay((now-self.t_start) - dist*self.DISTANCE_FACTOR)
             if factor > 1.0:
                 factor = 0.0
 
@@ -112,4 +114,4 @@ class Ripple(Base):
             omega = angular frequency
             phi = phase angle at t=0 which for us will be 0.0
         """
-        return (math.e**(-self.decay * t)) * math.cos(self.OMEGA * t)
+        return (math.e**(-self.DECAY * t)) * math.cos(self.OMEGA * t)

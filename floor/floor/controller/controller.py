@@ -49,6 +49,15 @@ class Controller(object):
         self.fps = fps
         self.frame_seconds = 1.0/fps
 
+    def set_midi_bpm(self, context_value, value):
+        """Set a BPM based on a midi value
+
+        MIDI values range from 0 to 127.  Map this value to a range of BPMs from 90 to 170 BPM
+        """
+        bpm = 90
+        bpm += float(value) / 127.0 * 80
+        self.set_bpm(int(bpm))
+
     def set_bpm(self, bpm, downbeat=None):
         logger.info('Setting bpm to: {}'.format(bpm))
         self.bpm = float(bpm)
@@ -56,23 +65,27 @@ class Controller(object):
         if self.processor:
             self.processor.set_bpm(bpm, self.downbeat)
 
+    def scale_midi_brightness(self, context_value, value):
+        self.scale_brightness(value/127.0)
+
     def scale_brightness(self, factor):
         """Scale the default brightness from 0 to max for driver
 
         :param factor: a scaling factor from 0.0 to 1.0
         :return: none
         """
+        logger.info('Setting brightness to: {}%'.format(int(factor*100)))
         new_max = factor * self.max_led_value
         self.processor.set_max_value(new_max)
 
-    def square_weight_on(self, index):
+    def square_weight_on(self, index, *args):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
         self.SYNTHETIC_WEIGHTS[index] = self.max_floor_value
         self.SYNTHETIC_WEIGHT_ACTIVE = True
 
-    def square_weight_off(self, index):
+    def square_weight_off(self, index, *args):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return

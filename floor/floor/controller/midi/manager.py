@@ -30,6 +30,9 @@ class MidiHandler(pymidi_server.Handler):
 
 
 class MidiManager(object):
+    GLOBAL_CALLBACKS = {}  # type: {[]}
+    PROCESSOR_CALLBACKS = {}  # type: {{[]}}
+
     """Binds a pymidi server to the dance floor controller."""
     def __init__(self, port, controller, default_midi_mapping=None):
         self.controller = controller
@@ -40,6 +43,8 @@ class MidiManager(object):
         self.midi_peers_to_mappings = {}
         self.logger.info('Midi enabled, port={}'.format(port))
         self.default_midi_mapping = default_midi_mapping or MidiMapping(name='default')
+
+        self.register_midi_functions()
 
     def load_default_midi_mapping(self, mapping_dir, map_name):
         """Can be used to load a mapping JSON file to use as the default MIDI mapping"""
@@ -82,85 +87,95 @@ class MidiManager(object):
         self.logger.info('Peer disconnected: {}'.format(peer))
         del self.midi_peers_to_mappings[peer.ssrc]
 
+    @classmethod
+    def register_global_callback(cls, function, callback):
+        if function not in cls.GLOBAL_CALLBACKS:
+            cls.GLOBAL_CALLBACKS[function] = []
+        cls.GLOBAL_CALLBACKS[function].append(callback)
+
+    @classmethod
+    def register_processor_callback(cls, processor, function, callback):
+        if processor not in cls.PROCESSOR_CALLBACKS:
+            cls.PROCESSOR_CALLBACKS[processor] = {}
+        if function not in cls.PROCESSOR_CALLBACKS[processor]:
+            cls.PROCESSOR_CALLBACKS[processor][function] = []
+
+        cls.PROCESSOR_CALLBACKS[processor][function].append(callback)
+
+    def handle_global_callback(self, function, value):
+        if function not in self.GLOBAL_CALLBACKS:
+            return
+
+        context_value = function.value
+        callbacks = self.GLOBAL_CALLBACKS[function]
+        for fn in callbacks:
+            fn(context_value, value)
+
+    def handle_processor_callback(self, function, value):
+        processor_class = self.controller.processor.__class__
+        processor_name = processor_class.__name__
+
+        if processor_name not in self.PROCESSOR_CALLBACKS:
+            return
+
+        if function not in self.PROCESSOR_CALLBACKS[processor_name]:
+            return
+
+        context_value = function.context_value
+        callbacks = self.PROCESSOR_CALLBACKS[processor_name][function]
+        for fn in callbacks:
+            fn(processor_class, context_value, value)
+
     def on_midi_commands(self, peer, commands):
         commands = map(MidiManager.command_to_tuple, commands)
-
-        # Pass all midi messages through to the current processor.
-        processor = self.controller.processor
-        if processor and hasattr(processor, 'handle_midi_command'):
-            for command in commands:
-                processor.handle_midi_command(command)
-
-        logging.info("Key: {}".format(commands[0][1]))
-
-        # Handle any special command bindings.
         mapping = self.get_midi_mapping(peer)
+
+        # Handle any MIDI command bindings.
         for command in commands:
             func = mapping.get_function(command)
-            if func:
-                self.execute_midi_function(func, command)
+            if not func:
+                continue
 
-    def execute_midi_function(self, midi_function, command):
-        self.logger.info('MIDI function: {}'.format(midi_function))
-        playlist = self.controller.playlist
+            value = command[2]
 
-        if midi_function == MidiFunctions.playlist_next:
-            playlist.advance()
-        elif midi_function == MidiFunctions.playlist_previous:
-            playlist.previous()
-        elif midi_function == MidiFunctions.playlist_stop:
-            playlist.stop_playlist()
-        elif midi_function == MidiFunctions.playlist_play:
-            playlist.start_playlist()
-        elif midi_function == MidiFunctions.playlist_stay:
-            playlist.stay()
-        elif midi_function == MidiFunctions.playlist_goto_1:
-            playlist.go_to(1)
-        elif midi_function == MidiFunctions.playlist_goto_2:
-            playlist.go_to(2)
-        elif midi_function == MidiFunctions.playlist_goto_3:
-            playlist.go_to(3)
-        elif midi_function == MidiFunctions.playlist_goto_4:
-            playlist.go_to(4)
-        elif midi_function == MidiFunctions.playlist_goto_5:
-            playlist.go_to(5)
-        elif midi_function == MidiFunctions.playlist_goto_6:
-            playlist.go_to(6)
-        elif midi_function == MidiFunctions.playlist_goto_7:
-            playlist.go_to(7)
-        elif midi_function == MidiFunctions.playlist_goto_8:
-            playlist.go_to(8)
-        elif midi_function == MidiFunctions.playlist_goto_9:
-            playlist.go_to(9)
-        elif midi_function == MidiFunctions.playlist_goto_10:
-            playlist.go_to(10)
-        elif midi_function == MidiFunctions.playlist_goto_11:
-            playlist.go_to(11)
-        elif midi_function == MidiFunctions.playlist_goto_12:
-            playlist.go_to(12)
-        elif midi_function == MidiFunctions.playlist_goto_13:
-            playlist.go_to(13)
-        elif midi_function == MidiFunctions.playlist_goto_14:
-            playlist.go_to(14)
-        elif midi_function == MidiFunctions.playlist_goto_15:
-            playlist.go_to(15)
-        elif midi_function == MidiFunctions.playlist_goto_16:
-            playlist.go_to(16)
-        elif midi_function == MidiFunctions.set_bpm:
-            value = command[2]
-            bpm = 90
-            bpm += float(value) / 127.0 * 80
-            self.controller.set_bpm(int(bpm))
-        elif midi_function == MidiFunctions.set_brightness:
-            value = command[2]
-            self.controller.scale_brightness(value/127.0)
-        elif midi_function.name in MidiFunctions.ALL_FUNCTIONS:
-            # Look for a 'foot_on_square_1' type message.
-            (state, num) = re.split('_square_',  midi_function.name)
-            if state == 'foot_on':
-                self.controller.square_weight_on(int(num)-1)
-            elif state == 'foot_off':
-                self.controller.square_weight_off(int(num)-1)
+            self.handle_global_callback(func, value)
+            self.handle_processor_callback(func, value)
+
+    def register_midi_functions(self):
+        controller = self.controller
+        playlist = controller.playlist
+
+        self.register_global_callback(MidiFunctions.playlist_next, playlist.advance)
+        self.register_global_callback(MidiFunctions.playlist_previous, playlist.previous)
+        self.register_global_callback(MidiFunctions.playlist_stop, playlist.stop_playlist)
+        self.register_global_callback(MidiFunctions.playlist_play, playlist.start_playlist)
+        self.register_global_callback(MidiFunctions.playlist_stay, playlist.stay)
+
+        for idx in range(1, 17):
+            func_name = 'playlist_goto_{}'.format(idx)
+            func = MidiFunctions.ALL_FUNCTIONS[func_name]
+            if not func:
+                continue
+
+            self.register_global_callback(func, playlist.go_to)
+
+        self.register_global_callback(MidiFunctions.set_bpm, controller.set_midi_bpm)
+        self.register_global_callback(MidiFunctions.set_brightness, controller.scale_midi_brightness)
+
+        for idx in range(1, 65):
+            func_name = 'foot_on_square_{}'.format(idx)
+            func = MidiFunctions.ALL_FUNCTIONS[func_name]
+            if not func:
+                continue
+
+            self.register_global_callback(func, controller.square_weight_on)
+
+            func_name = 'foot_off_square_{}'.format(idx)
+            func = MidiFunctions.ALL_FUNCTIONS[func_name]
+            if not func:
+                continue
+
+            self.register_global_callback(func, controller.square_weight_off)
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)
