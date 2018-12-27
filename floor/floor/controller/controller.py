@@ -61,7 +61,7 @@ class Controller(object):
         :param factor: a scaling factor from 0.0 to 1.0
         :return: none
         """
-        new_max = factor * self.max_led_value
+        new_max = int(factor * self.max_led_value)
         self.processor.set_max_value(new_max)
 
     def square_weight_on(self, index):

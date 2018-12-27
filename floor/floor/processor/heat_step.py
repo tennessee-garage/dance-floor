@@ -1,5 +1,4 @@
 import logging
-import colorsys
 
 from base import Base
 from floor.controller import midi
@@ -23,21 +22,70 @@ DISTANCE = [
 
 class HeatStep(Base):
 
-    # good single steps: 3.5, 0.75
-
-    HEAT_FACTOR = 20.5
-    COOL_FACTOR = 0.95
+    # Good single steps: 3.5, 0.75
+    # Good group steps 20.5, 0.95
+    HEAT_RANGE = [3.5, 30.0]
+    COOL_RANGE = [0.75, 0.95]
 
     def __init__(self, **kwargs):
         super(HeatStep, self).__init__(**kwargs)
         self.pixels = self.zeroed_pixel_array()
 
         self.hue = 1.0
+        self.secondary_hue = 0.5
         self.saturation = 1.0
         self.value = 1.0
-        self.red = self.max_value
-        self.green = 0
-        self.blue = 0
+
+        self.heat_factor = 20.5
+        self.cool_factor = 0.95
+        self.heat_delta = self.HEAT_RANGE[1] - self.HEAT_RANGE[0]
+        self.cool_delta = self.COOL_RANGE[1] - self.COOL_RANGE[0]
+
+    def handle_midi_command(self, command):
+        if command[0] == midi.COMMAND_CONTROL_MODE_CHANGE:
+            num = command[2]
+            if command[1] == 48:
+                self.adjust_hue(num)
+            elif command[1] == 49:
+                self.adjust_saturation(num)
+            elif command[1] == 50:
+                self.adjust_heating(num)
+            elif command[1] == 51:
+                self.adjust_cooling(num)
+
+    def adjust_hue(self, num):
+        self.hue = num / 127.0
+
+        # Set the secondary hue to be 180 deg off the primary hue
+        self.secondary_hue = self.hue + 0.5
+        if self.secondary_hue > 1.0:
+            self.secondary_hue -= 1.0
+
+        logger.info("Set primary hue to {}/127".format(num))
+
+    def adjust_saturation(self, num):
+        self.saturation = num / 127.0
+        logger.info("Set saturation to {}/127".format(num))
+
+    def adjust_heating(self, num):
+        """Adjust the heating within the range given by HEAT_RANGE
+
+        Higher numbers actually mean lower "heating" since this factor is used as a
+        factor dividing the max value.  So, we do 1 - num/127 to make sure the sliders
+        act as "more heating" when pushed up.
+        """
+        self.heat_factor = self.HEAT_RANGE[0] + (1-(num/127.0))*self.heat_delta
+        logger.info("Set heating to {0:.2f}".format(self.heat_factor))
+
+    def adjust_cooling(self, num):
+        """Adjust the cooling within the range given by COOL_RANGE
+
+        Higher numbers actually mean slower "cooling" since this factor between 0.0 and 1.0
+        is used as a percentage "heat" lost.  So, we do 1 - num/127 to make sure the sliders
+        act as "more cooling" when pushed up.
+        """
+        self.cool_factor = self.COOL_RANGE[0] + (1-(num/127.0))*self.cool_delta
+        logger.info("Set cooling to {0:.2f}".format(self.cool_factor))
 
     def heat_squares(self, weights, x, y):
         """Heat up squares based on proximity to step at x, y"""
@@ -52,21 +100,14 @@ class HeatStep(Base):
                 dist_y = abs(y - other_y)
                 if dist_x == 0 and dist_y == 0:
                     continue
-                scale = (DISTANCE[dist_y][dist_x]**2) * self.HEAT_FACTOR
+                scale = (DISTANCE[dist_y][dist_x]**2) * self.heat_factor
                 idx = (other_x * self.FLOOR_WIDTH) + other_y
                 pixel = self.pixels[idx]
 
-                pixel[0] += int(self.red / scale)
-                if pixel[0] > self.red:
-                    pixel[0] = self.red
-
-                pixel[1] += int(self.green / scale)
-                if pixel[1] > self.green:
-                    pixel[1] = self.green
-
-                pixel[2] += int(self.blue / scale)
-                if pixel[2] > self.blue:
-                    pixel[2] = self.blue
+                # Set the hue and saturation of this heated square and increase or set the value
+                pixel[0] = self.secondary_hue
+                pixel[1] = self.saturation
+                pixel[2] += self.value / scale
 
     def cool_floor(self):
         """Cool the floor every cycle"""
@@ -74,9 +115,9 @@ class HeatStep(Base):
             for x in range(8):
                 idx = (x * self.FLOOR_WIDTH) + y
                 pixel = self.pixels[idx]
-                pixel[0] *= self.COOL_FACTOR
-                pixel[1] *= self.COOL_FACTOR
-                pixel[2] *= self.COOL_FACTOR
+
+                # Decrease the V of this HSV pixel
+                pixel[2] *= self.cool_factor
 
     def get_next_frame(self, weights):
         self.cool_floor()
@@ -85,7 +126,7 @@ class HeatStep(Base):
             for x in range(8):
                 idx = (x * self.FLOOR_WIDTH) + y
                 if weights[idx] > 0:
-                    self.pixels[idx] = [self.blue, self.green, self.red]
+                    self.pixels[idx] = [self.hue, self.saturation, self.value]
                     self.heat_squares(weights, x, y)
 
-        return self.pixels
+        return self.hsv_to_rgb_pixels(self.pixels)
