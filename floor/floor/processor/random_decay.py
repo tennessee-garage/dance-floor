@@ -19,7 +19,7 @@ class RandomDecay(Base):
                     self.max_value*random.random()
                 ))
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         next_pixels = []
         decay_rate = 0.9
 

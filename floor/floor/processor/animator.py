@@ -18,9 +18,7 @@ class Animator(Base):
         self.animation_frame = 0
         self.fps_reduction = 2
 
-    def get_next_frame(self, weights):
-        # Ignore weights
-
+    def get_next_frame(self, context):
         pixels = self.animation[self.animation_frame]
 
         if self.floor_frame % self.fps_reduction == 0:

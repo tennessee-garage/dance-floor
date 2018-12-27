@@ -72,7 +72,9 @@ class Life(Base):
                         count += 1
         return count
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
+        weights = context.weights
+        
         # update_active_px with lifecycle
         delta = datetime.datetime.now() - self.last_update
         if delta.microseconds > self.cycle_duration:

@@ -34,7 +34,8 @@ class Kaleidoscope(Base):
             frame.append((0, 0, 0))
         return frame
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
+        weights = context.weights
 
         # Read from weight input
         self.handle_weight_input(weights)

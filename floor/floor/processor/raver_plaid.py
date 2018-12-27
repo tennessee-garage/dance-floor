@@ -25,7 +25,7 @@ class RaverPlaid(Base):
 
         self.start_time = time.time()
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         t = (time.time() - self.start_time) * 5
         pixels = []
         for ii in range(self.n_pixels):

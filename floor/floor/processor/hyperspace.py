@@ -64,7 +64,7 @@ class Hyperspace(Base):
 
         return offset
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         delta = time.time() - self.start_time
         pulse = 2*math.sin(0.5*delta)
         frame = [None] * 64

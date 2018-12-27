@@ -72,7 +72,9 @@ class Pulsar(Base):
                 self.max_value*random.random()
             )
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
+        weights = context.weights
+
         next_time = time.time()
 
         # reset_time could be beat driven

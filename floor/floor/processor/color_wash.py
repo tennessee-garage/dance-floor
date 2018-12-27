@@ -8,9 +8,7 @@ class ColorWash(Base):
         self.green = 0
         self.blue = 0
 
-    def get_next_frame(self, weights):
-        # Ignore weights
-
+    def get_next_frame(self, context):
         pixels = []
 
         for x in range(0, 8):

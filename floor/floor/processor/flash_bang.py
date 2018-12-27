@@ -150,9 +150,7 @@ class FlashBang(Base):
         else:
             return 1/(distance**2)
 
-    def get_next_frame(self, weights):
-        # Ignore weights
-
+    def get_next_frame(self, context):
         pixels = []
         self.append_burst_pixels(pixels)
         self.fade_burst()

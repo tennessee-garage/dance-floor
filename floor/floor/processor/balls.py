@@ -29,7 +29,7 @@ class Balls(Base):
 #        print "Val = {}".format(val)
         return val > self.spawn_chance
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         pixels = [[0 for _ in range(3)] for _ in range(64)]
 
         if len(self.in_flight) < self.max_in_flight:

@@ -55,7 +55,7 @@ class Fishies(Base):
             fish['y'] = 7
             fish['dy'] = -1 * fish['dy']
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         next_time = time.time()
         d_time = next_time - self.last_time
 

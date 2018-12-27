@@ -24,7 +24,7 @@ class LineSlam(Base):
     def requested_fps(self):
         return 120
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         if self.stage == 1:
             pixels = self.stage_1()
         elif self.stage == 2:

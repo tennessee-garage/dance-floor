@@ -16,7 +16,7 @@ class clocked(object):
         COLORS = [RED, GREEN, BLUE]
 
         @clocked
-        def get_next_frame(self, weights):
+        def get_next_frame(self, context):
             self.position += 1
             self.position %= len(COLORS)
             color = COLORS[self.position]

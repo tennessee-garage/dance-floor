@@ -19,7 +19,7 @@ def draw_line(arr, start, end, pixel):
 class Throbber(Base):
     """Shows an outward moving square according to bpm."""
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         now = time.time()
         downbeat = self.downbeat or now
 

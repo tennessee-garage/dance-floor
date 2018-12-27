@@ -13,8 +13,8 @@ class TestStep(Base):
     def __init__(self):
         super(TestStep, self).__init__()
 
-    def get_next_frame(self, weights):
-
+    def get_next_frame(self, context):
+        weights = context.weights
         pixels = []
 
         for idx in range(64):

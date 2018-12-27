@@ -123,9 +123,7 @@ class Message(Base):
 
         return rgb
 
-    def get_next_frame(self, weights):
-        # Ignore weights
-
+    def get_next_frame(self, context):
         pixels = []
         for row in range(0, 8):
             for col in range(int(self.window), int(self.window)+self.WINDOW_WIDTH):

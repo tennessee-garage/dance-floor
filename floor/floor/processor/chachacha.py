@@ -30,7 +30,7 @@ class ChaChaCha(Base):
         self.lines = collections.deque(LINES)
 
     @clocked(frames_per_beat=2)
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         lines = list(itertools.islice(self.lines, 0, 8))
         self.lines.rotate()
         pixels = [(pixel[0] * self.max_value, pixel[1] * self.max_value, pixel[2] * self.max_value)

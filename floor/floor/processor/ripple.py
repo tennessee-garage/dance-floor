@@ -74,7 +74,7 @@ class Ripple(Base):
         if self.hue > 1.0:
             self.hue -= 1.0
 
-    def get_next_frame(self, weights):
+    def get_next_frame(self, context):
         now = time.time()
 
         if self.t_start is None:
