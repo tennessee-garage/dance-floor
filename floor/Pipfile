@@ -15,6 +15,7 @@ flask = "*"
 flask-sockets = "*"
 pymidi = "*"
 mock = "*"
+gevent = "*"
 
 [scripts]
 show = "python floor/run-show.py"
