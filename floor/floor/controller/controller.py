@@ -1,8 +1,5 @@
 import time
-import sys
-import importlib
 import logging
-from floor import driver
 from floor import processor
 
 logger = logging.getLogger('controller')
@@ -81,8 +78,8 @@ class Controller(object):
         self.SYNTHETIC_WEIGHTS[index] = 0
 
         # Scan the weighs and see if anything is still set
-        for index in self.SYNTHETIC_WEIGHTS:
-            if self.SYNTHETIC_WEIGHTS[index]:
+        for value in self.SYNTHETIC_WEIGHTS:
+            if value:
                 return
 
         # If nothing is set, there are no longer any synthetic weights active

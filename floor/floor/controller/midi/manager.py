@@ -33,7 +33,7 @@ class MidiManager(object):
     """Binds a pymidi server to the dance floor controller."""
     def __init__(self, port, controller, default_midi_mapping=None):
         self.controller = controller
-        self.midi_server = pymidi_server.Server(port=port)
+        self.midi_server = pymidi_server.Server([('0.0.0.0', port)])
         self.midi_handler = MidiHandler(self)
         self.midi_server.add_handler(self.midi_handler)
         self.logger = logging.getLogger(self.__class__.__name__)
