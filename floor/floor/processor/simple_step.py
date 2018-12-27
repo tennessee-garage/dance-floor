@@ -34,8 +34,7 @@ class SimpleStep(Base):
                 self.value = value/127.0
                 logger.info("Set value to {}/127".format(value))
 
-            r, g, b = colorsys.hsv_to_rgb(self.hue, self.saturation, self.value)
-            self.red, self.green, self.blue = [self.max_value * v for v in [r, g, b]]
+            self.red, self.green, self.blue = self.hsv_to_rgb([self.hue, self.saturation, self.value])
 
     def get_next_frame(self, weights):
         pixels = [(0, 0, 0)] * 64
