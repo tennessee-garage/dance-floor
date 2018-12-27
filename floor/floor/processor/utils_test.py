@@ -30,7 +30,7 @@ class UtilsTestCase(TestCase):
             self.assertEqual('a', ret)
             self.assertEqual(1, wrapped_fn.call_count)
 
-        # Since we are at 120 bpm, the cache will be invalidated ever 0.5 seconds,
+        # Since we are at 120 bpm, the cache will be invalidated every 0.5 seconds,
         # so let's move time forward.
         clock += 0.4
         ret = fn(processor, RenderContext(clock, downbeat, weights, bpm))
