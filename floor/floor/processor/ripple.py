@@ -55,7 +55,6 @@ class Ripple(Base):
         return 120
 
     def handle_midi_command(self, command):
-        logging.info("Command: [{}, {}, {}]".format(command[0], command[1], command[2]))
         if command[0] == midi.COMMAND_CONTROL_MODE_CHANGE:
             if command[1] == 48:
                 value = command[2]

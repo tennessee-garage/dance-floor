@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import colorsys
+
 
 class ProcessorRegistry(type):
     """Python metaclass which automatically adds the class to `ALL_PROCESSORS`."""
@@ -78,3 +80,19 @@ class Base(object):
         assert downbeat is not None
         self.bpm = bpm
         self.downbeat = downbeat
+
+    def hsv_to_rgb(self, p):
+        """Convert a pixel tuple of [h, s, v] to a tuple of [r, g, b]
+
+        HSV values are assumed to range from 0.0 to 1.0
+        RGB values are adjusted to range from 0 to self.max_value
+        """
+        return [int(v * self.max_value) for v in colorsys.hsv_to_rgb(p[0], p[1], p[2])]
+
+    def hsv_to_rgb_pixels(self, pixels):
+        """Convert an array of HSV pixels to an array of RGB pixels"""
+        return [self.hsv_to_rgb(p) for p in pixels]
+
+    @staticmethod
+    def zeroed_pixel_array():
+        return [[0, 0, 0] for _ in range(64)]
