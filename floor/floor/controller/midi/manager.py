@@ -5,12 +5,10 @@ from __future__ import unicode_literals
 
 import logging
 import os
-import re
 import threading
 
 from pymidi import server as pymidi_server
 
-from .functions import MidiFunctions
 from .constants import COMMAND_NOTE_ON, COMMAND_NOTE_OFF, MIDI_NOTE_NAMES, COMMAND_CONTROL_MODE_CHANGE
 from .mapping import MidiMapping
 
@@ -30,8 +28,6 @@ class MidiHandler(pymidi_server.Handler):
 
 
 class MidiManager(object):
-    GLOBAL_CALLBACKS = {}  # type: {[]}
-    PROCESSOR_CALLBACKS = {}  # type: {{[]}}
 
     """Binds a pymidi server to the dance floor controller."""
     def __init__(self, port, controller, default_midi_mapping=None):
