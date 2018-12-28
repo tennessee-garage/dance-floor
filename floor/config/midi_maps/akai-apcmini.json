@@ -39,23 +39,23 @@
     },
     {
       "command": ["control_mode_change", 50],
-      "function": "ranged_value_2"
+      "function": "ranged_value_3"
     },
     {
       "command": ["control_mode_change", 51],
-      "function": "ranged_value_2"
+      "function": "ranged_value_4"
     },
     {
       "command": ["control_mode_change", 52],
-      "function": "ranged_value_2"
+      "function": "ranged_value_5"
     },
     {
       "command": ["control_mode_change", 53],
-      "function": "ranged_value_2"
+      "function": "ranged_value_6"
     },
     {
       "command": ["control_mode_change", 54],
-      "function": "ranged_value_2"
+      "function": "ranged_value_7"
     },
     {
       "command": ["note_on", "G#3"],
