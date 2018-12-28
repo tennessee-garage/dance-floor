@@ -1,5 +1,3 @@
-import inspect
-from floor.controller.midi.manager import MidiManager
 
 BLANK_FRAME = [(0, 0, 0)] * 64
 
@@ -53,39 +51,3 @@ class clocked(object):
             self.last_time = now
             return self.current_frame
         return new_fn
-
-
-class midictrl(object):
-    """Decorator that registers the class method as a midi function callback.
-
-    Only works on class methods as the decoration does not have access to the
-    instance (which has not been created) when its invoked.
-
-    Methods will be passed their class name, the context_value if provided (a constant
-    that is tied to a MidiFunction, e.g. ranged_value_6 will have a context value of 6),
-    and the value of the midi function itself. For note on/off this will be the note velocity,
-    for control functions, this will be the value of that control.  In both cases, the value
-    will be between 0 and 127.
-
-    Example usage:
-
-        @classmethod
-        @midictrl(function=MidiFunctions.ranged_value_1)
-        def adjust_speed(cls, context_value, value):
-            cls.SPEED = value/127.0
-    """
-    def __init__(self, function):
-        """Decorator constructor.
-
-        Args
-            function: A MidiFunctions function, e.g. MidiFunctions.ranged_value_1
-        """
-        self.function = function
-
-    def __call__(self, fn, *args, **kwargs):
-        stack = inspect.stack()
-        processor_class = stack[1][3]
-        midi_function = self.function
-
-        MidiManager.register_processor_callback(processor_class, midi_function, fn)
-        return fn

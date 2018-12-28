@@ -9,6 +9,7 @@ logger = logging.getLogger('controller')
 class Controller(object):
     DEFAULT_FPS = 24
     DEFAULT_BPM = 120.0
+    MAX_RANGED_VALUES = 4
 
     # Give outside controllers a chance to fake foot steps on the floor
     # Use the SYNTHETIC_WEIGHT_ACTIVE flag to determine if we need to spend
@@ -45,18 +46,11 @@ class Controller(object):
         # Maximum sensor value.
         self.max_floor_value = self.driver.get_max_floor_value()
 
+        self.ranged_values = [0] * self.MAX_RANGED_VALUES
+
     def set_fps(self, fps):
         self.fps = fps
         self.frame_seconds = 1.0/fps
-
-    def set_midi_bpm(self, context_value, value):
-        """Set a BPM based on a midi value
-
-        MIDI values range from 0 to 127.  Map this value to a range of BPMs from 90 to 170 BPM
-        """
-        bpm = 90
-        bpm += float(value) / 127.0 * 80
-        self.set_bpm(int(bpm))
 
     def set_bpm(self, bpm, downbeat=None):
         logger.info('Setting bpm to: {}'.format(bpm))
@@ -64,9 +58,6 @@ class Controller(object):
         self.downbeat = downbeat or time.time()
         if self.processor:
             self.processor.set_bpm(bpm, self.downbeat)
-
-    def scale_midi_brightness(self, context_value, value):
-        self.scale_brightness(value/127.0)
 
     def scale_brightness(self, factor):
         """Scale the default brightness from 0 to max for driver
@@ -78,14 +69,14 @@ class Controller(object):
         new_max = factor * self.max_led_value
         self.processor.set_max_value(new_max)
 
-    def square_weight_on(self, index, *args):
+    def square_weight_on(self, index):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
         self.SYNTHETIC_WEIGHTS[index] = self.max_floor_value
         self.SYNTHETIC_WEIGHT_ACTIVE = True
 
-    def square_weight_off(self, index, *args):
+    def square_weight_off(self, index):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
@@ -98,6 +89,16 @@ class Controller(object):
 
         # If nothing is set, there are no longer any synthetic weights active
         self.SYNTHETIC_WEIGHT_ACTIVE = False
+
+    def handle_ranged_value(self, control_number, control_value):
+        if control_number > self.MAX_RANGED_VALUES:
+            logger.warning('Ignoring MIDI control {}, greater than {}'.format(control_number, self.MAX_RANGED_VALUES))
+
+        # Capture state.
+        self.ranged_values[control_number] = control_value
+        # Update current processor.
+        if self.processor:
+            self.processor.on_ranged_value_change(control_number, control_value)
 
     def set_processor(self, processor_name, processor_args=dict):
         """Sets the active processor, which must already be loaded into

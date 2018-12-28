@@ -44,8 +44,6 @@ class MidiManager(object):
         self.logger.info('Midi enabled, port={}'.format(port))
         self.default_midi_mapping = default_midi_mapping or MidiMapping(name='default')
 
-        self.register_midi_functions()
-
     def load_default_midi_mapping(self, mapping_dir, map_name):
         """Can be used to load a mapping JSON file to use as the default MIDI mapping"""
 
@@ -87,45 +85,6 @@ class MidiManager(object):
         self.logger.info('Peer disconnected: {}'.format(peer))
         del self.midi_peers_to_mappings[peer.ssrc]
 
-    @classmethod
-    def register_global_callback(cls, function, callback):
-        if function not in cls.GLOBAL_CALLBACKS:
-            cls.GLOBAL_CALLBACKS[function] = []
-        cls.GLOBAL_CALLBACKS[function].append(callback)
-
-    @classmethod
-    def register_processor_callback(cls, processor, function, callback):
-        if processor not in cls.PROCESSOR_CALLBACKS:
-            cls.PROCESSOR_CALLBACKS[processor] = {}
-        if function not in cls.PROCESSOR_CALLBACKS[processor]:
-            cls.PROCESSOR_CALLBACKS[processor][function] = []
-
-        cls.PROCESSOR_CALLBACKS[processor][function].append(callback)
-
-    def handle_global_callback(self, function, value):
-        if function not in self.GLOBAL_CALLBACKS:
-            return
-
-        context_value = function.context_value
-        callbacks = self.GLOBAL_CALLBACKS[function]
-        for fn in callbacks:
-            fn(context_value, value)
-
-    def handle_processor_callback(self, function, value):
-        processor_class = self.controller.processor.__class__
-        processor_name = processor_class.__name__
-
-        if processor_name not in self.PROCESSOR_CALLBACKS:
-            return
-
-        if function not in self.PROCESSOR_CALLBACKS[processor_name]:
-            return
-
-        context_value = function.context_value
-        callbacks = self.PROCESSOR_CALLBACKS[processor_name][function]
-        for fn in callbacks:
-            fn(processor_class, context_value, value)
-
     def on_midi_commands(self, peer, commands):
         commands = map(MidiManager.command_to_tuple, commands)
         mapping = self.get_midi_mapping(peer)
@@ -138,44 +97,7 @@ class MidiManager(object):
 
             value = command[2]
 
-            self.handle_global_callback(func, value)
-            self.handle_processor_callback(func, value)
-
-    def register_midi_functions(self):
-        controller = self.controller
-        playlist = controller.playlist
-
-        self.register_global_callback(MidiFunctions.playlist_next, playlist.advance)
-        self.register_global_callback(MidiFunctions.playlist_previous, playlist.previous)
-        self.register_global_callback(MidiFunctions.playlist_stop, playlist.stop_playlist)
-        self.register_global_callback(MidiFunctions.playlist_play, playlist.start_playlist)
-        self.register_global_callback(MidiFunctions.playlist_stay, playlist.stay)
-
-        for idx in range(1, 17):
-            func_name = 'playlist_goto_{}'.format(idx)
-            func = MidiFunctions.ALL_FUNCTIONS[func_name]
-            if not func:
-                continue
-
-            self.register_global_callback(func, playlist.go_to)
-
-        self.register_global_callback(MidiFunctions.set_bpm, controller.set_midi_bpm)
-        self.register_global_callback(MidiFunctions.set_brightness, controller.scale_midi_brightness)
-
-        for idx in range(1, 65):
-            func_name = 'foot_on_square_{}'.format(idx)
-            func = MidiFunctions.ALL_FUNCTIONS[func_name]
-            if not func:
-                continue
-
-            self.register_global_callback(func, controller.square_weight_on)
-
-            func_name = 'foot_off_square_{}'.format(idx)
-            func = MidiFunctions.ALL_FUNCTIONS[func_name]
-            if not func:
-                continue
-
-            self.register_global_callback(func, controller.square_weight_off)
+            func.callback(self.controller, value)
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)

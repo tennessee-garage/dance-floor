@@ -59,7 +59,7 @@ class Playlist(object):
     def is_running(self):
         return self.running
 
-    def stop_playlist(self, *args):
+    def stop_playlist(self):
         current = self.queue[self.position]
 
         # Save time remaining
@@ -71,7 +71,7 @@ class Playlist(object):
 
         self.running = False
 
-    def start_playlist(self, *args):
+    def start_playlist(self):
         current = self.queue[self.position]
 
         if current['remaining_duration'] is not None:
@@ -107,7 +107,7 @@ class Playlist(object):
 
         return self.queue[self.position]
 
-    def advance(self, *args):
+    def advance(self):
         """Go to the next playlist item."""
         if self.position is None:
             position = 0
@@ -115,7 +115,7 @@ class Playlist(object):
             position = (self.position + 1) % len(self.queue)
         self.go_to(position)
 
-    def previous(self, *args):
+    def previous(self):
         """Go to the previous playlist item."""
         if self.position is None:
             position = 0
@@ -123,7 +123,7 @@ class Playlist(object):
             position = (self.position - 1) % len(self.queue)
         self.go_to(position)
 
-    def go_to(self, position, *args):
+    def go_to(self, position):
         """Go to a specific playlist item."""
         if not self.is_running():
             return
@@ -162,5 +162,5 @@ class Playlist(object):
             # Position was ahead of current.
             pass
 
-    def stay(self, *args):
+    def stay(self):
         self.next_advance = None

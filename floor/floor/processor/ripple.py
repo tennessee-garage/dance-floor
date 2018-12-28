@@ -1,15 +1,9 @@
 import colorsys
 import math
 from utils import clocked
-from utils import midictrl
-import logging
-
-from floor.controller.midi.functions import MidiFunctions
 
 from base import Base
 
-
-logger = logging.getLogger('ripple')
 
 # The distance from the center for every square
 DISTANCE = [
@@ -27,25 +21,24 @@ DISTANCE = [
 class Ripple(Base):
     """Spiral out from the center."""
 
-    # 0.75 is good for long pulses
-    DECAY_MAX = 2.0
-    DECAY_MIN = 0.25
-    DECAY_DELTA = DECAY_MAX - DECAY_MIN
-    DECAY_DEFAULT = 0.75
-    DECAY = DECAY_DEFAULT
+    CONTROLS = [
+        # Scale how far squares are from each other
+        {
+            'name': 'DISTANCE_FACTOR',
+            'range': [0.02, 0.18],
+            'default': 0.03
+        },
+        # How quickly do we dampen the waves
+        {
+            'name': 'DECAY',
+            'range': [0.25, 2.0],
+            'default': 0.75
+        },
+
+    ]
 
     OMEGA = 2 * math.pi
-    # How much distance translates the time value sent to the decay method.
-    # A number between 0.02 and 0.18 seems to look best.
-    #  - Lower than 0.02 and the whole floor seems to flash at once
-    #  - higher than 0.18 and there are too many striations and it looks noisy, not smooth
-    DISTANCE_FACTOR_MAX = 0.18
-    DISTANCE_FACTOR_MIN = 0.02
-    DISTANCE_FACTOR_DELTA = DISTANCE_FACTOR_MAX - DISTANCE_FACTOR_MIN
-    DISTANCE_FACTOR_DEFAULT = 0.03
-    DISTANCE_FACTOR = DISTANCE_FACTOR_DEFAULT
-
-    RESTART_THRESHHOLD = 0.01
+    RESTART_THRESHOLD = 0.01
 
     def __init__(self, **kwargs):
         super(Ripple, self).__init__(**kwargs)
@@ -55,18 +48,6 @@ class Ripple(Base):
 
     def requested_fps(self):
         return 120
-
-    @classmethod
-    @midictrl(function=MidiFunctions.ranged_value_1)
-    def update_distance_factor(cls, context_value, value):
-        cls.DISTANCE_FACTOR = (cls.DISTANCE_FACTOR_DELTA * (value / 127.0)) + cls.DISTANCE_FACTOR_MIN
-        logger.info("Set distance factor to {}".format(cls.DISTANCE_FACTOR))
-
-    @classmethod
-    @midictrl(function=MidiFunctions.ranged_value_2)
-    def update_distance_factor(cls, context_value, value):
-        cls.DECAY = (cls.DECAY_DELTA * (value / 127.0)) + cls.DECAY_MIN
-        logger.info("Set decay to {}".format(cls.DECAY))
 
     @clocked(frames_per_beat=0.125)
     def reset_on_beat(self, context):
