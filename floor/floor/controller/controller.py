@@ -17,9 +17,21 @@ class Controller(object):
     SYNTHETIC_WEIGHT_ACTIVE = False
     SYNTHETIC_WEIGHTS = [0]*64
 
-    def __init__(self, driver, playlist):
+    def __init__(self, driver, playlist, clocksource=time):
+        """Constructor.
+        
+        Arguments:
+            driver {floor.driver.Base} -- The driver powering the show
+            playlist {floor.playlist.Playlist} -- The show's playlist
+        
+        Keyword Arguments:
+            clocksource {function} -- An object that should have `.time()`
+            and `.sleep()` methods (default: {time})
+        """
+
         self.driver = driver
         self.playlist = playlist
+        self.clocksource = clocksource
         self.processor = None  # type: processor.Base
         self.frame_start = 0
         self.fps = None
@@ -55,7 +67,7 @@ class Controller(object):
     def set_bpm(self, bpm, downbeat=None):
         logger.info('Setting bpm to: {}'.format(bpm))
         self.bpm = float(bpm)
-        self.downbeat = downbeat or time.time()
+        self.downbeat = downbeat or self.clocksource.time()
         if self.processor:
             self.processor.set_bpm(bpm, self.downbeat)
 
@@ -137,7 +149,7 @@ class Controller(object):
     def run_one_frame(self):
         if not self.playlist.is_running():
             # If the playlist is stopped/paused, sleep a bit then restart the loop
-            time.sleep(0.5)
+            self.sleeper(0.5)
             return
 
         self.init_loop()
@@ -147,7 +159,7 @@ class Controller(object):
         self.delay()
 
     def init_loop(self):
-        self.frame_start = time.time()
+        self.frame_start = self.clocksource.time()
 
     def check_playlist(self):
         item = self.playlist.get_current()
@@ -203,9 +215,9 @@ class Controller(object):
         self.driver.read_data()
 
     def delay(self):
-        elapsed = time.time() - self.frame_start
+        elapsed = self.clocksource.time() - self.frame_start
 
         if elapsed < self.frame_seconds:
-            time.sleep(self.frame_seconds - elapsed)
+            self.clocksource.sleep(self.frame_seconds - elapsed)
         else:
             logger.debug("Over by {}".format(elapsed - self.frame_seconds))

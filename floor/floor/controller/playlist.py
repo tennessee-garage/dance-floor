@@ -16,7 +16,7 @@ class Playlist(object):
 
         # If a processor was passed in, use it, otherwise read the config file
         if processor:
-            self.append(processor)
+            self.append(processor.__name__)
         elif filename:
             self.load_from(filename)
 
