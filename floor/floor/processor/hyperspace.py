@@ -23,7 +23,7 @@ class Hyperspace(Base):
         self.radius_map_1 = self.build_radius_map({'x':3.5, 'y':3.5});
         self.radius_map_2 = self.build_radius_map({'x':3, 'y':4});
 
-    #precompute distance of each pixel to the center
+    # precompute distance of each pixel to the center
     def build_radius_map(self, center):
         radius_map = [None] * 64
         for y in range(0, self.FLOOR_HEIGHT):

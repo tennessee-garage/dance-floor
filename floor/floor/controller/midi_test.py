@@ -16,7 +16,9 @@ import mock
 DEMO_MAPPING = MidiMapping(name='demo', mappings={
     (COMMAND_NOTE_ON, 'C3'): MidiFunctions.playlist_next,
     (COMMAND_NOTE_ON, 'C4'): MidiFunctions.playlist_previous,
+    (COMMAND_NOTE_ON, 'C#-1', 127): MidiFunctions.playlist_stay,
     (COMMAND_CONTROL_MODE_CHANGE, 21, 127): MidiFunctions.playlist_stop,
+    (COMMAND_CONTROL_MODE_CHANGE, 48): MidiFunctions.ranged_value_2,
 })
 
 
@@ -49,7 +51,7 @@ class MidiManagerTestCase(TestCase):
     def setUp(self):
         self.controller = mock.Mock()
         self.controller.processor = mock.Mock()
-        self.controller.processor.handle_midi_command = mock.Mock()
+
         self.mapping = DEMO_MAPPING
         self.manager = MidiManager(
             port=1234,
@@ -92,17 +94,14 @@ class MidiManagerTestCase(TestCase):
         self.inject_control_mode_change(21, 127)
         self.assertEqual(1, self.controller.playlist.stop_playlist.call_count)
 
-        self.assertEqual(4, self.controller.processor.handle_midi_command.call_count)
-        self.controller.processor.handle_midi_command.assert_has_calls([
-            mock.call(('note_on', 'C3', 127)),
-            mock.call(('note_on', 'C4', 55)),
-            mock.call(('control_mode_change', 21, 11)),
-            mock.call(('control_mode_change', 21, 127)),
+        self.assertEqual(0, self.controller.handle_ranged_value.call_count)
+        self.inject_control_mode_change(48, 99)
+        self.assertEqual(1, self.controller.handle_ranged_value.call_count)
+        self.controller.handle_ranged_value.assert_has_calls([
+            mock.call(1, 99),
         ])
 
     def test_note_name_translation(self):
+        self.assertEqual(0, self.controller.playlist.stay.call_count)
         self.inject_note_on('Csn1', 127)
-        self.assertEqual(1, self.controller.processor.handle_midi_command.call_count)
-        self.controller.processor.handle_midi_command.assert_called_once_with(
-            ('note_on', 'C#-1', 127)
-        )
+        self.assertEqual(1, self.controller.playlist.stay.call_count)

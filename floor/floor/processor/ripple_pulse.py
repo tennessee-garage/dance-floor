@@ -1,4 +1,3 @@
-import colorsys
 import math
 from utils import clocked
 

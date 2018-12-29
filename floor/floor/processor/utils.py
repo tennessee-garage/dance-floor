@@ -1,4 +1,3 @@
-import time
 
 BLANK_FRAME = [(0, 0, 0)] * 64
 

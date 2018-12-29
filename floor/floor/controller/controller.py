@@ -9,6 +9,7 @@ logger = logging.getLogger('controller')
 class Controller(object):
     DEFAULT_FPS = 24
     DEFAULT_BPM = 120.0
+    MAX_RANGED_VALUES = 4
 
     # Give outside controllers a chance to fake foot steps on the floor
     # Use the SYNTHETIC_WEIGHT_ACTIVE flag to determine if we need to spend
@@ -45,6 +46,8 @@ class Controller(object):
         # Maximum sensor value.
         self.max_floor_value = self.driver.get_max_floor_value()
 
+        self.ranged_values = [0] * self.MAX_RANGED_VALUES
+
     def set_fps(self, fps):
         self.fps = fps
         self.frame_seconds = 1.0/fps
@@ -62,7 +65,10 @@ class Controller(object):
         :param factor: a scaling factor from 0.0 to 1.0
         :return: none
         """
+
+        logger.info('Setting brightness to: {}%'.format(int(factor*100)))
         new_max = int(factor * self.max_led_value)
+
         self.processor.set_max_value(new_max)
 
     def square_weight_on(self, index):
@@ -85,6 +91,16 @@ class Controller(object):
 
         # If nothing is set, there are no longer any synthetic weights active
         self.SYNTHETIC_WEIGHT_ACTIVE = False
+
+    def handle_ranged_value(self, control_number, control_value):
+        if control_number > self.MAX_RANGED_VALUES:
+            logger.warning('Ignoring MIDI control {}, greater than {}'.format(control_number, self.MAX_RANGED_VALUES))
+
+        # Capture state.
+        self.ranged_values[control_number] = control_value
+        # Update current processor.
+        if self.processor:
+            self.processor.on_ranged_value_change(control_number, control_value)
 
     def set_processor(self, processor_name, processor_args=dict):
         """Sets the active processor, which must already be loaded into
