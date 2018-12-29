@@ -101,6 +101,7 @@ def get_options():
     parser.set_defaults(opc_input=True, server_port=1977)
     return parser.parse_args()
 
+
 def main():
     args = get_options()
     log_level = logging.DEBUG if args.verbose else logging.INFO

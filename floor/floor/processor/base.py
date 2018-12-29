@@ -34,25 +34,25 @@ class RenderContext:
 class Base(object):
     __metaclass__ = ProcessorRegistry
 
-    DEFAULT_MAX_VALUE = 1024
     FLOOR_WIDTH = 8
     FLOOR_HEIGHT = 8
     PIXELS_ALL_OFF = [[0 for _ in range(3)] for _ in range(64)]
 
     def __init__(self, **kwargs):
         self.weights = []
-        self.max_value = self.DEFAULT_MAX_VALUE
         self.bpm = None
         self.downbeat = None
+        # noinspection PyTypeChecker
+        self.controller = kwargs['controller']
+
+    def max_value(self):
+        return self.controller.max_led_value()
 
     # accept (x,y) tuple reflecting a coordinate
     # return the array index suitable for use in weights or pixels arrays
     def idx(self, pixel):
         (x, y) = pixel
         return (x * self.FLOOR_WIDTH) + y
-
-    def set_max_value(self, max_value):
-        self.max_value = max_value
 
     def get_next_frame(self, context):
         """

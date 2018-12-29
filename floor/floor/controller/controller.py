@@ -56,14 +56,16 @@ class Controller(object):
         if self.processor:
             self.processor.set_bpm(bpm, self.downbeat)
 
+    def max_led_value(self):
+        return self.max_effective_led_value
+
     def scale_brightness(self, factor):
         """Scale the default brightness from 0 to max for driver
 
         :param factor: a scaling factor from 0.0 to 1.0
         :return: none
         """
-        new_max = int(factor * self.max_led_value)
-        self.processor.set_max_value(new_max)
+        self.max_effective_led_value = int(factor * self.max_led_value)
 
     def square_weight_on(self, index):
         if index > 63 or index < 0:
@@ -106,6 +108,8 @@ class Controller(object):
     def build_processor(self, name, args=None):
         """Builds a processor instance."""
         args = args or {}
+        args['controller'] = self
+
         processor_cls = self.processors.get(name)
         if not processor_cls:
             raise ValueError('Processor "{}" does not exist'.format(name))
