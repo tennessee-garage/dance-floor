@@ -51,12 +51,6 @@ class MidiManagerTestCase(TestCase):
     def setUp(self):
         self.controller = mock.Mock()
         self.controller.processor = mock.Mock()
-        self.controller.processor.handle_midi_command = mock.Mock()
-        MidiManager.register_processor_callback(
-            self.controller.processor.__class__.__name__,
-            MidiFunctions.ranged_value_2,
-            self.controller.processor.handle_midi_command
-        )
 
         self.mapping = DEMO_MAPPING
         self.manager = MidiManager(
@@ -100,11 +94,11 @@ class MidiManagerTestCase(TestCase):
         self.inject_control_mode_change(21, 127)
         self.assertEqual(1, self.controller.playlist.stop_playlist.call_count)
 
-        self.assertEqual(0, self.controller.processor.handle_midi_command.call_count)
+        self.assertEqual(0, self.controller.handle_ranged_value.call_count)
         self.inject_control_mode_change(48, 99)
-        self.assertEqual(1, self.controller.processor.handle_midi_command.call_count)
-        self.controller.processor.handle_midi_command.assert_has_calls([
-            mock.call(self.controller.processor.__class__, 2, 99),
+        self.assertEqual(1, self.controller.handle_ranged_value.call_count)
+        self.controller.handle_ranged_value.assert_has_calls([
+            mock.call(1, 99),
         ])
 
     def test_note_name_translation(self):

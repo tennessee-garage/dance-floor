@@ -27,7 +27,7 @@ class MidiFunctions(object):
 
 
 MidiFunctions.add('playlist_next',
-                  callback=lambda controller, _: controller.playlist.next(1),
+                  callback=lambda controller, _: controller.playlist.advance(1),
                   help_text='Advance to the next item in the current playlist.')
 MidiFunctions.add('playlist_previous',
                   callback=lambda controller, _: controller.playlist.previous(1),
