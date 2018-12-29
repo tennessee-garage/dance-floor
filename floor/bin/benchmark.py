@@ -21,16 +21,18 @@ logger = logging.getLogger('benchmark')
 
 class DummyDriver(BaseDriver):
     FAKE_WEIGHTS = [0] * 64
+
     def get_weights(self):
         return self.FAKE_WEIGHTS
 
 
 def get_options():
-    parser = argparse.ArgumentParser(description='Benchmark a processor.')
+    parser = argparse.ArgumentParser(description='Benchmark one or more processors.')
 
-    parser.add_argument('processor',
+    parser.add_argument('processors',
         type=str,
-        help='The name of the processor to test.')
+        nargs='+',
+        help='The name of the processor(s) to test, or "all" to test all.')
 
     parser.add_argument(
         '--iterations',
@@ -48,45 +50,74 @@ def get_options():
     return parser.parse_args()
 
 
-def run():
-    args = get_options()
-    log_level = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(level=log_level, format=LOG_FORMAT)
-
-    procs = all_processors()
-    processor = procs.get(args.processor)
-    if not processor:
-        logging.error('Processor not found: {}'.format(args.processor))
-        logging.error('Choices: {}'.format(', '.join(sorted(procs.keys()))))
-        sys.exit(1)
-
-    clock = 0
+def benchmark_processor(name, processor, iterations):
     driver = DummyDriver({})
     playlist = Playlist(processor=processor)
 
     class FakeClock:
         def __init__(self):
             self.clock = 0
+
         def time(self):
             # Call time.time() so benchmark factors this in, even though we are ignoring
             # its value here in order to use our fake clock.
             time.time()
             return self.clock
+
         def sleep(self, amt):
             self.clock += amt
 
-    clocksource = FakeClock()    
+    clocksource = FakeClock()
     controller = Controller(driver=driver, playlist=playlist, clocksource=clocksource)
-    
+
     def timed_function(controller=controller):
         controller.run_one_frame()
 
     timer = timeit.Timer(stmt=timed_function)
-    logger.info('Starting benchmark of {} with {} iterations ...'.format(args.processor, args.iterations))
-    total_time = timer.timeit(number=args.iterations)
-    frames_per_second = round(args.iterations / total_time, 2)
+    total_time = timer.timeit(number=iterations)
+    frames_per_second = round(iterations / total_time, 2)
     logger.info('Benchmark done! Took {} seconds'.format(total_time))
     logger.info('FPS={}'.format(frames_per_second))
+
+    return frames_per_second
+
+
+def print_results(results):
+    print('Name              FPS')
+    print('----------------  -----------')
+    for name, fps in sorted(results.items(), key=lambda x: x[1]):
+        print('{:16s}  {}'.format(name, int(fps)))
+
+
+def run():
+    args = get_options()
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format=LOG_FORMAT)
+
+    procs = all_processors()
+    processors_to_test = {}
+
+    for processor_name in args.processors:
+        if processor_name == 'all':
+            processors_to_test.update(procs)
+        else:
+            processor = procs.get(processor_name)
+            if not processor:
+                logging.error('Processor not found: {}'.format(args.processor))
+                logging.error('Choices: {}'.format(', '.join(sorted(procs.keys()))))
+                sys.exit(1)
+            processors_to_test[processor_name] = processor
+
+    results = {}
+    names = sorted(processors_to_test.keys())
+    for name in names:
+        processor = processors_to_test[name]
+        logger.info('Starting benchmark of {} with {} iterations ...'.format(name, args.iterations))
+        result = benchmark_processor(name, processor, args.iterations)
+        results[name] = result
+
+    logger.info('Done!')
+    print_results(results)
 
 
 if __name__ == '__main__':
