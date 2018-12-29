@@ -41,16 +41,26 @@ def get_options():
         type=int,
         help='How many iterations to run.',
     )
+
     parser.add_argument(
         '--verbose',
         dest='verbose',
         action='store_true',
         help='Enable verbose logging'
     )
+
+    parser.add_argument(
+        '--disable_gc',
+        dest='disable_gc',
+        action='store_true',
+        default=False,
+        help='Whether to enable or disable garbage collection during benchmark.',
+    )
+
     return parser.parse_args()
 
 
-def benchmark_processor(name, processor, iterations):
+def benchmark_processor(name, processor, iterations, disable_gc):
     driver = DummyDriver({})
     playlist = Playlist(processor=processor)
 
@@ -70,10 +80,15 @@ def benchmark_processor(name, processor, iterations):
     clocksource = FakeClock()
     controller = Controller(driver=driver, playlist=playlist, clocksource=clocksource)
 
+    if disable_gc:
+        setup = ''
+    else:
+        setup = 'gc.enable()'
+
     def timed_function(controller=controller):
         controller.run_one_frame()
 
-    timer = timeit.Timer(stmt=timed_function)
+    timer = timeit.Timer(stmt=timed_function, setup=setup)
     total_time = timer.timeit(number=iterations)
     frames_per_second = round(iterations / total_time, 2)
     logger.info('Benchmark done! Took {} seconds'.format(total_time))
@@ -113,7 +128,7 @@ def run():
     for name in names:
         processor = processors_to_test[name]
         logger.info('Starting benchmark of {} with {} iterations ...'.format(name, args.iterations))
-        result = benchmark_processor(name, processor, args.iterations)
+        result = benchmark_processor(name, processor, args.iterations, args.disable_gc)
         results[name] = result
 
     logger.info('Done!')
