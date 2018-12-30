@@ -6,7 +6,7 @@ logger = logging.getLogger('playlist')
 
 
 class Playlist(object):
-    def __init__(self, filename=None, processor=None):
+    def __init__(self, filename=None, processor_name=None):
         # The index into the queue array
         self.position = None
         # Time when the playlist should auto advance.
@@ -14,9 +14,9 @@ class Playlist(object):
         self.queue = []
         self.running = True
 
-        # If a processor was passed in, use it, otherwise read the config file
-        if processor:
-            self.append(processor.__name__)
+        # If a processor_name was passed in, use it, otherwise read the config file
+        if processor_name:
+            self.append(processor_name)
         elif filename:
             self.load_from(filename)
 
@@ -28,6 +28,9 @@ class Playlist(object):
             'duration': int(duration),
             'args': args,
         }
+
+    def __len__(self):
+        return len(self.queue)
 
     def clear(self):
         self.position = None
