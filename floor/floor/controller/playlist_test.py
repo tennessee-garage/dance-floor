@@ -22,3 +22,9 @@ class PlaylistTest(TestCase):
             name = processor['name']
             if name not in all_procs:
                 self.fail('Default playlist defines unknown processor "{}"'.format(name))
+
+    def test_with_processor_name(self):
+        valid_processor_names = ('Ripple', 'Spiral', 'Zap')
+        for processor_name in valid_processor_names:
+            p = Playlist(processor_name=processor_name)
+            self.assertEqual(1, len(p))
