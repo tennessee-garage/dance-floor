@@ -60,6 +60,19 @@ class Controller(object):
 
         self.ranged_values = [0] * self.MAX_RANGED_VALUES
 
+        self.debug_timing = False
+        self.debug_timing_last_report = self.clocksource.time()
+        self.debug_timing_report_seconds = 2.0
+        self.debug_timing_checkpoint = 0.0
+        self.num_frames = 0
+        self.frame_playlist = 0.0
+        self.frame_generate = 0.0
+        self.frame_transfer = 0.0
+        self.frame_delay = 0.0
+
+    def set_debug_timing(self, value):
+        self.debug_timing = value
+
     def set_fps(self, fps):
         self.fps = fps
         self.frame_seconds = 1.0/fps
@@ -154,8 +167,22 @@ class Controller(object):
 
         self.init_loop()
         self.check_playlist()
+
+        if self.debug_timing:
+            self.frame_playlist += self.clocksource.time() - self.frame_start
+            self.debug_timing_checkpoint = self.clocksource.time()
+
         self.generate_frame()
+
+        if self.debug_timing:
+            self.frame_generate += self.clocksource.time() - self.debug_timing_checkpoint
+            self.debug_timing_checkpoint = self.clocksource.time()
+
         self.transfer_data()
+
+        if self.debug_timing:
+            self.frame_transfer += self.clocksource.time() - self.debug_timing_checkpoint
+
         self.delay()
 
     def init_loop(self):
@@ -215,6 +242,26 @@ class Controller(object):
         self.driver.read_data()
 
     def delay(self):
+        if self.debug_timing:
+            self.num_frames += 1
+            if self.clocksource.time() - self.debug_timing_last_report > self.debug_timing_report_seconds:
+                avg_playlist = self.frame_playlist/self.num_frames
+                avg_generate = self.frame_generate/self.num_frames
+                avg_transfer = self.frame_transfer/self.num_frames
+                avg_delay = self.frame_seconds - (avg_playlist + avg_generate + avg_transfer)
+                logger.info('Frame: {0:.1f} ms, Avg p={1:.1f} us / g={2:.1f} us / t={3:.1f} us d={4:.1f} ms'.format(
+                    self.frame_seconds*1000,
+                    avg_playlist*1000000,
+                    avg_generate*1000000,
+                    avg_transfer*1000000,
+                    avg_delay*1000
+                ))
+                self.num_frames = 0
+                self.frame_playlist = 0.0
+                self.frame_generate = 0.0
+                self.frame_transfer = 0.0
+                self.debug_timing_last_report = self.clocksource.time()
+
         elapsed = self.clocksource.time() - self.frame_start
 
         if elapsed < self.frame_seconds:

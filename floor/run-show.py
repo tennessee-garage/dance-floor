@@ -23,6 +23,7 @@ DEFAULT_FLOOR_CONFIG_FILE = os.path.join(SCRIPT_DIR, 'config/floor-layout.json')
 
 logger = logging.getLogger('show')
 
+
 def load_driver(driver_name, driver_args):
     try:
         module = importlib.import_module("floor.driver.{}".format(driver_name))
@@ -98,8 +99,15 @@ def get_options():
         default=None,
         help='Function mapping between a MIDI device and floor functions'
     )
+    parser.add_argument(
+        '--debug_timing',
+        dest='debug_timing',
+        action='store_true',
+        help='Output timing info (avg time spend in processing vs sending data) every 2 seconds'
+    )
     parser.set_defaults(opc_input=True, server_port=1977)
     return parser.parse_args()
+
 
 def main():
     args = get_options()
@@ -116,6 +124,7 @@ def main():
 
     playlist = Playlist(args.playlist, args.processor_name)
     show = Controller(driver, playlist)
+    show.set_debug_timing(args.debug_timing)
 
     if args.midi_server_port:
         midi_manager = MidiManager(
@@ -138,6 +147,7 @@ def main():
     except Exception as e:
         logger.exception('Unexpected error, aborting.')
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
