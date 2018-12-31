@@ -98,6 +98,12 @@ def get_options():
         default=None,
         help='Function mapping between a MIDI device and floor functions'
     )
+    parser.add_argument(
+        '--profile',
+        dest='profile',
+        action='store_true',
+        help='Profile the generate frame method'
+    )
     parser.set_defaults(opc_input=True, server_port=1977)
     return parser.parse_args()
 
@@ -131,7 +137,11 @@ def main():
         run_server(show, port=args.server_port)
 
     try:
-        show.run_forever()
+        if args.profile:
+            logger.info("Profiling for 10s ...")
+            show.run_profiled()
+        else:
+            show.run_forever()
     except KeyboardInterrupt:
         logger.info('Got CTRL-C, quitting.')
         sys.exit(0)

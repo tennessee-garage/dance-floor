@@ -1,5 +1,7 @@
 import time
 import logging
+import cProfile, pstats, StringIO
+
 from floor import processor
 from floor.processor.base import RenderContext
 
@@ -145,6 +147,22 @@ class Controller(object):
     def run_forever(self):
         while True:
             self.run_one_frame()
+
+    def run_profiled(self):
+        start = time.time()
+        pr = cProfile.Profile()
+        pr.enable()
+
+        # Run for 10 seconds
+        while time.time() - start < 10.0:
+            self.run_one_frame()
+
+        pr.disable()
+        s = StringIO.StringIO()
+        sort_by = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sort_by)
+        ps.print_stats()
+        print(s.getvalue())
 
     def run_one_frame(self):
         if not self.playlist.is_running():
