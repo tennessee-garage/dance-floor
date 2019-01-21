@@ -54,8 +54,8 @@ def get_options():
     parser.add_argument(
         '--playlist',
         dest='playlist',
-        default=DEFAULT_PLAYLIST,
-        help='Load and run this playlist on start'
+        default=None,
+        help='Load this playlist instead of the default {}'.format(DEFAULT_PLAYLIST)
     )
     parser.add_argument(
         '--floor_config',
@@ -116,19 +116,21 @@ def main():
         logger.error('No driver, exiting.')
         sys.exit(1)
 
-    if not (bool(args.playlist) ^ bool(args.processor_name)):
-        logger.error('Must provide exactly one of: --playlist, --processor')
+    if args.playlist and args.processor_name:
+        logger.error('Cannot provide both --playlist and --processor')
         sys.exit(1)
 
     playlist = Playlist(all_processors())
-    if args.playlist:
-        playlist.load_from(args.playlist)
-    else:
+    if args.processor_name:
         try:
             playlist.append(args.processor_name)
         except ProcessorNotFound:
             logger.error('Processor "{}" unknown'.format(args.processor_name))
             sys.exit(1)
+    elif args.playlist:
+        playlist.load_from(args.playlist)
+    else:
+        playlist.load_from(DEFAULT_PLAYLIST)
 
     show = Controller(driver, playlist)
 
