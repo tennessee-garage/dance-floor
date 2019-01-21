@@ -34,10 +34,15 @@ class Ripple(Base):
             'range': [0.25, 2.0],
             'default': 0.75
         },
+        # Wavelength
+        {
+            'name': 'OMEGA',
+            'range': [math.pi, 4 * math.pi],
+            'default': 2 * math.pi
+        },
 
     ]
 
-    OMEGA = 2 * math.pi
     RESTART_THRESHOLD = 0.01
 
     def __init__(self, **kwargs):
