@@ -2,8 +2,6 @@
 
 class Base(object):
 
-    MAX_LED_VALUE = 1023
-
     def __init__(self, driver_args):
         self.weights = []
         self.leds = [[0, 0, 0, 0] for _ in range(64)]
@@ -13,9 +11,6 @@ class Base(object):
             self.layout = driver_args["layout"]
         else:
             self.layout = None
-
-    def get_max_led_value(self):
-        return self.MAX_LED_VALUE
 
     def get_weights(self):
         """

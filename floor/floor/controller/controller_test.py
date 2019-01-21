@@ -19,7 +19,6 @@ class ControllerTest(TestCase):
     def setUp(self):
         self.playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
         self.driver = Mock()
-        self.driver.get_max_led_value = Mock(return_value=1022)
         self.controller = Controller(self.driver, self.playlist)
 
     def test_initialization(self):
@@ -27,8 +26,6 @@ class ControllerTest(TestCase):
         c = self.controller
         self.assertEqual(120, c.bpm)
         self.assertEqual(24, c.fps)
-        self.assertEqual(1022, c.max_led_value)
-        self.assertEqual(1022, c.max_effective_led_value)
 
     def test_rendering(self):
         c = self.controller

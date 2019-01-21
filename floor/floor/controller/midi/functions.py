@@ -93,7 +93,7 @@ MidiFunctions.add('set_bpm',
                   callback=lambda controller, value: controller.set_bpm(90 + 80 * (value/127.0)),
                   help_text='Set the global bpm based on note velocity or controller value.')
 MidiFunctions.add('set_brightness',
-                  callback=lambda controller, value: controller.scale_brightness(value/127.0),
+                  callback=lambda controller, value: controller.set_brightness(value/127.0),
                   help_text='Adjust the max brightness of the floor')
 
 # Add a number of ranged values, likely faders or knobs, that can be used within processor code

@@ -33,7 +33,7 @@ def load_driver(driver_name, driver_args):
         return None
 
     driver = getattr(module, driver_name.title())(driver_args)
-    logger.info("Loaded driver '{}' with max LED value {}".format(driver_name, driver.MAX_LED_VALUE))
+    logger.info("Loaded driver '{}'".format(driver_name))
     return driver
 
 

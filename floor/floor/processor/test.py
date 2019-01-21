@@ -11,9 +11,9 @@ class Test(Base):
 
         # helpful colors
         dark = (0, 0, 0)
-        red = (self.DEFAULT_MAX_VALUE, 0, 0)
-        blue = (0, self.DEFAULT_MAX_VALUE, 0)
-        green = (0, 0, self.DEFAULT_MAX_VALUE)
+        red = (self.max_value, 0, 0)
+        blue = (0, self.max_value, 0)
+        green = (0, 0, self.max_value)
 
         # define cycles
         self.cycles = []

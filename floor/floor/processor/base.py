@@ -6,6 +6,8 @@ from __future__ import unicode_literals
 import logging
 import colorsys
 
+from floor.processor.constants import COLOR_MAXIMUM
+
 
 class ProcessorRegistry(type):
     """Python metaclass which automatically adds the class to `ALL_PROCESSORS`."""
@@ -39,7 +41,6 @@ class Base(object):
 
     CONTROLS = []
 
-    DEFAULT_MAX_VALUE = 1024
     FLOOR_WIDTH = 8
     FLOOR_HEIGHT = 8
     PIXELS_ALL_OFF = [[0 for _ in range(3)] for _ in range(64)]
@@ -48,7 +49,7 @@ class Base(object):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.weights = []
-        self.max_value = self.DEFAULT_MAX_VALUE
+        self.max_value = COLOR_MAXIMUM
         self.ranged_values = []
 
         self._controls = []
@@ -114,9 +115,6 @@ class Base(object):
     def idx(self, pixel):
         (x, y) = pixel
         return (x * self.FLOOR_WIDTH) + y
-
-    def set_max_value(self, max_value):
-        self.max_value = max_value
 
     def get_next_frame(self, context):
         """

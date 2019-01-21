@@ -146,6 +146,23 @@ function handleTempoUpdate(tempoData) {
     status.value = tempoData.bpm;
 }
 
+function setBrightness(brightness) {
+    var data = {
+        brightness: brightness,
+    };
+    console.log('Setting brightness to: ', brightness);
+    return axios.post('/api/brightness', data).then(function (response) {
+        handleBrightnessUpdate(response.data);
+    }).catch(function (error) {
+        handleError(error);
+    });
+}
+
+function handleBrightnessUpdate(brightnessData) {
+    var brightness = document.getElementById('brightness');
+    brightness.value = brightnessData.brightness;
+}
+
 function resetBpmTapper() {
     var tapper = document.getElementById('tapper');
     tapper.innerHTML = 'Tap BPM';
@@ -212,6 +229,11 @@ function onDownbeatNudgedRight() {
     nudgeTempo(null, 100);
 }
 
+function onBrightnessChanged(e) {
+    var value = e.target.value
+    setBrightness(value);
+}
+
 function installListeners() {
     $('#start-button').click(function () {
         start_show();
@@ -242,6 +264,9 @@ function installListeners() {
     });
     $('#downbeat-nudge-right').click(function () {
         onDownbeatNudgedRight();
+    });
+    $('#brightness').change(function (e) {
+        onBrightnessChanged(e);
     });
 }
 

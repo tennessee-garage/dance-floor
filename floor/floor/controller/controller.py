@@ -49,11 +49,8 @@ class Controller(object):
         self.downbeat = None
         self.set_bpm(self.DEFAULT_BPM)
 
-        # Max value is dictated by the driver used
-        self.max_led_value = self.driver.get_max_led_value()
-
-        # Effective max value accounts for any scaling factor in effect (e.g. to reduce brightness)
-        self.max_effective_led_value = self.max_led_value
+        # A global "brightness" level, a value between 0.0 and 1.0.
+        self.brightness = 1.0
 
         self.ranged_values = [0] * self.MAX_RANGED_VALUES
 
@@ -66,17 +63,14 @@ class Controller(object):
         self.bpm = float(bpm)
         self.downbeat = downbeat or self.clocksource.time()
 
-    def scale_brightness(self, factor):
+    def set_brightness(self, factor):
         """Scale the default brightness from 0 to max for driver
 
         :param factor: a scaling factor from 0.0 to 1.0
         :return: none
         """
-
-        logger.info('Setting brightness to: {}%'.format(int(factor*100)))
-        new_max = int(factor * self.max_led_value)
-
-        self.processor.set_max_value(new_max)
+        self.brightness = max(0.0, min(1.0, factor))
+        logger.info('Set brightness to: {}%'.format(int(self.brightness * 100)))
 
     def square_weight_on(self, index):
         if index > 63 or index < 0:
@@ -188,6 +182,7 @@ class Controller(object):
             logger.warning('Removing processor due to error.')
             self.playlist.remove(self.playlist.position)
         else:
+            leds = map(lambda pixel: map(lambda color: color * self.brightness, pixel), leds)
             self.driver.set_leds(leds)
 
     def get_weights(self):

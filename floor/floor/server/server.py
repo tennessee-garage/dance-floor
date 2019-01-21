@@ -188,6 +188,22 @@ def api_tempo_nudge():
     return jsonify(view_tempo(controller.bpm, controller.downbeat))
 
 
+@app.route('/api/brightness', methods=['GET', 'POST'])
+def api_brightness():
+    controller = app.controller
+    if request.method == 'POST':
+        content = request.get_json(silent=True)
+        brightness = content.get('brightness')
+        if brightness is None:
+            abort(400, 'Must give brightness.')
+        brightness = float(brightness)
+        if brightness < 0.0 or brightness > 1.0:
+            abort(400, 'Value must be on range 0.0-1.0')
+        controller.set_brightness(brightness)
+
+    return jsonify({'brightness': controller.brightness})
+
+
 @app.route('/api/layout', methods=['POST'])
 def api_layout():
     """

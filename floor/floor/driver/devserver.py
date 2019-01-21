@@ -71,8 +71,6 @@ def serve_forever(port=1979):
 class Devserver(Base):
     """Floor driver interface."""
 
-    MAX_LED_VALUE = 255
-
     def __init__(self, args):
         self.weights = [0] * 64
         self.thr = threading.Thread(target=serve_forever)

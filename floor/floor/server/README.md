@@ -227,6 +227,25 @@ Shift the BPM, downbeat, or both by a relative amount
 The BPM information.
 
 
+### `POST /api/brightness`
+
+Change the global brightness of the floor, on a scale of 0.0 to 1.0.
+
+**Request arguments**
+
+* `brightness` (number): The desired brightness, on a scale of `0.0` to `1.0`.
+
+**Response**
+
+The current brightness.
+
+```json
+{
+  "brightness": 0.75
+}
+```
+
+
 ## TODO
 
 Some improvements which should be made:
