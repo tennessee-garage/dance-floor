@@ -59,6 +59,7 @@ function getStatus() {
         var playlist = response.data.playlist;
         handlePlaylistUpdate(response.data.playlist);
         handleTempoUpdate(response.data.tempo);
+        handleBrightnessUpdate(response.data.brightness);
         rescheduleRefresh();
     }).catch(function (error) {
         handleError(error);
@@ -152,15 +153,16 @@ function setBrightness(brightness) {
     };
     console.log('Setting brightness to: ', brightness);
     return axios.post('/api/brightness', data).then(function (response) {
-        handleBrightnessUpdate(response.data);
+        handleBrightnessUpdate(response.data.brightness);
     }).catch(function (error) {
         handleError(error);
     });
 }
 
-function handleBrightnessUpdate(brightnessData) {
+function handleBrightnessUpdate(brightnessValue) {
     var brightness = document.getElementById('brightness');
-    brightness.value = brightnessData.brightness;
+    var strValue = brightnessValue.toFixed(1);
+    brightness.value = strValue;
 }
 
 function resetBpmTapper() {

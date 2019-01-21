@@ -42,6 +42,7 @@ A structure consisting of:
 * `tempo` (object): The current tempo; see `GET /api/tempo`.
 * `processors` (array): A list of available processor, each an object consisting of:
   * `name` (string): The name of the processor.
+* `brightness` (number): The global brightness, a number on `0.0 - 1.0`.
 
 ```json
 {
@@ -269,7 +270,7 @@ The current brightness.
 
 ```json
 {
-  "brightness": 0.75
+  "brightness": 0.7
 }
 ```
 

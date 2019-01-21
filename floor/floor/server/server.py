@@ -75,6 +75,7 @@ def api_status():
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
         'processors': view_processors(app.controller.all_processors),
         'layers': view_all_layers(app.controller.layers),
+        'brightness': float(app.controller.brightness),
     }
     return jsonify(result)
 
@@ -210,7 +211,7 @@ def api_brightness():
             abort(400, 'Value must be on range 0.0-1.0')
         controller.set_brightness(brightness)
 
-    return jsonify({'brightness': controller.brightness})
+    return jsonify({'brightness': float(controller.brightness)})
 
 
 @app.route('/api/layout', methods=['POST'])
