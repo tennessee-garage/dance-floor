@@ -6,19 +6,21 @@ This is a simple HTTP service that exposes a public API and control web page to 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Dancefloor Server](#dancefloor-server)
-  - [API](#api)
-    - [`GET /api/status`](#get-apistatus)
-    - [`POST /api/playlist/advance`](#post-apiplaylistadvance)
-    - [`POST /api/playlist/previous`](#post-apiplaylistprevious)
-    - [`POST /api/playlist/add`](#post-apiplaylistadd)
-    - [`POST /api/playlist/stay`](#post-apiplayliststay)
-    - [`DELETE /api/playlist/:position`](#delete-apiplaylistposition)
-    - [`GET /api/tempo`](#get-apitempo)
-    - [`POST /api/tempo`](#post-apitempo)
-    - [`POST /api/tempo/nudge`](#post-apitemponudge)
-    - [`POST /api/brightness`](#post-apibrightness)
-  - [TODO](#todo)
+- [API](#api)
+  - [`GET /api/status`](#get-apistatus)
+  - [`POST /api/playlist/advance`](#post-apiplaylistadvance)
+  - [`POST /api/playlist/previous`](#post-apiplaylistprevious)
+  - [`POST /api/playlist/add`](#post-apiplaylistadd)
+  - [`POST /api/playlist/stay`](#post-apiplayliststay)
+  - [`DELETE /api/playlist/:position`](#delete-apiplaylistposition)
+  - [`GET /api/tempo`](#get-apitempo)
+  - [`POST /api/tempo`](#post-apitempo)
+  - [`POST /api/tempo/nudge`](#post-apitemponudge)
+  - [`GET /api/brightness`](#get-apibrightness)
+  - [`POST /api/brightness`](#post-apibrightness)
+  - [`GET /api/layers/:name`](#get-apilayersname)
+  - [`PATCH /api/layers/:name`](#patch-apilayersname)
+- [TODO](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -72,6 +74,16 @@ A structure consisting of:
     },
     "pulsar": {
       "name": "pulsar"
+    }
+  },
+  "layers": {
+    "overlay1": {
+      "enabled": true,
+      "processor_name": "CoolStep"
+    },
+    "overlay2": {
+      "enabled": false,
+      "processor_name": null
     }
   },
   "tempo": {
@@ -285,9 +297,24 @@ The layer's details.
 
 ```json
 {
-  "enabled": true
+  "enabled": true,
+  "processor_name": "CoolStep"
 }
 ```
+
+
+### `PATCH /api/layers/:name`
+
+Adjust a rendering layer. Currently supports changing the processor, by patching the `processor_name` field.
+
+**Request arguments**
+
+* `processor_name` (string): The new processor name, or empty string to select no processor.
+* `enabled` (boolean): Whether or not to enable the layer.
+
+**Response**
+
+Same as `GET /api/layers/:name`.
 
 
 ## TODO

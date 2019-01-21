@@ -59,12 +59,22 @@ def view_processors(processors):
     return ret
 
 
+def view_all_layers(layers):
+    result = {}
+    for k, v in layers.items():
+        if k == 'playlist':
+            continue
+        result[k] = view_processor_layer(v)
+    return result
+
+
 @app.route('/api/status', methods=['GET'])
 def api_status():
     result = {
         'playlist': view_playlist(app.controller.playlist),
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
         'processors': view_processors(app.controller.all_processors),
+        'layers': view_all_layers(app.controller.layers),
     }
     return jsonify(result)
 
@@ -212,20 +222,42 @@ def api_layout():
     pass
 
 
-def view_layer(layer):
+def view_processor_layer(layer):
     return {
         'enabled': layer.is_enabled(),
+        'processor_name': layer.get_processor_name(),
     }
 
 
-@app.route('/api/layers/<string:layer_name>', methods=['GET', 'POST'])
+@app.route('/api/layers/<string:layer_name>', methods=['GET', 'PATCH'])
 def api_layer_detail(layer_name):
+    if layer_name == 'playlist':
+        abort(400, 'Playlist layer is not supported by this API.')
+        return
+
     layer = app.controller.layers.get(layer_name)
     if not layer:
         abort(404, 'Unknown layer.')
         return
 
-    return jsonify(view_layer(layer))
+    if request.method == 'PATCH':
+        content = request.get_json(silent=True)
+
+        enabled = content.get('enabled')
+        if enabled is not None:
+            layer.set_enabled(enabled)
+
+        processor_name = content.get('processor_name')
+        if processor_name == '':
+            layer.set_processor(None)
+        else:
+            processor = app.controller.all_processors.get(processor_name)
+            if not processor:
+                abort(400, 'Processor "{}" not found'.format(processor_name))
+                return
+            layer.set_processor(processor())
+
+    return jsonify(view_processor_layer(layer))
 
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):

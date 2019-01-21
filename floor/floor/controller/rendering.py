@@ -109,7 +109,7 @@ class ProcessorRenderLayer(BaseRenderLayer):
         self.logger = logging.getLogger(__name__)
 
     def is_enabled(self):
-        return self.processor is not None and self.is_enabled
+        return self.processor is not None and self.enabled
 
     def on_ranged_value_change(self, num, val):
         if self.processor:
@@ -122,3 +122,11 @@ class ProcessorRenderLayer(BaseRenderLayer):
 
     def set_processor(self, processor):
         self.processor = processor
+
+    def get_processor(self):
+        return self.processor
+
+    def get_processor_name(self):
+        if not self.processor:
+            return None
+        return self.processor.__class__.__name__
