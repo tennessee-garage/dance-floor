@@ -123,13 +123,6 @@ class Base(object):
         """
         pass
 
-    def requested_fps(self):
-        """
-        If this processor wants a specific FPS, it can override this method
-        :return: integer - a number giving the Frames per Second to run this processor at
-        """
-        return None
-
     def on_ranged_value_change(self, num, val):
         if num >= len(self._controls):
             return

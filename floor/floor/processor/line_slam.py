@@ -20,9 +20,6 @@ class LineSlam(Base):
         self.easing1 = Easing(duration=0.5, start=0.0, end=7.0)
         self.easing2 = Easing(duration=0.5, start=0.0, end=1.0)
 
-    def requested_fps(self):
-        return 120
-
     def get_next_frame(self, context):
         if self.stage == 1:
             pixels = self.stage_1()

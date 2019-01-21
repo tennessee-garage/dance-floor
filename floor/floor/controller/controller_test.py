@@ -25,7 +25,7 @@ class ControllerTest(TestCase):
         """Verifies initial state."""
         c = self.controller
         self.assertEqual(120, c.bpm)
-        self.assertEqual(24, c.fps)
+        self.assertEqual(120, c.fps)
 
     def test_rendering(self):
         c = self.controller

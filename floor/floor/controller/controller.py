@@ -7,7 +7,7 @@ logger = logging.getLogger('controller')
 
 
 class Controller(object):
-    DEFAULT_FPS = 24
+    DEFAULT_FPS = 120
     DEFAULT_BPM = 120.0
     MAX_RANGED_VALUES = 4
 
