@@ -6,9 +6,12 @@ from __future__ import unicode_literals
 from freezegun import freeze_time
 import time
 import datetime
+from unittest import TestCase
 
 from floor import processor
+from floor.processor.base import Base as BaseProcessor
 from floor.processor.base import RenderContext
+
 
 def test_run_all_processors():
     """Run each processor for 30 fake seconds."""
@@ -38,3 +41,9 @@ def test_run_all_processors():
     processors = processor.all_processors()
     for processor_name, cls in processors.iteritems():
         yield run_test, processor_name, cls
+
+
+class ProcessorTest(TestCase):
+    def test_all_processors_excludes_base(self):
+        processors = processor.all_processors()
+        self.assert_(BaseProcessor not in processors.values())

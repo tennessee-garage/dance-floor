@@ -14,9 +14,10 @@ class ProcessorRegistry(type):
     def __new__(cls, clsname, bases, attrs):
         new_class = super(ProcessorRegistry, cls).__new__(cls, clsname, bases, attrs)
         class_name = new_class.__name__
-        if class_name in cls.ALL_PROCESSORS:
-            raise ValueError('Multiple processors with name "{}" declared'.format(class_name))
-        cls.ALL_PROCESSORS[class_name] = new_class
+        if class_name != 'Base':
+            if class_name in cls.ALL_PROCESSORS:
+                raise ValueError('Multiple processors with name "{}" declared'.format(class_name))
+            cls.ALL_PROCESSORS[class_name] = new_class
         return new_class
 
 
