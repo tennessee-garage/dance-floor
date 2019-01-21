@@ -12,6 +12,8 @@ from floor.processor.base import RenderContext
 from floor.controller.rendering import PlaylistRenderLayer
 from floor.controller.rendering import ProcessorRenderLayer
 from floor.util.color_utils import blend_pixel_copy
+from floor.util.color_utils import normalize_pixel
+
 
 logger = logging.getLogger('controller')
 
@@ -157,6 +159,7 @@ class Controller(object):
             if not current_leds:
                 continue
             for idx, current_pixel in enumerate(current_leds):
+                current_pixel = normalize_pixel(current_pixel)
                 if last_leds:
                     last_pixel = last_leds[idx]
                     composited_leds[idx] = blend_pixel_copy(last_pixel, current_pixel)

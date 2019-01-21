@@ -5,6 +5,7 @@ Helper functions to make color manipulations easier
 from __future__ import division
 import math
 import random
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 def remap(x, oldmin, oldmax, newmin, newmax):
@@ -152,3 +153,12 @@ def get_random_palette(max_value):
     idx = random.randint(0, palettes_length - 1)
     name = palette_keys[idx]
     return get_palette(name, max_value)
+
+
+def normalize_pixel(pixel):
+    r, g, b = pixel
+    return (
+        max(0, min(int(r), COLOR_MAXIMUM)),
+        max(0, min(int(g), COLOR_MAXIMUM)),
+        max(0, min(int(b), COLOR_MAXIMUM)),
+    )
