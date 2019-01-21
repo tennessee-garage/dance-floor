@@ -121,7 +121,7 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
 
-def blend_pixel_nonalpha(bottom, top):
+def blend_pixel_copy(bottom, top):
     """Blends pixels without an alpha channel by treating black as tranparent."""
     if top == (0, 0, 0):
         return bottom

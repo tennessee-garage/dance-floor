@@ -11,7 +11,7 @@ from floor import processor
 from floor.processor.base import RenderContext
 from floor.controller.rendering import PlaylistRenderLayer
 from floor.controller.rendering import ProcessorRenderLayer
-from floor.util.color_utils import blend_pixel_nonalpha
+from floor.util.color_utils import blend_pixel_copy
 
 logger = logging.getLogger('controller')
 
@@ -159,7 +159,7 @@ class Controller(object):
                 # and cannot assume ownership.
                 leds = leds[:]
                 for idx, last_pixel in enumerate(last_leds):
-                    leds[idx] = blend_pixel_nonalpha(last_pixel, leds[idx])
+                    leds[idx] = blend_pixel_copy(last_pixel, leds[idx])
             last_leds = leds
 
         # If no layers are enabled, `leds` will be None and we shouldn't update the driver.
