@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import logging
 import colorsys
+import sys
 
 from floor.processor.constants import COLOR_MAXIMUM
 
@@ -18,7 +19,11 @@ class ProcessorRegistry(type):
         class_name = new_class.__name__
         if class_name != 'Base':
             if class_name in cls.ALL_PROCESSORS:
-                raise ValueError('Multiple processors with name "{}" declared'.format(class_name))
+                existing_class = cls.ALL_PROCESSORS[class_name]
+                file1 = sys.modules[existing_class.__module__].__file__
+                file2 = sys.modules[new_class.__module__].__file__
+                files = ', '.join((file1, file2))
+                raise ValueError('Multiple processors with name "{}" declared: {}'.format(class_name, files))
             cls.ALL_PROCESSORS[class_name] = new_class
         return new_class
 
