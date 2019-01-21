@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+from floor.processor import all_processors
 from floor.controller.controller import Controller
 from floor.controller.playlist import Playlist
 from unittest import TestCase
@@ -16,7 +17,7 @@ DEFAULT_PLAYLIST = BASE_DIR + '/../../config/playlists/default.json'
 
 class ControllerTest(TestCase):
     def setUp(self):
-        self.playlist = Playlist(filename=DEFAULT_PLAYLIST)
+        self.playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
         self.driver = Mock()
         self.driver.get_max_led_value = Mock(return_value=1022)
         self.driver.get_max_floor_value = Mock(return_value=1021)

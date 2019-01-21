@@ -2,9 +2,11 @@
 
 from floor.controller import Controller
 from floor.controller import Playlist
+from floor.controller.playlist import ProcessorNotFound
 from floor.controller import Layout
 from floor.controller.midi import MidiManager
 from floor.server.server import run_server
+from floor.processor import all_processors
 
 import argparse
 import importlib
@@ -114,7 +116,20 @@ def main():
         logger.error('No driver, exiting.')
         sys.exit(1)
 
-    playlist = Playlist(args.playlist, args.processor_name)
+    if not (bool(args.playlist) ^ bool(args.processor_name)):
+        logger.error('Must provide exactly one of: --playlist, --processor')
+        sys.exit(1)
+
+    playlist = Playlist(all_processors())
+    if args.playlist:
+        playlist.load_from(args.playlist)
+    else:
+        try:
+            playlist.append(args.processor_name)
+        except ProcessorNotFound:
+            logger.error('Processor "{}" unknown'.format(args.processor_name))
+            sys.exit(1)
+
     show = Controller(driver, playlist)
 
     if args.midi_server_port:

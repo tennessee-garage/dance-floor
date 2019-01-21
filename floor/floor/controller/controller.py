@@ -167,11 +167,6 @@ class Controller(object):
             return
 
         processor_name, args = item['name'], item['args']
-        if processor_name not in self.processors:
-            logger.error('Unknown processor "{}"; removing it.'.format(processor_name))
-            self.playlist.remove(self.playlist.position)
-            return
-
         if processor_name and (processor_name, args) != (self.current_processor, self.current_args):
             logger.debug('Loading processor {}'.format(processor_name))
             self.set_processor(processor_name, args)
