@@ -36,6 +36,6 @@ class ControllerTest(TestCase):
         self.driver.send_data.assert_called_once()
 
         first_processor_name = self.playlist.queue[0]['name']
-        self.assertEqual(first_processor_name, c.processor.__class__.__name__)
+        self.assertEqual(first_processor_name, c.layers['playlist'].current_processor.__class__.__name__)
 
         

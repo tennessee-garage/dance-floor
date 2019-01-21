@@ -4,6 +4,7 @@ import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
 
 from floor.controller import Controller
+from floor.controller.playlist import ProcessorNotFound
 
 MIN_BPM = 40
 MAX_BPM = 220
@@ -63,7 +64,7 @@ def api_status():
     result = {
         'playlist': view_playlist(app.controller.playlist),
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
-        'processors': view_processors(app.controller.processors),
+        'processors': view_processors(app.controller.all_processors),
     }
     return jsonify(result)
 
@@ -114,17 +115,15 @@ def api_playlist_add():
     if not name:
         abort(400, 'Missing `name` parameter.')
 
-    # Validate args... sorta :-x
-    try:
-        app.controller.build_processor(name, args)
-    except ValueError as e:
-        abort(400, str(e))
-
     playlist = app.controller.playlist
-    if play_next:
-        position = playlist.append(name, duration, args)
-    else:
-        position = playlist.insert_next(name, duration, args)
+    try:
+        if play_next:
+            position = playlist.append(name, duration, args)
+        else:
+            position = playlist.insert_next(name, duration, args)
+    except ProcessorNotFound as e:
+        abort(400, str(e))
+        return
 
     if immediate:
         playlist.go_to(position)
@@ -211,6 +210,22 @@ def api_layout():
     :return:
     """
     pass
+
+
+def view_layer(layer):
+    return {
+        'enabled': layer.is_enabled(),
+    }
+
+
+@app.route('/api/layers/<string:layer_name>', methods=['GET', 'POST'])
+def api_layer_detail(layer_name):
+    layer = app.controller.layers.get(layer_name)
+    if not layer:
+        abort(404, 'Unknown layer.')
+        return
+
+    return jsonify(view_layer(layer))
 
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):

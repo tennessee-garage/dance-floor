@@ -121,6 +121,13 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
 
+def blend_pixel_nonalpha(bottom, top):
+    """Blends pixels without an alpha channel by treating black as tranparent."""
+    if top == (0, 0, 0):
+        return bottom
+    return top
+
+
 # palettes as hex strings
 palettes = {
     'rainbow_bunny': ['31cb00', 'f9c80e', 'f86624', 'f86624', 'ea3546', '662e9b', '43bccd'],

@@ -1,7 +1,17 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import time
 import logging
+from collections import OrderedDict
+
 from floor import processor
 from floor.processor.base import RenderContext
+from floor.controller.rendering import PlaylistRenderLayer
+from floor.controller.rendering import ProcessorRenderLayer
+from floor.util.color_utils import blend_pixel_nonalpha
 
 logger = logging.getLogger('controller')
 
@@ -32,18 +42,20 @@ class Controller(object):
         self.driver = driver
         self.playlist = playlist
         self.clocksource = clocksource
-        self.processor = None  # type: processor.Base
         self.frame_start = 0
         self.fps = None
         self.frame_seconds = None
 
-        self.processors = processor.all_processors()
-
-        # The name of the current processor
-        self.current_processor = None
-        self.current_args = None
+        self.all_processors = processor.all_processors()
 
         self.set_fps(self.DEFAULT_FPS)
+
+        # Ordered dict of layers to render, bottom-most layer first.
+        self.layers = OrderedDict((
+            ('playlist', PlaylistRenderLayer(playlist=self.playlist, all_processors=self.all_processors)),
+            ('overlay2', ProcessorRenderLayer()),
+            ('overlay1', ProcessorRenderLayer()),
+        ))
 
         self.bpm = None
         self.downbeat = None
@@ -53,6 +65,10 @@ class Controller(object):
         self.brightness = 1.0
 
         self.ranged_values = [0] * self.MAX_RANGED_VALUES
+
+    def _iter_enabled_layers(self):
+        """Returns an iterable of all enabled layers."""
+        return filter(lambda layer: layer.is_enabled(), self.layers.values())
 
     def set_fps(self, fps):
         self.fps = fps
@@ -100,36 +116,8 @@ class Controller(object):
         # Capture state.
         self.ranged_values[control_number] = control_value
         # Update current processor.
-        if self.processor:
-            self.processor.on_ranged_value_change(control_number, control_value)
-
-    def set_processor(self, processor_name, processor_args=dict):
-        """Sets the active processor, which must already be loaded into
-        `self.processors`.
-
-        Raises `ValueError` if processor is unknown.
-        """
-        self.processor = self.build_processor(processor_name, processor_args)
-        self.processor.set_bpm(self.bpm, self.downbeat)
-
-        fps = self.processor.requested_fps() or self.DEFAULT_FPS
-        self.set_fps(fps)
-
-        self.current_processor = processor_name
-        self.current_args = processor_args
-
-        logger.info("Started processor '{}' at {} fps".format(processor_name, fps))
-
-    def build_processor(self, name, args=None):
-        """Builds a processor instance."""
-        args = args or {}
-        processor_cls = self.processors.get(name)
-        if not processor_cls:
-            raise ValueError('Processor "{}" does not exist'.format(name))
-        try:
-            return processor_cls(**args)
-        except Exception as e:
-            raise ValueError('Processor "{}" could not be created: {}'.format(name, str(e)))
+        for layer in self._iter_enabled_layers():
+            layer.on_ranged_value_change(control_number, control_value)
 
     def run_forever(self):
         while True:
@@ -138,11 +126,11 @@ class Controller(object):
     def run_one_frame(self):
         if not self.playlist.is_running():
             # If the playlist is stopped/paused, sleep a bit then restart the loop
-            self.sleeper(0.5)
+            self.clocksource.sleep(0.5)
             return
 
         self.init_loop()
-        self.check_playlist()
+        self.prepare()
         self.generate_frame()
         self.transfer_data()
         self.delay()
@@ -150,22 +138,11 @@ class Controller(object):
     def init_loop(self):
         self.frame_start = self.clocksource.time()
 
-    def check_playlist(self):
-        item = self.playlist.get_current()
-        if not item:
-            return
-
-        processor_name, args = item['name'], item['args']
-        if processor_name and (processor_name, args) != (self.current_processor, self.current_args):
-            logger.debug('Loading processor {}'.format(processor_name))
-            self.set_processor(processor_name, args)
-            # Make sure the processor is limited to the bit depth of the driver
-            self.processor.set_max_value(self.max_effective_led_value)
+    def prepare(self):
+        for layer in self._iter_enabled_layers():
+            layer.prepare()
 
     def generate_frame(self):
-        if not self.processor:
-            return
-
         context = RenderContext(
             clock=self.frame_start,
             downbeat=self.downbeat,
@@ -173,15 +150,21 @@ class Controller(object):
             bpm=self.bpm,
         )
 
-        try:
-            leds = self.processor.get_next_frame(context)
-        except KeyboardInterrupt:
-            raise
-        except Exception:
-            logger.exception('Error generating frame for processor {}'.format(self.processor))
-            logger.warning('Removing processor due to error.')
-            self.playlist.remove(self.playlist.position)
-        else:
+        leds = None
+        last_leds = None
+        for layer in self._iter_enabled_layers():
+            leds = layer.render(context, leds=last_leds)
+            if leds and last_leds:
+                # Copy the returned buffer, since we'll likely be blending into it
+                # and cannot assume ownership.
+                leds = leds[:]
+                for idx, last_pixel in enumerate(last_leds):
+                    leds[idx] = blend_pixel_nonalpha(last_pixel, leds[idx])
+            last_leds = leds
+
+        # If no layers are enabled, `leds` will be None and we shouldn't update the driver.
+        # TODO(mikey): Should we render a 'default' pattern in this case?
+        if leds:
             leds = map(lambda pixel: map(lambda color: color * self.brightness, pixel), leds)
             self.driver.set_leds(leds)
 

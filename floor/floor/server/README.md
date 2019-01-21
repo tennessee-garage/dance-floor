@@ -2,6 +2,26 @@
 
 This is a simple HTTP service that exposes a public API and control web page to the running dance floor.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Dancefloor Server](#dancefloor-server)
+  - [API](#api)
+    - [`GET /api/status`](#get-apistatus)
+    - [`POST /api/playlist/advance`](#post-apiplaylistadvance)
+    - [`POST /api/playlist/previous`](#post-apiplaylistprevious)
+    - [`POST /api/playlist/add`](#post-apiplaylistadd)
+    - [`POST /api/playlist/stay`](#post-apiplayliststay)
+    - [`DELETE /api/playlist/:position`](#delete-apiplaylistposition)
+    - [`GET /api/tempo`](#get-apitempo)
+    - [`POST /api/tempo`](#post-apitempo)
+    - [`POST /api/tempo/nudge`](#post-apitemponudge)
+    - [`POST /api/brightness`](#post-apibrightness)
+  - [TODO](#todo)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## API
 
 ### `GET /api/status`
@@ -227,6 +247,21 @@ Shift the BPM, downbeat, or both by a relative amount
 The BPM information.
 
 
+### `GET /api/brightness`
+
+Get the global brightness of the floor, on a scale of 0.0 to 1.0.
+
+**Response**
+
+The current brightness.
+
+```json
+{
+  "brightness": 0.75
+}
+```
+
+
 ### `POST /api/brightness`
 
 Change the global brightness of the floor, on a scale of 0.0 to 1.0.
@@ -237,11 +272,20 @@ Change the global brightness of the floor, on a scale of 0.0 to 1.0.
 
 **Response**
 
-The current brightness.
+Same as `GET /api/brightness`
+
+
+### `GET /api/layers/:name`
+
+Get details about a rendering layer.
+
+**Response**
+
+The layer's details.
 
 ```json
 {
-  "brightness": 0.75
+  "enabled": true
 }
 ```
 
