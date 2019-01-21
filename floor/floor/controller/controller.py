@@ -55,9 +55,6 @@ class Controller(object):
         # Effective max value accounts for any scaling factor in effect (e.g. to reduce brightness)
         self.max_effective_led_value = self.max_led_value
 
-        # Maximum sensor value.
-        self.max_floor_value = self.driver.get_max_floor_value()
-
         self.ranged_values = [0] * self.MAX_RANGED_VALUES
 
     def set_fps(self, fps):
@@ -85,7 +82,7 @@ class Controller(object):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index] = self.max_floor_value
+        self.SYNTHETIC_WEIGHTS[index] = 1.0
         self.SYNTHETIC_WEIGHT_ACTIVE = True
 
     def square_weight_off(self, index):

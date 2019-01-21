@@ -3,7 +3,6 @@
 class Base(object):
 
     MAX_LED_VALUE = 1023
-    MAX_FLOOR_VALUE = 1023
 
     def __init__(self, driver_args):
         self.weights = []
@@ -18,13 +17,11 @@ class Base(object):
     def get_max_led_value(self):
         return self.MAX_LED_VALUE
 
-    def get_max_floor_value(self):
-        return self.MAX_FLOOR_VALUE
-
     def get_weights(self):
         """
-        Returns the last retrieved list of weight values
-        :return:
+        Returns the last retrieved list of weight values.
+
+        Weights are a value between 0.0 and 1.0.
         """
         return self.weights
 
