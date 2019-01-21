@@ -7,6 +7,7 @@ from floor.controller import Layout
 from floor.controller.midi import MidiManager
 from floor.server.server import run_server
 from floor.processor import all_processors
+from floor.util.simple_profile import profile
 
 import argparse
 import importlib
@@ -25,11 +26,12 @@ DEFAULT_FLOOR_CONFIG_FILE = os.path.join(SCRIPT_DIR, 'config/floor-layout.json')
 
 logger = logging.getLogger('show')
 
+
 def load_driver(driver_name, driver_args):
     try:
         module = importlib.import_module("floor.driver.{}".format(driver_name))
     except ImportError as e:
-        logger.exception("Driver '{}' does not exist or could not be loaded".format(driver_name))
+        logger.exception("Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e))
         return None
 
     driver = getattr(module, driver_name.title())(driver_args)
@@ -103,6 +105,7 @@ def get_options():
     parser.set_defaults(opc_input=True, server_port=1977)
     return parser.parse_args()
 
+
 def main():
     args = get_options()
     log_level = logging.DEBUG if args.verbose else logging.INFO
@@ -153,8 +156,9 @@ def main():
         logger.info('Got CTRL-C, quitting.')
         sys.exit(0)
     except Exception as e:
-        logger.exception('Unexpected error, aborting.')
+        logger.exception('Unexpected error, aborting: {}'.format(e))
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

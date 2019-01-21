@@ -13,6 +13,7 @@ from floor.controller.rendering import PlaylistRenderLayer
 from floor.controller.rendering import ProcessorRenderLayer
 from floor.util.color_utils import blend_pixel_copy
 from floor.util.color_utils import normalize_pixel
+from floor.util.simple_profile import profile
 
 
 logger = logging.getLogger('controller')
@@ -125,6 +126,7 @@ class Controller(object):
         while True:
             self.run_one_frame()
 
+    @profile(print_seconds=2)
     def run_one_frame(self):
         if not self.playlist.is_running():
             # If the playlist is stopped/paused, sleep a bit then restart the loop
@@ -137,13 +139,16 @@ class Controller(object):
         self.transfer_data()
         self.delay()
 
+    @profile()
     def init_loop(self):
         self.frame_start = self.clocksource.time()
 
+    @profile()
     def prepare(self):
         for layer in self._iter_enabled_layers():
             layer.prepare()
 
+    @profile()
     def generate_frame(self):
         context = RenderContext(
             clock=self.frame_start,
@@ -170,6 +175,7 @@ class Controller(object):
         leds = map(lambda pixel: map(lambda color: color * self.brightness, pixel), composited_leds)
         self.driver.set_leds(leds)
 
+    @profile()
     def get_weights(self):
         weights = self.driver.get_weights()
         if self.SYNTHETIC_WEIGHT_ACTIVE:
@@ -180,10 +186,12 @@ class Controller(object):
 
         return weights
 
+    @profile()
     def transfer_data(self):
         self.driver.send_data()
         self.driver.read_data()
 
+    @profile()
     def delay(self):
         elapsed = self.clocksource.time() - self.frame_start
 
