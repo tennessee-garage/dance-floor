@@ -150,23 +150,22 @@ class Controller(object):
             bpm=self.bpm,
         )
 
-        leds = None
+        composited_leds = [(0, 0, 0)] * 64
         last_leds = None
         for layer in self._iter_enabled_layers():
-            leds = layer.render(context, leds=last_leds)
-            if leds and last_leds:
-                # Copy the returned buffer, since we'll likely be blending into it
-                # and cannot assume ownership.
-                leds = leds[:]
-                for idx, last_pixel in enumerate(last_leds):
-                    leds[idx] = blend_pixel_copy(last_pixel, leds[idx])
-            last_leds = leds
+            current_leds = layer.render(context, leds=last_leds)
+            if not current_leds:
+                continue
+            for idx, current_pixel in enumerate(current_leds):
+                if last_leds:
+                    last_pixel = last_leds[idx]
+                    composited_leds[idx] = blend_pixel_copy(last_pixel, current_pixel)
+                else:
+                    composited_leds[idx] = current_pixel
+            last_leds = current_leds
 
-        # If no layers are enabled, `leds` will be None and we shouldn't update the driver.
-        # TODO(mikey): Should we render a 'default' pattern in this case?
-        if leds:
-            leds = map(lambda pixel: map(lambda color: color * self.brightness, pixel), leds)
-            self.driver.set_leds(leds)
+        leds = map(lambda pixel: map(lambda color: color * self.brightness, pixel), composited_leds)
+        self.driver.set_leds(leds)
 
     def get_weights(self):
         weights = self.driver.get_weights()
