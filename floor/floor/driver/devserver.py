@@ -109,5 +109,5 @@ class Devserver(Base):
 
     def get_weights(self):
         now = time.time()
-        values = map(lambda t: 1.0 if (now - t) <= WEIGHT_ON_SECONDS else 0.0, FAKE_WEIGHTS)
+        values = map(lambda t: 1 if (now - t) <= WEIGHT_ON_SECONDS else 0, FAKE_WEIGHTS)
         return values

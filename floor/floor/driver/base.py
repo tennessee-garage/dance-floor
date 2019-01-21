@@ -16,7 +16,7 @@ class Base(object):
         """
         Returns the last retrieved list of weight values.
 
-        Weights are a value between 0.0 and 1.0.
+        Weights are an integer, either 0 (off) or 1 (on).
         """
         return self.weights
 

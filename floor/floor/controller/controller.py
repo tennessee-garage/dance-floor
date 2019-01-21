@@ -94,7 +94,7 @@ class Controller(object):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index] = 1.0
+        self.SYNTHETIC_WEIGHTS[index] = 1
         self.SYNTHETIC_WEIGHT_ACTIVE = True
 
     def square_weight_off(self, index):
