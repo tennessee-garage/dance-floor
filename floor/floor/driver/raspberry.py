@@ -165,7 +165,7 @@ class Raspberry(Base):
             self.value_ceiling[position] = max(self.value_ceiling[position], value)
             self.value_floor[position] = min(self.value_floor[position], value)
 
-            new_buf[position] = value
+            new_buf[position] = 1 if value else 0
 
         return new_buf
 
