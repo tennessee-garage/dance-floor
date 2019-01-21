@@ -1,7 +1,8 @@
 import random
 import time
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 import floor.util.color_utils as color
 
 
@@ -55,6 +56,7 @@ class Fishies(Base):
             fish['y'] = 7
             fish['dy'] = -1 * fish['dy']
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         if self.last_time is None:
             self.last_time = context.clock

@@ -1,6 +1,7 @@
 import importlib
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class Animator(Base):
@@ -18,6 +19,7 @@ class Animator(Base):
         self.animation_frame = 0
         self.fps_reduction = 2
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         pixels = self.animation[self.animation_frame]
 

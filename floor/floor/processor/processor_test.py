@@ -13,6 +13,10 @@ from floor.processor.base import Base as BaseProcessor
 from floor.processor.base import RenderContext
 
 
+TEST_FPS = 120
+TEST_SECONDS = 30
+
+
 def test_run_all_processors():
     """Run each processor for 30 fake seconds."""
     # Note: This test uses a fancy `nosetests` feature to generate
@@ -20,8 +24,8 @@ def test_run_all_processors():
     # a little nicer when a test fails. More info here:
     # https://nose.readthedocs.io/en/latest/writing_tests.html#test-generators
     fake_weights = [0] * 64
-    num_frames = 30 * 30
-    clock_time_per_frame = datetime.timedelta(seconds=1/30.0)
+    num_frames = TEST_FPS * TEST_SECONDS
+    clock_time_per_frame = datetime.timedelta(seconds=1/TEST_FPS)
 
     def run_test(processor_name, cls):
         with freeze_time('Jan 1, 2001') as fake_time:

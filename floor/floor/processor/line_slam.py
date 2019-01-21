@@ -2,9 +2,8 @@ import colorsys
 import math
 
 from floor.util.easing import Easing
-from utils import clocked
-
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class LineSlam(Base):
@@ -20,6 +19,7 @@ class LineSlam(Base):
         self.easing1 = Easing(duration=0.5, start=0.0, end=7.0)
         self.easing2 = Easing(duration=0.5, start=0.0, end=1.0)
 
+    @clocked(frames_per_second=120)
     def get_next_frame(self, context):
         if self.stage == 1:
             pixels = self.stage_1()

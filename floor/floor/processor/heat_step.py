@@ -1,4 +1,6 @@
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
+
 
 # Matrix of distances so we don't have to calculate them.  Distances
 # are from the corner at 0, 0.  Can be reflected over x or y to give distance
@@ -86,6 +88,7 @@ class HeatStep(Base):
         if self.secondary_hue > 1.0:
             self.secondary_hue -= 1.0
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
         self.set_secondary_hue()

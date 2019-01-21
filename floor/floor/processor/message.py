@@ -2,7 +2,8 @@ import os.path
 import colorsys
 import importlib
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class Message(Base):
@@ -123,6 +124,7 @@ class Message(Base):
 
         return rgb
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         pixels = []
         for row in range(0, 8):

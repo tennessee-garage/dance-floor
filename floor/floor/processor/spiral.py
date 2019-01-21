@@ -1,7 +1,8 @@
 import collections
 import colorsys
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 #  0  1  2  3  4  5  6  7
 #  8  9 10 11 12 13 14 15
@@ -73,7 +74,7 @@ class Spiral(Base):
         self.pixels = [[0 for _ in range(3)] for _ in range(64)]
         self.train = collections.deque([[0 for _ in range(3)] for _ in range(64)])
 
-#    @clocked(frames_per_beat=1)
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         self.hue += self.hue_drift
         # Wrap around if we hit 1.0

@@ -1,4 +1,5 @@
-from base import Base
+from floor.processor.base import Base
+
 
 RED = (0xff, 0x00, 0x00)
 YELLOW = (0xff, 0xf0, 0x00)

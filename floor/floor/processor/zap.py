@@ -1,7 +1,7 @@
 import collections
 
-from base import Base
-from utils import clocked
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 def tint(color, percent):

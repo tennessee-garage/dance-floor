@@ -1,6 +1,7 @@
 import random
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class Pulsar(Base):
@@ -71,6 +72,7 @@ class Pulsar(Base):
                 self.max_value*random.random()
             )
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
 

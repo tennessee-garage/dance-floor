@@ -2,7 +2,9 @@ import math
 import random
 import logging
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
+
 
 logger = logging.getLogger('electricity')
 
@@ -25,6 +27,7 @@ class Electricity(Base):
 
         self.pixels = [[0, 0, 0] for _ in range(64)]
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
         self.fade_frame()

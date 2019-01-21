@@ -1,6 +1,7 @@
 import math
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 from floor.util import color_utils
 
 
@@ -24,6 +25,7 @@ class RaverPlaid(Base):
 
         self.start_time = None
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         if self.start_time is None:
             self.start_time = context.clock

@@ -1,8 +1,8 @@
 import colorsys
 import math
-from utils import clocked
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 # The distance from the center for every square
@@ -53,6 +53,7 @@ class Ripple(Base):
         if self.hue > 1.0:
             self.hue -= 1.0
 
+    @clocked(frames_per_second=120)
     def get_next_frame(self, context):
         now = context.clock
 

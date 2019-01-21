@@ -1,7 +1,8 @@
 import time
 import math
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 import floor.util.color_utils as color
 
 
@@ -64,6 +65,7 @@ class Hyperspace(Base):
 
         return offset
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         if self.start_time is None:
             self.start_time = context.clock

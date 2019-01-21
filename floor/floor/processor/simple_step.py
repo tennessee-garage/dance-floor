@@ -1,4 +1,5 @@
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class SimpleStep(Base):
@@ -30,6 +31,7 @@ class SimpleStep(Base):
         self.green = 0
         self.blue = 0
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
         pixels = [(0, 0, 0)] * 64

@@ -1,4 +1,5 @@
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 from floor.util import color_utils
 
 
@@ -13,6 +14,7 @@ class TestStep(Base):
     def __init__(self):
         super(TestStep, self).__init__()
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
         pixels = []
