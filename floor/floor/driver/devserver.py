@@ -6,6 +6,7 @@ import collections
 import threading
 import json
 import logging
+import time
 logger = logging.getLogger('devserver')
 
 import gevent
@@ -27,6 +28,8 @@ WAITER = gevent.event.Event()
 MESSAGE_QUEUE = collections.deque()
 SOCKETS = set()
 
+FAKE_WEIGHTS = [0] * 64
+WEIGHT_ON_SECONDS = 1.0
 
 @sockets_app.route('/events')
 def echo_socket(ws):
@@ -35,7 +38,17 @@ def echo_socket(ws):
     try:
         while not ws.closed:
             message = ws.receive()
+            if not message:
+                continue
+            try:
+                message = json.loads(message)
+            except ValueError:
+                logger.warning('Ignoring unparseable JSON message: "{}"'.format(message))
             logger.info('Got message: {}'.format(message))
+            if message.get('event') == 'click':
+                pixel = message.get('payload', {}).get('pixel', None)
+                if pixel is not None and pixel <= 64 and pixel >= 0:
+                    FAKE_WEIGHTS[pixel] = time.time()
     finally:
         SOCKETS.remove(ws)
     logger.info('Socket disconnected.')
@@ -90,6 +103,6 @@ class Devserver(Base):
         pass
 
     def get_weights(self):
-        # Until the devserver responds to clicks again, return a fresh, cleared array of weight
-        # values so that any synthetic weights are not persisted
-        return [0] * 64
+        now = time.time()
+        values = map(lambda t: 1.0 if (now - t) <= WEIGHT_ON_SECONDS else 0.0, FAKE_WEIGHTS)
+        return values
