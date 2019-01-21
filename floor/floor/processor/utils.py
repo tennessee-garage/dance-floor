@@ -41,6 +41,9 @@ class clocked(object):
         self.next_time = None
 
     def __call__(self, fn, *args, **kwargs):
+        if self.frames_per_second:
+            fps_frame_period = 1.0 / self.frames_per_second
+
         def new_fn(*args, **kwargs):
             context = args[1]
             now = context.clock
@@ -58,7 +61,6 @@ class clocked(object):
 
             fps_deadline = None
             if self.frames_per_second:
-                fps_frame_period = 1.0 / self.frames_per_second
                 fps_deadline = now + fps_frame_period
             
             if bps_deadline is not None and fps_deadline is not None:
