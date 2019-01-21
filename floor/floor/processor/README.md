@@ -4,7 +4,7 @@
 
 1. Start with the skeleton for a processor:
 ```python
-from base import Base
+from floor.processor.base import Base
 
 
 class YourPattern(Base):

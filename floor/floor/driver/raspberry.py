@@ -29,7 +29,7 @@ class Raspberry(Base):
 
     # Define the order in which we output the LEDs.  This could be calculated
     # but spelling it out here to reduce the time to display a frame
-    tile_order = [
+    TILE_ORDER = [
         00,  1,  2,  3,  4,  5,  6,  7,
         15, 14, 13, 12, 11, 10,  9,  8,
         16, 17, 18, 19, 20, 21, 22, 23,
@@ -39,6 +39,8 @@ class Raspberry(Base):
         48, 49, 50, 51, 52, 53, 54, 55,
         63, 62, 61, 60, 59, 58, 57, 56,
     ]
+
+    NUM_TILES = len(TILE_ORDER)
 
     def __init__(self, args):
         super(Raspberry, self).__init__(args)
@@ -53,11 +55,11 @@ class Raspberry(Base):
         self.spi = module.SpiDev()
         self.spi.open(0, 0)
 
-        self.weights = [0 for _ in range(64)]
+        self.weights = [0] * self.NUM_TILES
 
         # The maximum value seen after filtering.
-        self.value_ceiling = [0 for _ in range(64)]
-        self.value_floor = [0 for _ in range(64)]
+        self.value_ceiling = [0] * self.NUM_TILES
+        self.value_floor = [0] * self.NUM_TILES
 
         self.reader = SerialRead()
 
@@ -66,8 +68,7 @@ class Raspberry(Base):
         :return:
         """
         data = list()
-        for led in self.tile_order:
-
+        for led in self.TILE_ORDER:
             # Don't add this data to the list if this tile has been bypassed
             if self.layout and self.layout.is_bypassed(led):
                 continue
@@ -136,7 +137,7 @@ class Raspberry(Base):
         log_line = "\n | "
 
         for packet in range(self.WEIGHT_PACKETS):
-            position = self.tile_order[packet]
+            position = self.TILE_ORDER[packet]
 
             log_line += "{}: {:>2} ({:>2}/{:>2}) | ".format(
                     position,
@@ -153,18 +154,18 @@ class Raspberry(Base):
 
     def process_bytes(self, data_bytes):
         # Pre-fill a 64 byte list
-        new_buf = [0 for _ in range(self.WEIGHT_PACKETS)]
+        new_buf = [0] * self.NUM_TILES
 
         for packet in range(self.WEIGHT_PACKETS):
             value = self.value_from_packet(data_bytes, packet)
 
-            # Use tile_order to map the single stream back to a left to right, left to right orders
-            position = self.tile_order[packet]
+            # Use TILE_ORDER to map the single stream back to a left to right, left to right orders
+            position = self.TILE_ORDER[packet]
 
             self.value_ceiling[position] = max(self.value_ceiling[position], value)
             self.value_floor[position] = min(self.value_floor[position], value)
 
-            new_buf[position] = value
+            new_buf[position] = 1 if value else 0
 
         return new_buf
 
@@ -176,7 +177,9 @@ class Raspberry(Base):
         hi = ord(data_bytes[idx])
         lo = ord(data_bytes[idx + 1])
         value = (hi << 8) + lo
-        if value >= self.floor_threshold or value <= self.MAX_FLOOR_VALUE:
-            return value
-        else:
+
+        if value < self.floor_threshold or value > self.MAX_FLOOR_VALUE:
             return 0
+
+        scaled_value = float(value) / self.MAX_FLOOR_VALUE
+        return scaled_value

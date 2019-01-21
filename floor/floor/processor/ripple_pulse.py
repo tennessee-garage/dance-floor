@@ -1,7 +1,6 @@
 import math
-from utils import clocked
-
-from ripple import Ripple
+from floor.processor.utils import clocked
+from floor.processor.ripple import Ripple
 
 
 class RipplePulse(Ripple):

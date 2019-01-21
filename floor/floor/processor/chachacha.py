@@ -1,8 +1,8 @@
 import collections
 import itertools
 
-from base import Base
-from utils import clocked
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 BLACK = (0, 0, 0)
 RED = (1, 0, 0)

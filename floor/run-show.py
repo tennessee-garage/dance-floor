@@ -2,9 +2,11 @@
 
 from floor.controller import Controller
 from floor.controller import Playlist
+from floor.controller.playlist import ProcessorNotFound
 from floor.controller import Layout
 from floor.controller.midi import MidiManager
 from floor.server.server import run_server
+from floor.processor import all_processors
 
 import argparse
 import importlib
@@ -31,7 +33,7 @@ def load_driver(driver_name, driver_args):
         return None
 
     driver = getattr(module, driver_name.title())(driver_args)
-    logger.info("Loaded driver '{}' with max LED value {}".format(driver_name, driver.MAX_LED_VALUE))
+    logger.info("Loaded driver '{}'".format(driver_name))
     return driver
 
 
@@ -52,8 +54,8 @@ def get_options():
     parser.add_argument(
         '--playlist',
         dest='playlist',
-        default=DEFAULT_PLAYLIST,
-        help='Load and run this playlist on start'
+        default=None,
+        help='Load this playlist instead of the default {}'.format(DEFAULT_PLAYLIST)
     )
     parser.add_argument(
         '--floor_config',
@@ -114,7 +116,22 @@ def main():
         logger.error('No driver, exiting.')
         sys.exit(1)
 
-    playlist = Playlist(args.playlist, args.processor_name)
+    if args.playlist and args.processor_name:
+        logger.error('Cannot provide both --playlist and --processor')
+        sys.exit(1)
+
+    playlist = Playlist(all_processors())
+    if args.processor_name:
+        try:
+            playlist.append(args.processor_name)
+        except ProcessorNotFound:
+            logger.error('Processor "{}" unknown'.format(args.processor_name))
+            sys.exit(1)
+    elif args.playlist:
+        playlist.load_from(args.playlist)
+    else:
+        playlist.load_from(DEFAULT_PLAYLIST)
+
     show = Controller(driver, playlist)
 
     if args.midi_server_port:

@@ -1,5 +1,5 @@
-from spiral import Spiral
-from utils import clocked
+from floor.processor.spiral import Spiral
+from floor.processor.utils import clocked
 
 
 class SpiralBeat(Spiral):

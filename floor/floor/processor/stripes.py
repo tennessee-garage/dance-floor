@@ -1,6 +1,7 @@
 import random
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 from floor.util import color_utils
 
 
@@ -45,6 +46,7 @@ class Stripes(Base):
 
         return Stripe(gradient, speed, direction)
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         pixels = []
 

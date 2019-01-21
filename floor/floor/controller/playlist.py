@@ -5,8 +5,17 @@ import logging
 logger = logging.getLogger('playlist')
 
 
+class PlaylistError(Exception):
+    """Top-level error for Playlist class."""
+
+
+class ProcessorNotFound(PlaylistError):
+    """Thrown when attempting to append an unknown processor."""
+
+
 class Playlist(object):
-    def __init__(self, filename=None, processor_name=None):
+    def __init__(self, all_processors):
+        self.all_processors = all_processors
         # The index into the queue array
         self.position = None
         # Time when the playlist should auto advance.
@@ -14,11 +23,18 @@ class Playlist(object):
         self.queue = []
         self.running = True
 
-        # If a processor_name was passed in, use it, otherwise read the config file
-        if processor_name:
-            self.append(processor_name)
-        elif filename:
-            self.load_from(filename)
+    @classmethod
+    def from_file(cls, all_processors, filename, strict=False):
+        playlist = cls(all_processors)
+        playlist.load_from(filename, strict=strict)
+        return playlist
+
+    @classmethod
+    def from_single_processor(cls, processor):
+        all_processors = [processor]
+        playlist = cls(all_processors)
+        playlist.append(processor.__class__.__name__)
+        return playlist
 
     @staticmethod
     def item(name, duration=0, args=None):
@@ -37,7 +53,7 @@ class Playlist(object):
         self.next_advance = None
         self.queue = []
 
-    def load_from(self, input_filename):
+    def load_from(self, input_filename, strict=False):
         """Replaces the current playlist with contents of the file."""
         self.clear()
         with open(input_filename) as json_data:
@@ -49,7 +65,13 @@ class Playlist(object):
                 except ValueError:
                     duration = 0
                 args = item.get('args')
-                self.append(name, duration, args)
+                try:
+                    self.append(name, duration, args)
+                except ProcessorNotFound as e:
+                    if strict:
+                        raise e
+                    else:
+                        logger.warning(e)
 
     def save_to(self, output_filename):
         playlist = {
@@ -87,11 +109,15 @@ class Playlist(object):
 
     def append(self, name, duration=0, args=None):
         """Add an item at the end of the playlist."""
+        if name not in self.all_processors:
+            raise ProcessorNotFound('Processor "{}" is unknown'.format(name))
         self.queue.append(Playlist.item(name, duration, args))
         return len(self.queue) - 1
 
     def insert_next(self, name, duration=0, args=None):
         """Add an item at the current position in the playlist."""
+        if name not in self.all_processors:
+            raise ProcessorNotFound('Processor "{}" is unknown'.format(name))
         position = self.position
         position = max(0, position)  # handle position=-1
         self.queue.insert(self.position, Playlist.item(name, duration, args))

@@ -1,6 +1,7 @@
 import datetime
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class Life(Base):
@@ -72,6 +73,7 @@ class Life(Base):
                         count += 1
         return count
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
         

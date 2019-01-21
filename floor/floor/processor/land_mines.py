@@ -1,7 +1,8 @@
 import random
 import math
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 import floor.util.color_utils as color_utils
 
 life_time = 4
@@ -53,6 +54,7 @@ class LandMines(Base):
     # 1. If delta_time < life_time/2 Increment by: velocity * delta_time / radius
     # 2. If delta_time > life_time/2 Decrement by: velocity * delta_time / radius
     # 3. If delta_time > life_time, remove mine
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
 
         chance = random.random()

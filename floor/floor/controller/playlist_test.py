@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import os
 from floor.controller.playlist import Playlist
+from floor.controller.playlist import ProcessorNotFound
 from floor.processor import all_processors
 from unittest import TestCase
 
@@ -13,8 +14,11 @@ DEFAULT_PLAYLIST = BASE_DIR + '/../../config/playlists/default.json'
 
 
 class PlaylistTest(TestCase):
+    def setUp(self):
+        self.all_procs = all_processors()
+
     def test_default_playlist(self):
-        p = Playlist(filename=DEFAULT_PLAYLIST)
+        p = Playlist.from_file(self.all_procs, DEFAULT_PLAYLIST, strict=True)
         self.assert_(len(p.queue) > 0, 'Expected non-zero default playlist.')
 
         all_procs = all_processors()
@@ -23,8 +27,5 @@ class PlaylistTest(TestCase):
             if name not in all_procs:
                 self.fail('Default playlist defines unknown processor "{}"'.format(name))
 
-    def test_with_processor_name(self):
-        valid_processor_names = ('Ripple', 'Spiral', 'Zap')
-        for processor_name in valid_processor_names:
-            p = Playlist(processor_name=processor_name)
-            self.assertEqual(1, len(p))
+        with self.assertRaises(ProcessorNotFound):
+            p.append('ZoopZap')

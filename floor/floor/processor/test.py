@@ -1,4 +1,5 @@
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class Test(Base):
@@ -11,9 +12,9 @@ class Test(Base):
 
         # helpful colors
         dark = (0, 0, 0)
-        red = (self.DEFAULT_MAX_VALUE, 0, 0)
-        blue = (0, self.DEFAULT_MAX_VALUE, 0)
-        green = (0, 0, self.DEFAULT_MAX_VALUE)
+        red = (self.max_value, 0, 0)
+        blue = (0, self.max_value, 0)
+        green = (0, 0, self.max_value)
 
         # define cycles
         self.cycles = []
@@ -50,6 +51,7 @@ class Test(Base):
             frame.append(initial_value)
         return frame
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         self.countdown -= 1
         if self.countdown == 0:

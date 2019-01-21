@@ -5,6 +5,9 @@ from __future__ import unicode_literals
 
 import logging
 import colorsys
+import sys
+
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class ProcessorRegistry(type):
@@ -14,9 +17,14 @@ class ProcessorRegistry(type):
     def __new__(cls, clsname, bases, attrs):
         new_class = super(ProcessorRegistry, cls).__new__(cls, clsname, bases, attrs)
         class_name = new_class.__name__
-        if class_name in cls.ALL_PROCESSORS:
-            raise ValueError('Multiple processors with name "{}" declared'.format(class_name))
-        cls.ALL_PROCESSORS[class_name] = new_class
+        if class_name != 'Base':
+            if class_name in cls.ALL_PROCESSORS:
+                existing_class = cls.ALL_PROCESSORS[class_name]
+                file1 = sys.modules[existing_class.__module__].__file__
+                file2 = sys.modules[new_class.__module__].__file__
+                files = ', '.join((file1, file2))
+                raise ValueError('Multiple processors with name "{}" declared: {}'.format(class_name, files))
+            cls.ALL_PROCESSORS[class_name] = new_class
         return new_class
 
 
@@ -38,7 +46,6 @@ class Base(object):
 
     CONTROLS = []
 
-    DEFAULT_MAX_VALUE = 1024
     FLOOR_WIDTH = 8
     FLOOR_HEIGHT = 8
     PIXELS_ALL_OFF = [[0 for _ in range(3)] for _ in range(64)]
@@ -47,9 +54,7 @@ class Base(object):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.weights = []
-        self.max_value = self.DEFAULT_MAX_VALUE
-        self.bpm = None
-        self.downbeat = None
+        self.max_value = COLOR_MAXIMUM
         self.ranged_values = []
 
         self._controls = []
@@ -116,35 +121,12 @@ class Base(object):
         (x, y) = pixel
         return (x * self.FLOOR_WIDTH) + y
 
-    def set_max_value(self, max_value):
-        self.max_value = max_value
-
     def get_next_frame(self, context):
         """
         Generate the LED values needed for the next frame
         :return:
         """
         pass
-
-    def requested_fps(self):
-        """
-        If this processor wants a specific FPS, it can override this method
-        :return: integer - a number giving the Frames per Second to run this processor at
-        """
-        return None
-
-    def set_bpm(self, bpm, downbeat):
-        """
-        Sets the current BPM and the time of the downbeat.
-
-        Args
-            bpm: float number of beats per minute
-            downbeat: timestamp corresponding to the first beat of a new
-                measure.
-        """
-        assert downbeat is not None
-        self.bpm = bpm
-        self.downbeat = downbeat
 
     def on_ranged_value_change(self, num, val):
         if num >= len(self._controls):

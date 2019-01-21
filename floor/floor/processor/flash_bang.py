@@ -1,7 +1,8 @@
 import random
 import math
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class FlashBang(Base):
@@ -150,6 +151,7 @@ class FlashBang(Base):
         else:
             return 1/(distance**2)
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         pixels = []
         self.append_burst_pixels(pixels)

@@ -1,4 +1,5 @@
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 
 
 class ColorWash(Base):
@@ -8,6 +9,7 @@ class ColorWash(Base):
         self.green = 0
         self.blue = 0
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         pixels = []
 

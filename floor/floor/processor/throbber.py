@@ -1,4 +1,5 @@
-from base import Base
+from floor.processor.base import Base
+
 
 RED = (0xff, 0x00, 0x00)
 YELLOW = (0xff, 0xf0, 0x00)
@@ -19,9 +20,9 @@ class Throbber(Base):
 
     def get_next_frame(self, context):
         now = context.clock
-        downbeat = self.downbeat or now
+        downbeat = context.downbeat or now
 
-        seconds_per_measure = (1 / (self.bpm / 60.0)) * 4
+        seconds_per_measure = (1 / (context.bpm / 60.0)) * 4
         position_in_measure = (now - downbeat) % seconds_per_measure
         beat_in_measure = int(position_in_measure / seconds_per_measure * 4)
 

@@ -1,6 +1,7 @@
 import random
 
-from base import Base
+from floor.processor.base import Base
+from floor.processor.utils import clocked
 import floor.util.color_utils as color
 
 
@@ -33,6 +34,7 @@ class Kaleidoscope(Base):
             frame.append((0, 0, 0))
         return frame
 
+    @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         # Read from weight input
         self.handle_weight_input(context)

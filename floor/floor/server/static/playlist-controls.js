@@ -59,6 +59,7 @@ function getStatus() {
         var playlist = response.data.playlist;
         handlePlaylistUpdate(response.data.playlist);
         handleTempoUpdate(response.data.tempo);
+        handleBrightnessUpdate(response.data.brightness);
         rescheduleRefresh();
     }).catch(function (error) {
         handleError(error);
@@ -146,6 +147,24 @@ function handleTempoUpdate(tempoData) {
     status.value = tempoData.bpm;
 }
 
+function setBrightness(brightness) {
+    var data = {
+        brightness: brightness,
+    };
+    console.log('Setting brightness to: ', brightness);
+    return axios.post('/api/brightness', data).then(function (response) {
+        handleBrightnessUpdate(response.data.brightness);
+    }).catch(function (error) {
+        handleError(error);
+    });
+}
+
+function handleBrightnessUpdate(brightnessValue) {
+    var brightness = document.getElementById('brightness');
+    var strValue = brightnessValue.toFixed(1);
+    brightness.value = strValue;
+}
+
 function resetBpmTapper() {
     var tapper = document.getElementById('tapper');
     tapper.innerHTML = 'Tap BPM';
@@ -212,6 +231,11 @@ function onDownbeatNudgedRight() {
     nudgeTempo(null, 100);
 }
 
+function onBrightnessChanged(e) {
+    var value = e.target.value
+    setBrightness(value);
+}
+
 function installListeners() {
     $('#start-button').click(function () {
         start_show();
@@ -242,6 +266,9 @@ function installListeners() {
     });
     $('#downbeat-nudge-right').click(function () {
         onDownbeatNudgedRight();
+    });
+    $('#brightness').change(function (e) {
+        onBrightnessChanged(e);
     });
 }
 

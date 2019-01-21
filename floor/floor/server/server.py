@@ -4,6 +4,7 @@ import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
 
 from floor.controller import Controller
+from floor.controller.playlist import ProcessorNotFound
 
 MIN_BPM = 40
 MAX_BPM = 220
@@ -58,12 +59,23 @@ def view_processors(processors):
     return ret
 
 
+def view_all_layers(layers):
+    result = {}
+    for k, v in layers.items():
+        if k == 'playlist':
+            continue
+        result[k] = view_processor_layer(v)
+    return result
+
+
 @app.route('/api/status', methods=['GET'])
 def api_status():
     result = {
         'playlist': view_playlist(app.controller.playlist),
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
-        'processors': view_processors(app.controller.processors),
+        'processors': view_processors(app.controller.all_processors),
+        'layers': view_all_layers(app.controller.layers),
+        'brightness': float(app.controller.brightness),
     }
     return jsonify(result)
 
@@ -114,17 +126,15 @@ def api_playlist_add():
     if not name:
         abort(400, 'Missing `name` parameter.')
 
-    # Validate args... sorta :-x
-    try:
-        app.controller.build_processor(name, args)
-    except ValueError as e:
-        abort(400, str(e))
-
     playlist = app.controller.playlist
-    if play_next:
-        position = playlist.append(name, duration, args)
-    else:
-        position = playlist.insert_next(name, duration, args)
+    try:
+        if play_next:
+            position = playlist.append(name, duration, args)
+        else:
+            position = playlist.insert_next(name, duration, args)
+    except ProcessorNotFound as e:
+        abort(400, str(e))
+        return
 
     if immediate:
         playlist.go_to(position)
@@ -188,6 +198,22 @@ def api_tempo_nudge():
     return jsonify(view_tempo(controller.bpm, controller.downbeat))
 
 
+@app.route('/api/brightness', methods=['GET', 'POST'])
+def api_brightness():
+    controller = app.controller
+    if request.method == 'POST':
+        content = request.get_json(silent=True)
+        brightness = content.get('brightness')
+        if brightness is None:
+            abort(400, 'Must give brightness.')
+        brightness = float(brightness)
+        if brightness < 0.0 or brightness > 1.0:
+            abort(400, 'Value must be on range 0.0-1.0')
+        controller.set_brightness(brightness)
+
+    return jsonify({'brightness': float(controller.brightness)})
+
+
 @app.route('/api/layout', methods=['POST'])
 def api_layout():
     """
@@ -195,6 +221,44 @@ def api_layout():
     :return:
     """
     pass
+
+
+def view_processor_layer(layer):
+    return {
+        'enabled': layer.is_enabled(),
+        'processor_name': layer.get_processor_name(),
+    }
+
+
+@app.route('/api/layers/<string:layer_name>', methods=['GET', 'PATCH'])
+def api_layer_detail(layer_name):
+    if layer_name == 'playlist':
+        abort(400, 'Playlist layer is not supported by this API.')
+        return
+
+    layer = app.controller.layers.get(layer_name)
+    if not layer:
+        abort(404, 'Unknown layer.')
+        return
+
+    if request.method == 'PATCH':
+        content = request.get_json(silent=True)
+
+        enabled = content.get('enabled')
+        if enabled is not None:
+            layer.set_enabled(enabled)
+
+        processor_name = content.get('processor_name')
+        if processor_name == '':
+            layer.set_processor(None)
+        else:
+            processor = app.controller.all_processors.get(processor_name)
+            if not processor:
+                abort(400, 'Processor "{}" not found'.format(processor_name))
+                return
+            layer.set_processor(processor())
+
+    return jsonify(view_processor_layer(layer))
 
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):
