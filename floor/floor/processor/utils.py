@@ -37,7 +37,7 @@ class clocked(object):
             raise ValueError('Must provide frames_per_beat and/or frames_per_second')
         self.frames_per_beat = frames_per_beat
         self.frames_per_second = frames_per_second
-        self.current_frame = None
+        self.last_retval = None
         self.next_time = None
 
     def __call__(self, fn, *args, **kwargs):
@@ -46,8 +46,8 @@ class clocked(object):
             now = context.clock
 
             # Too soon, return current frame.
-            if self.current_frame and self.next_time and now < self.next_time:
-                return self.current_frame
+            if self.next_time and now < self.next_time:
+                return self.last_retval
 
             bps_deadline = None
             if self.frames_per_beat:
@@ -71,6 +71,6 @@ class clocked(object):
             self.next_time = next_time
 
             # Generate a new frame and return it.
-            self.current_frame = fn(*args, **kwargs)
-            return self.current_frame
+            self.last_retval = fn(*args, **kwargs)
+            return self.last_retval
         return new_fn
