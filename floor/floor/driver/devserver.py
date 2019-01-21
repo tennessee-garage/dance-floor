@@ -17,6 +17,7 @@ from flask import render_template
 from flask_sockets import Sockets
 
 from floor.driver.base import Base
+from floor.processor.constants import COLOR_MAXIMUM
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'devserver')
@@ -90,9 +91,13 @@ class Devserver(Base):
         self.thr.daemon = True
         self.thr.start()
 
+    @classmethod
+    def rescale_color_value(cls, color_value):
+        """Convert processor pixels to CSS-compatible values on [0, 256)."""
+        return (color_value / float(COLOR_MAXIMUM)) * 256.0
+
     def send_data(self):
-        # Ensure all RGB values are integral.
-        leds = [map(int, pixel) for pixel in self.leds]
+        leds = [map(self.rescale_color_value, pixel) for pixel in self.leds]
         message = {
             "event": "leds",
             "payload": leds,
