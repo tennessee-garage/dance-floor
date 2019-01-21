@@ -97,12 +97,12 @@ class Zap(Base):
         self.last_downbeat = None
         self.beat_counter = 0
 
-    def change_color_if_needed(self):
+    def change_color_if_needed(self, context):
         if self.last_downbeat is None:
-            self.last_downbeat = self.downbeat
-        elif self.downbeat != self.last_downbeat:
+            self.last_downbeat = context.downbeat
+        elif context.downbeat != self.last_downbeat:
             self.beat_counter = 0
-            self.last_downbeat = self.downbeat
+            self.last_downbeat = context.downbeat
 
         if self.beat_counter % 4 == 0:
             self.frame_sets.rotate(1)
@@ -112,7 +112,7 @@ class Zap(Base):
 
     @clocked(frames_per_beat=1)
     def get_next_frame(self, context):
-        self.change_color_if_needed()
+        self.change_color_if_needed(context)
         frame = self.frames[0]
         self.frames.rotate(-1)
         return frame

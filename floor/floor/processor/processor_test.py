@@ -27,7 +27,6 @@ def test_run_all_processors():
         with freeze_time('Jan 1, 2001') as fake_time:
             now = time.time()
             instance = cls()
-            instance.set_bpm(120, downbeat=now)
             for i in xrange(num_frames):
                 context = RenderContext(
                     clock=now,

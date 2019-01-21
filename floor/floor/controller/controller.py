@@ -68,8 +68,6 @@ class Controller(object):
         logger.info('Setting bpm to: {}'.format(bpm))
         self.bpm = float(bpm)
         self.downbeat = downbeat or self.clocksource.time()
-        if self.processor:
-            self.processor.set_bpm(bpm, self.downbeat)
 
     def scale_brightness(self, factor):
         """Scale the default brightness from 0 to max for driver

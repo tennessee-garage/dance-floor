@@ -49,8 +49,6 @@ class Base(object):
 
         self.weights = []
         self.max_value = self.DEFAULT_MAX_VALUE
-        self.bpm = None
-        self.downbeat = None
         self.ranged_values = []
 
         self._controls = []
@@ -133,19 +131,6 @@ class Base(object):
         :return: integer - a number giving the Frames per Second to run this processor at
         """
         return None
-
-    def set_bpm(self, bpm, downbeat):
-        """
-        Sets the current BPM and the time of the downbeat.
-
-        Args
-            bpm: float number of beats per minute
-            downbeat: timestamp corresponding to the first beat of a new
-                measure.
-        """
-        assert downbeat is not None
-        self.bpm = bpm
-        self.downbeat = downbeat
 
     def on_ranged_value_change(self, num, val):
         if num >= len(self._controls):
