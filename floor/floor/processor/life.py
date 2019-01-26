@@ -2,6 +2,7 @@ import datetime
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Life(Base):
@@ -92,7 +93,7 @@ class Life(Base):
 
         # render active_px
         dark = (0, 0, 0)
-        bright = (self.max_value, self.max_value, self.max_value)
+        bright = (COLOR_MAXIMUM, COLOR_MAXIMUM, COLOR_MAXIMUM)
         pixels = []
         for y in range(0, self.FLOOR_HEIGHT):
             for x in range(0, self.FLOOR_WIDTH):

@@ -3,6 +3,7 @@ import random
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 from floor.util import color_utils
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Stripes(Base):
@@ -13,7 +14,7 @@ class Stripes(Base):
 
     def __init__(self, **kwargs):
         super(Stripes, self).__init__(**kwargs)
-        self.palette = color_utils.get_random_palette(self.max_value)
+        self.palette = color_utils.get_random_palette(COLOR_MAXIMUM)
         self.gradient = [[] for _ in range(len(self.palette))]
         self.stripes = [None for _ in range(8)]  # list[Stripe]
 

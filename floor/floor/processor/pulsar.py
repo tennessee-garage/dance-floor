@@ -2,6 +2,7 @@ import random
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Pulsar(Base):
@@ -57,9 +58,9 @@ class Pulsar(Base):
         for i in range(0, 64):
             if weights[i] > 0:
                 self.pixels[i] = (
-                    self.max_value * random.random(),
-                    self.max_value * random.random(),
-                    self.max_value * random.random())
+                    COLOR_MAXIMUM * random.random(),
+                    COLOR_MAXIMUM * random.random(),
+                    COLOR_MAXIMUM * random.random())
 
     def random_weight_input(self):
         count = random.randint(1, 5)
@@ -67,9 +68,9 @@ class Pulsar(Base):
             # index: pick a random square for the source
             index = random.randint(0, 63)
             self.pixels[index] = (
-                self.max_value*random.random(),
-                self.max_value*random.random(),
-                self.max_value*random.random()
+                COLOR_MAXIMUM * random.random(),
+                COLOR_MAXIMUM * random.random(),
+                COLOR_MAXIMUM * random.random()
             )
 
     @clocked(frames_per_second=24)
@@ -106,7 +107,7 @@ class Pulsar(Base):
         # propagate the blossoms
         self_decay = 0.9
         wave_decay = 0.5
-        adjusted_max = 0.8 * self.max_value
+        adjusted_max = 0.8 * COLOR_MAXIMUM
 
         next_pixels = []
         for y in range(0, 8):

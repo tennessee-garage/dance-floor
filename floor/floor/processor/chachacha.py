@@ -3,6 +3,7 @@ import itertools
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 BLACK = (0, 0, 0)
 RED = (1, 0, 0)
@@ -33,6 +34,6 @@ class ChaChaCha(Base):
     def get_next_frame(self, context):
         lines = list(itertools.islice(self.lines, 0, 8))
         self.lines.rotate()
-        pixels = [(pixel[0] * self.max_value, pixel[1] * self.max_value, pixel[2] * self.max_value)
+        pixels = [(pixel[0] * COLOR_MAXIMUM, pixel[1] * COLOR_MAXIMUM, pixel[2] * COLOR_MAXIMUM)
                   for line in lines for pixel in line]
         return pixels

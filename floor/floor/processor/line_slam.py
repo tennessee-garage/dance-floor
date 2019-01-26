@@ -4,6 +4,7 @@ import math
 from floor.util.easing import Easing
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class LineSlam(Base):
@@ -51,9 +52,9 @@ class LineSlam(Base):
         for y in range(8):
             for x in range(8):
                 if y == int(cur):
-                    pixels.append((int(self.max_value * pre), 0, 0))
+                    pixels.append((int(COLOR_MAXIMUM * pre), 0, 0))
                 elif y == int(cur+1):
-                    pixels.append((int(self.max_value * post), 0, 0))
+                    pixels.append((int(COLOR_MAXIMUM * post), 0, 0))
                 else:
                     pixels.append((0, 0, 0))
 
@@ -72,7 +73,7 @@ class LineSlam(Base):
             for x in range(8):
                 if y == 7:
                     r, g, b = colorsys.hsv_to_rgb(0.0, cur, 1.0 - cur)
-                    pixels.append((self.max_value * r, self.max_value * g, self.max_value * b))
+                    pixels.append((COLOR_MAXIMUM * r, COLOR_MAXIMUM * g, COLOR_MAXIMUM * b))
                 else:
                     pixels.append((0, 0, 0))
 

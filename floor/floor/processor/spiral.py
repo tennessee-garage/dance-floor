@@ -3,6 +3,7 @@ import colorsys
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 #  0  1  2  3  4  5  6  7
 #  8  9 10 11 12 13 14 15
@@ -88,7 +89,7 @@ class Spiral(Base):
         self.count = (self.count + 1) % self.count_mod
 
         r, g, b = colorsys.hsv_to_rgb(jump_hue, self.sat, self.val)
-        pixel = [r * self.max_value, g * self.max_value, b * self.max_value]
+        pixel = [r * COLOR_MAXIMUM, g * COLOR_MAXIMUM, b * COLOR_MAXIMUM]
 
         self.train.pop()
         self.train.appendleft(pixel)

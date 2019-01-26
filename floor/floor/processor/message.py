@@ -4,6 +4,7 @@ import importlib
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Message(Base):
@@ -118,9 +119,9 @@ class Message(Base):
         rgb_float = colorsys.hsv_to_rgb(self.hue, self.saturation, self.value)
         rgb = list()
 
-        rgb.append(int(rgb_float[0] * self.max_value))
-        rgb.append(int(rgb_float[1] * self.max_value))
-        rgb.append(int(rgb_float[2] * self.max_value))
+        rgb.append(int(rgb_float[0] * COLOR_MAXIMUM))
+        rgb.append(int(rgb_float[1] * COLOR_MAXIMUM))
+        rgb.append(int(rgb_float[2] * COLOR_MAXIMUM))
 
         return rgb
 

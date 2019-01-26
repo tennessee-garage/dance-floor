@@ -1,5 +1,7 @@
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Test(Base):
@@ -12,9 +14,9 @@ class Test(Base):
 
         # helpful colors
         dark = (0, 0, 0)
-        red = (self.max_value, 0, 0)
-        blue = (0, self.max_value, 0)
-        green = (0, 0, self.max_value)
+        red = (COLOR_MAXIMUM, 0, 0)
+        blue = (0, COLOR_MAXIMUM, 0)
+        green = (0, 0, COLOR_MAXIMUM)
 
         # define cycles
         self.cycles = []
