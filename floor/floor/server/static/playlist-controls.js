@@ -1,6 +1,7 @@
 var refreshHandle;
 var bpmSamples = [];
 var bpmAbortTimeoutHandle;
+var lastStatus = null;
 
 function handleShowStart() {
     console.log('Playlist started');
@@ -30,12 +31,13 @@ function handlePlaylistUpdate(playlist) {
     var time_indicator = '';
     listGroup.className = 'list-group';
 
+    var activeElement = null;
     for (var i = 0; i < playlist.queue.length; i++) {
         var playlistItem = document.createElement('a');
         var isActive = (i === playlist.current_position);
 
-
         if (isActive) {
+            activeElement = playlistItem;
             playlistItem.className = 'list-group-item list-group-item-success';
 
             var seconds_remaining = parseInt(playlist.millis_remaining/1000);
@@ -52,15 +54,20 @@ function handlePlaylistUpdate(playlist) {
 
     playlistDiv.innerHTML = '';
     playlistDiv.appendChild(listGroup);
+
+    if (activeElement) {
+        activeElement.scrollIntoView();
+    }
 }
 
 function getStatus() {
     return axios.get('/api/status').then(function (response) {
-        var playlist = response.data.playlist;
         handlePlaylistUpdate(response.data.playlist);
         handleTempoUpdate(response.data.tempo);
         handleBrightnessUpdate(response.data.brightness);
+        handleLayersUpdate(response.data.layers, response.data.processors);
         rescheduleRefresh();
+        lastStatus = response.data;
     }).catch(function (error) {
         handleError(error);
         rescheduleRefresh();
@@ -145,6 +152,60 @@ function nudgeTempo(bpmDelta, downbeatMillisDelta) {
 function handleTempoUpdate(tempoData) {
     var status = document.getElementById('bpm');
     status.value = tempoData.bpm;
+}
+
+function setLayer(layerName, processorName) {
+    var data = {
+        processor_name: processorName,
+    };
+    return axios.patch('/api/layers/' + layerName, data).then(function (response) {
+        return getStatus();
+    }).catch(function (error) {
+        handleError(error);
+    });
+}
+
+function hackyDeepEqual(a, b) {
+    return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function handleLayersUpdate(layers, processors) {
+    if (lastStatus && hackyDeepEqual(layers, lastStatus.layers)) {
+        return;
+    }
+
+    Object.entries(layers).forEach(function (layerEntry) {
+        var layerName = layerEntry[0];
+        var layerDetail = layerEntry[1];
+        var currentProcessor = layerDetail.processor_name;
+
+        var layerSelect = document.createElement('select');
+        layerSelect.className = 'form-control'
+        layerSelect.id = layerName + '_select';
+
+        var blank = document.createElement('option');
+        blank.value = '';
+        blank.text = '(inactive)';
+        layerSelect.add(blank);
+
+        Object.entries(processors).forEach(function (entry) {
+            var processorName = entry[0];
+            var option = document.createElement('option');
+            option.value = processorName;
+            option.text = processorName;
+            layerSelect.add(option);
+        });
+        layerSelect.value = currentProcessor;
+
+        var element = document.getElementById(layerName + '_controls');
+        element.innerHTML = '';
+        element.appendChild(layerSelect);
+
+        layerSelect.addEventListener('change', function (e) {
+            var newValue = e.target.value || '';
+            setLayer(layerName, newValue);
+        });
+    });
 }
 
 function setBrightness(brightness) {

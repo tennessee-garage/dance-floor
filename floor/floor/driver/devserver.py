@@ -14,7 +14,7 @@ import gevent
 from geventwebsocket.handler import WebSocketHandler
 
 from flask import Flask
-from flask import render_template
+from flask import render_template, request
 from flask_sockets import Sockets
 
 from floor.driver.base import Base
@@ -57,8 +57,11 @@ def echo_socket(ws):
 
 
 @app.route('/')
-def hello():
-    return render_template('index.html')
+def devserver_main():
+    # "Embedded" mode means the devserver is being shown in an iframe, eg
+    # from the control server. The template will hide some things in this mode.
+    is_embedded = request.args.get('is_embedded', '') == 'true'
+    return render_template('index.html', is_embedded=is_embedded)
 
 
 def sender():

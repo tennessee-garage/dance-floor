@@ -7,12 +7,28 @@ body {
 .playlist-button {
   min-height: 48px;
 }
+
+#playlist {
+  max-height: 200px;
+  overflow: scroll;
+}
+
 #tapper {
   margin-top: 24px;
   min-height: 128px;
 }
+
 #bpm-status {
   font-style: italic;
+}
+
+#floor-preview {
+  
+}
+
+#floor-preview-frame {
+  width: 100%;
+  border: 1px solid #ccc;
 }
 
 div.tile {
