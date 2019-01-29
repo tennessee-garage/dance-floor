@@ -3,6 +3,7 @@ import math
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class FlashBang(Base):
@@ -32,11 +33,11 @@ class FlashBang(Base):
         self.burst_decay = self.BURST_DECAY_MAX
         self.burst_intensity = self.BURST_INTENSITY_MAX
 
-        self.burst_red = self.max_value
-        self.burst_green = self.max_value
-        self.burst_blue = self.max_value
+        self.burst_red = COLOR_MAXIMUM
+        self.burst_green = COLOR_MAXIMUM
+        self.burst_blue = COLOR_MAXIMUM
 
-        self.sparkle_trigger = self.SPARKLE_TRIGGER_MAX * self.max_value
+        self.sparkle_trigger = self.SPARKLE_TRIGGER_MAX * COLOR_MAXIMUM
         self.sparkle_start = False
         self.sparkling = False
 
@@ -90,9 +91,9 @@ class FlashBang(Base):
 
         burst_x = random.randint(0, 7)
         burst_y = random.randint(0, 7)
-        self.burst_red = random.randint(int(self.max_value * 0.8), self.max_value*2)
-        self.burst_green = random.randint(int(self.max_value * 0.8), self.max_value*2)
-        self.burst_blue = random.randint(int(self.max_value * 0.8), self.max_value*2)
+        self.burst_red = random.randint(int(COLOR_MAXIMUM * 0.8), COLOR_MAXIMUM*2)
+        self.burst_green = random.randint(int(COLOR_MAXIMUM * 0.8), COLOR_MAXIMUM*2)
+        self.burst_blue = random.randint(int(COLOR_MAXIMUM * 0.8), COLOR_MAXIMUM*2)
 
         for x in range(0, 8):
             for y in range(0, 8):

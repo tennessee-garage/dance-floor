@@ -4,6 +4,7 @@ import logging
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 logger = logging.getLogger('electricity')
@@ -58,7 +59,7 @@ class Electricity(Base):
 
         for idx, val in enumerate(arc.frame):
             if len(val) > 0:
-                self.pixels[idx] = val  # [val * self.max_value, val * self.max_value, val * self.max_value]
+                self.pixels[idx] = val  # [val * COLOR_MAXIMUM, val * COLOR_MAXIMUM, val * COLOR_MAXIMUM]
 
     def fade_frame(self):
         for idx in range(64):

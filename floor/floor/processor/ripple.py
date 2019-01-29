@@ -3,6 +3,7 @@ import math
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 # The distance from the center for every square
@@ -74,7 +75,7 @@ class Ripple(Base):
             else:
                 r, g, b = colorsys.hsv_to_rgb(self.hue, 0.5, -1 * factor)
 
-            pixels.append([r * self.max_value, g * self.max_value, b * self.max_value])
+            pixels.append([r * COLOR_MAXIMUM, g * COLOR_MAXIMUM, b * COLOR_MAXIMUM])
 
         return pixels
 

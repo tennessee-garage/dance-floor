@@ -18,7 +18,7 @@ class YourPattern(Base):
 
         # Do something with list of context.weight values
 
-        # Compute a list of RGB tuples, limit by self.max_value
+        # Compute a list of RGB tuples, limit by COLOR_MAXIMUM
         # which gets set for you based on driver at object creation
 
         return pixels

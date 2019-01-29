@@ -3,6 +3,7 @@ import math
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 from floor.util import color_utils
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class RaverPlaid(Base):
@@ -43,13 +44,13 @@ class RaverPlaid(Base):
 
             # 3 sine waves for r, g, b which are out of sync with each other
             r = blackstripes * color_utils.remap(
-                math.cos((t / self.speed_r + pct * self.freq_r) * math.pi * 2), -1, 1, 0, self.max_value)
+                math.cos((t / self.speed_r + pct * self.freq_r) * math.pi * 2), -1, 1, 0, COLOR_MAXIMUM)
 
             g = blackstripes * color_utils.remap(
-                math.cos((t / self.speed_g + pct * self.freq_g) * math.pi * 2), -1, 1, 0, self.max_value)
+                math.cos((t / self.speed_g + pct * self.freq_g) * math.pi * 2), -1, 1, 0, COLOR_MAXIMUM)
 
             b = blackstripes * color_utils.remap(
-                math.cos((t / self.speed_b + pct * self.freq_b) * math.pi * 2), -1, 1, 0, self.max_value)
+                math.cos((t / self.speed_b + pct * self.freq_b) * math.pi * 2), -1, 1, 0, COLOR_MAXIMUM)
 
             pixels.append((r, g, b))
 

@@ -3,6 +3,7 @@ import math
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Balls(Base):
@@ -19,9 +20,9 @@ class Balls(Base):
         self.in_flight = []
 
     def rand_color(self):
-        return [random.randrange(self.max_value),
-                random.randrange(self.max_value),
-                random.randrange(self.max_value)]
+        return [random.randrange(COLOR_MAXIMUM),
+                random.randrange(COLOR_MAXIMUM),
+                random.randrange(COLOR_MAXIMUM)]
 
     def can_spawn_ball(self):
         """Max self.spawn_chance chance of spawning a ball, modulated by a sine curve.

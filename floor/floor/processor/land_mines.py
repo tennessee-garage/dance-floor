@@ -4,6 +4,7 @@ import math
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 import floor.util.color_utils as color_utils
+from floor.processor.constants import COLOR_MAXIMUM
 
 life_time = 4
 
@@ -14,7 +15,7 @@ class LandMines(Base):
         self.pixels = []
         self.mines = []
         self.walkers = self.init_walkers()
-        self.palette = color_utils.get_random_palette(self.max_value)
+        self.palette = color_utils.get_random_palette(COLOR_MAXIMUM)
         self.palette_length = len(self.palette)
         for x in range(0, 8):
             for y in range(0, 8):
@@ -67,7 +68,7 @@ class LandMines(Base):
             self.pixels[mine['y']*8 + mine['x']] = mine['color']
 
         time_delta = 0.1
-        velocity = 0.0003 * self.max_value
+        velocity = 0.0003 * COLOR_MAXIMUM
         live_mines = []
         for index in xrange(len(self.mines)):
             mine = self.mines[index]

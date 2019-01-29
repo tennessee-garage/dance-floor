@@ -4,6 +4,7 @@ import math
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
+from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Fire(Base):
@@ -40,9 +41,9 @@ class Fire(Base):
             if row_pos <= 7:
                 index = int(round(ember.position)) + (ember.row*8)
                 r, g, b = colorsys.hsv_to_rgb(ember.hue, 1.0, 1.0)
-                pixels[index] = [int(r*self.max_value),
-                                 int(g*self.max_value),
-                                 int(b*self.max_value)]
+                pixels[index] = [int(r * COLOR_MAXIMUM),
+                                 int(g * COLOR_MAXIMUM),
+                                 int(b * COLOR_MAXIMUM)]
 
             ember.run()
 

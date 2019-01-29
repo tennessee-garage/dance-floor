@@ -54,7 +54,6 @@ class Base(object):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.weights = []
-        self.max_value = COLOR_MAXIMUM
         self.ranged_values = []
 
         self._controls = []
@@ -143,9 +142,9 @@ class Base(object):
         """Convert a pixel tuple of [h, s, v] to a tuple of [r, g, b]
 
         HSV values are assumed to range from 0.0 to 1.0
-        RGB values are adjusted to range from 0 to self.max_value
+        RGB values are adjusted to range from 0 to COLOR_MAXIMUM
         """
-        return [int(v * self.max_value) for v in colorsys.hsv_to_rgb(p[0], p[1], p[2])]
+        return [int(v * COLOR_MAXIMUM) for v in colorsys.hsv_to_rgb(p[0], p[1], p[2])]
 
     def hsv_to_rgb_pixels(self, pixels):
         """Convert an array of HSV pixels to an array of RGB pixels"""
