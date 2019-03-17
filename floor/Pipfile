@@ -8,6 +8,7 @@ nose = "*"
 mock = "*"
 freezegun = "*"
 e1839a8 = {path = ".",editable = true}
+future = "*"
 
 [packages]
 pyserial = "*"
