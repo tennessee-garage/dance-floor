@@ -61,7 +61,7 @@ class MidiMapping(object):
 
     def to_json(self):
         mappings_list = []
-        for command, func in self.mappings.iteritems():
+        for command, func in self.mappings.items():
             mappings_list.append({
                 'command': command,
                 'function': func.name,

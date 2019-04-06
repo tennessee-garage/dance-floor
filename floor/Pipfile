@@ -22,5 +22,3 @@ gevent = "*"
 show = "python run-show.py"
 benchmark = "python bin/benchmark.py"
 
-[requires]
-python_version = "2.7"
