@@ -1,3 +1,4 @@
+from builtins import range
 import datetime
 import mock
 from unittest import TestCase
@@ -25,7 +26,7 @@ class UtilsTestCase(TestCase):
 
         # Any number of subsequent calls, without advancing time, will not
         # call the underlying wrapped function.
-        for i in xrange(100):
+        for i in range(100):
             ret = fn(processor, RenderContext(clock, downbeat, weights, bpm))
             self.assertEqual('a', ret)
             self.assertEqual(1, wrapped_fn.call_count)

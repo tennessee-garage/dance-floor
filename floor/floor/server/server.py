@@ -1,3 +1,4 @@
+from builtins import str
 import os
 import time
 import threading
@@ -52,7 +53,7 @@ def view_tempo(bpm, downbeat):
 
 def view_processors(processors):
     ret = {}
-    for k, v in processors.iteritems():
+    for k, v in processors.items():
         ret[k] = {
             'name': k,
         }
@@ -61,7 +62,7 @@ def view_processors(processors):
 
 def view_all_layers(layers):
     result = {}
-    for k, v in layers.items():
+    for k, v in list(layers.items()):
         if k == 'playlist':
             continue
         result[k] = view_processor_layer(v)

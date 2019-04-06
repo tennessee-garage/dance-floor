@@ -1,7 +1,10 @@
+from builtins import chr
+from builtins import range
+from builtins import object
 import serial
 
 
-class SerialRead:
+class SerialRead(object):
 
     packets = 64
     packet_bytes = 2

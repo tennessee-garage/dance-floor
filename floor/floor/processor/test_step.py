@@ -1,3 +1,4 @@
+from builtins import range
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 from floor.util import color_utils

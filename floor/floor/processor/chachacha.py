@@ -1,3 +1,4 @@
+from builtins import range
 import collections
 import itertools
 
@@ -16,7 +17,7 @@ COLORS = [RED, YELLOW, GREEN, WHITE]
 # Pre-render the boxes.
 LINES = []
 for color in COLORS:
-    for i in xrange(2):
+    for i in range(2):
         LINES.append([color, color, BLACK, BLACK, color, color, BLACK, BLACK])
         LINES.append([color, color, BLACK, BLACK, color, color, BLACK, BLACK])
         LINES.append([BLACK, BLACK, color, color, BLACK, BLACK, color, color])

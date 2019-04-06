@@ -3,11 +3,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from builtins import range
+from builtins import object
 import logging
 import colorsys
 import sys
 
 from floor.processor.constants import COLOR_MAXIMUM
+from future.utils import with_metaclass
 
 
 class ProcessorRegistry(type):
@@ -28,7 +31,7 @@ class ProcessorRegistry(type):
         return new_class
 
 
-class RenderContext:
+class RenderContext(object):
     """An object that a `Controller` will pass to `Processor.get_next_frame`.
 
     This class is how the `Controller` passes state to the `Processor`. As such,
@@ -41,9 +44,7 @@ class RenderContext:
         self.bpm = bpm
 
 
-class Base(object):
-    __metaclass__ = ProcessorRegistry
-
+class Base(with_metaclass(ProcessorRegistry, object)):
     CONTROLS = []
 
     FLOOR_WIDTH = 8

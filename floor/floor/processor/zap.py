@@ -1,3 +1,4 @@
+from builtins import range
 import collections
 
 from floor.processor.base import Base
@@ -17,7 +18,7 @@ def gradient(color, steps=4):
     """Fade this color to white."""
     ret = []
     denominator = float(steps - 1)
-    for step in xrange(steps):
+    for step in range(steps):
         percent = step / denominator
         ret.append(tint(color, percent))
     return ret

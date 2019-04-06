@@ -1,3 +1,4 @@
+from builtins import range
 import random
 
 from floor.processor.base import Base
