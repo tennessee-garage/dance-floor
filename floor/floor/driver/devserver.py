@@ -1,3 +1,4 @@
+from builtins import map
 from gevent import monkey
 monkey.patch_all()
 
@@ -97,7 +98,7 @@ class Devserver(Base):
         return (color_value / float(COLOR_MAXIMUM)) * 256.0
 
     def send_data(self):
-        leds = [map(self.rescale_color_value, pixel) for pixel in self.leds]
+        leds = [list(map(self.rescale_color_value, pixel)) for pixel in self.leds]
         message = {
             "event": "leds",
             "payload": leds,
@@ -109,5 +110,5 @@ class Devserver(Base):
 
     def get_weights(self):
         now = time.time()
-        values = map(lambda t: 1 if (now - t) <= WEIGHT_ON_SECONDS else 0, FAKE_WEIGHTS)
+        values = [1 if (now - t) <= WEIGHT_ON_SECONDS else 0 for t in FAKE_WEIGHTS]
         return values

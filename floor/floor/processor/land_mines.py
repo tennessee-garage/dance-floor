@@ -1,3 +1,4 @@
+from builtins import range
 import random
 import math
 
@@ -70,7 +71,7 @@ class LandMines(Base):
         time_delta = 0.1
         velocity = 0.0003 * COLOR_MAXIMUM
         live_mines = []
-        for index in xrange(len(self.mines)):
+        for index in range(len(self.mines)):
             mine = self.mines[index]
             mine['t'] -= time_delta
             delta_time = life_time - mine['t']

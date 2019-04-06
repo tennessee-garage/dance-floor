@@ -1,3 +1,4 @@
+from builtins import range
 import random
 import time
 
@@ -64,7 +65,7 @@ class Fishies(Base):
         next_time = context.clock
         d_time = next_time - self.last_time
 
-        for index in xrange(len(self.fishies)):
+        for index in range(len(self.fishies)):
             fish = self.fishies[index]
             chance = random.random()
             if d_time > 0.2:
@@ -72,7 +73,7 @@ class Fishies(Base):
                 self.last_time = next_time
             self.pixels[fish['y']*8 + fish['x']] = fish['c']
 
-        for index in xrange(len(self.pixels)):
+        for index in range(len(self.pixels)):
             px = self.pixels[index]
             px = color.scale_color(px, 0.7)
             self.pixels[index] = px

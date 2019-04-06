@@ -8,6 +8,7 @@ nose = "*"
 mock = "*"
 freezegun = "*"
 e1839a8 = {path = ".",editable = true}
+future = "*"
 
 [packages]
 pyserial = "*"
@@ -21,5 +22,3 @@ gevent = "*"
 show = "python run-show.py"
 benchmark = "python bin/benchmark.py"
 
-[requires]
-python_version = "2.7"

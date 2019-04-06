@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from builtins import range
+from builtins import object
 import time
 import logging
 from collections import OrderedDict
@@ -71,7 +73,7 @@ class Controller(object):
 
     def _iter_enabled_layers(self):
         """Returns an iterable of all enabled layers."""
-        return filter(lambda layer: layer.is_enabled(), self.layers.values())
+        return [layer for layer in list(self.layers.values()) if layer.is_enabled()]
 
     def set_fps(self, fps):
         self.fps = fps
@@ -172,7 +174,7 @@ class Controller(object):
                     composited_leds[idx] = current_pixel
             last_leds = current_leds
 
-        leds = map(lambda pixel: map(lambda color: color * self.brightness, pixel), composited_leds)
+        leds = [[color * self.brightness for color in pixel] for pixel in composited_leds]
         self.driver.set_leds(leds)
 
     @profile()

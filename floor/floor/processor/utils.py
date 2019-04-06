@@ -1,4 +1,5 @@
 
+from builtins import object
 BLANK_FRAME = [(0, 0, 0)] * 64
 
 

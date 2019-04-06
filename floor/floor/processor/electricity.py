@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import math
 import random
 import logging
@@ -49,7 +51,7 @@ class Electricity(Base):
 
         self.arcs = new_arcs
 
-        for arc in self.arcs.values():
+        for arc in list(self.arcs.values()):
             self.apply_arc(arc)
 
         return self.pixels

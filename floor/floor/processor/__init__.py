@@ -16,7 +16,7 @@ def _import_all():
     pwd = os.path.dirname(__file__)
     for filename in glob(os.path.join(pwd, '*.py')):
         name, ext = os.path.splitext(os.path.basename(filename))
-        __import__(name, globals(), locals())
+        __import__('floor.processor.{}'.format(name), globals(), locals())
 
 
 def all_processors():

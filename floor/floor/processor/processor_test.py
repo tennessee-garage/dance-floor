@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from builtins import range
 from freezegun import freeze_time
 import time
 import datetime
@@ -31,7 +32,7 @@ def test_run_all_processors():
         with freeze_time('Jan 1, 2001') as fake_time:
             now = time.time()
             instance = cls()
-            for i in xrange(num_frames):
+            for i in range(num_frames):
                 context = RenderContext(
                     clock=now,
                     downbeat=0,
@@ -42,11 +43,11 @@ def test_run_all_processors():
                 fake_time.tick(delta=clock_time_per_frame)
 
     processors = processor.all_processors()
-    for processor_name, cls in processors.iteritems():
+    for processor_name, cls in processors.items():
         yield run_test, processor_name, cls
 
 
 class ProcessorTest(TestCase):
     def test_all_processors_excludes_base(self):
         processors = processor.all_processors()
-        self.assert_(BaseProcessor not in processors.values())
+        self.assert_(BaseProcessor not in list(processors.values()))

@@ -3,6 +3,7 @@ Helper functions to make color manipulations easier
 """
 
 from __future__ import division
+from builtins import range
 import math
 import random
 from floor.processor.constants import COLOR_MAXIMUM
@@ -140,7 +141,7 @@ palettes = {
     'linoleum': ['d33f49', 'd7c0d0', 'eff0d1', '77ba99', '806c89'],
     'wedding1': ['f8aeaa', 'abaab2', 'f5927b']
 }
-palette_keys = palettes.keys()
+palette_keys = list(palettes.keys())
 palettes_length = len(palette_keys)
 
 

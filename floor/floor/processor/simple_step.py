@@ -1,3 +1,4 @@
+from builtins import range
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM

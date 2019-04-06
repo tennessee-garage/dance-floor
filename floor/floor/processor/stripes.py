@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import random
 
 from floor.processor.base import Base
@@ -65,7 +67,7 @@ class Stripes(Base):
         return pixels
 
 
-class Stripe:
+class Stripe(object):
 
     def __init__(self, gradient, speed, direction):
         self.gradient = gradient
