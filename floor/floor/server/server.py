@@ -18,7 +18,10 @@ app.controller = None  # type: Controller
 
 @app.route('/')
 def main():
-    return render_template('index.html')
+    # TODO(mikey): Brittle.
+    hostname = request.host.split(':')[0]
+    devserver_url = 'http://{}:1979'.format(hostname)
+    return render_template('index.html', devserver_url=devserver_url)
 
 
 @app.route('/layout')
