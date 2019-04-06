@@ -1,3 +1,4 @@
+from __future__ import print_function
 import colorsys
 import math
 
@@ -27,7 +28,7 @@ class LineSlam(Base):
         elif self.stage == 2:
             pixels = self.stage_2()
         else:
-            print "-- reset"
+            print("-- reset")
             self.reset_stage()
             pixels = self.PIXELS_ALL_OFF
 

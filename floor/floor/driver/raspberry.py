@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import importlib
 import logging
 
-from base import Base
+from .base import Base
 from floor.util.serial_read import SerialRead
 
 logger = logging.getLogger('raspberry')
