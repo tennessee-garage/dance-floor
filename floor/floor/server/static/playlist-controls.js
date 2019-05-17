@@ -154,9 +154,10 @@ function handleTempoUpdate(tempoData) {
     status.value = tempoData.bpm;
 }
 
-function setLayer(layerName, processorName) {
+function setLayer(layerName, processorName, alpha) {
     var data = {
         processor_name: processorName,
+        alpha: alpha,
     };
     return axios.patch('/api/layers/' + layerName, data).then(function (response) {
         return getStatus();
@@ -203,8 +204,32 @@ function handleLayersUpdate(layers, processors) {
 
         layerSelect.addEventListener('change', function (e) {
             var newValue = e.target.value || '';
-            setLayer(layerName, newValue);
+            setLayer(layerName, newValue, layerDetail.alpha);
         });
+
+        var alphaInput = document.createElement('div');
+        alphaInput.className = 'form-control'
+        alphaInput.id = layerName + '_alpha';
+        alphaInput.setAttribute("style", "margin-top: 10px;");
+        $(alphaInput).slider({
+            value: layerDetail.alpha,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            change: function () {
+                var newValue = $(alphaInput).slider("value");
+                console.log('setting layer alpha:', newValue)
+                setLayer(layerName, layerDetail.processor_name, newValue);
+            },
+        });
+
+        alphaInput.addEventListener('change', function (e) {
+            var newValue = e.target.value || 1.0;
+            console.log('setting layer alpha:', e.target.value)
+            setLayer(layerName, layerDetail.processor_name, newValue);
+        });
+        element.appendChild(alphaInput);
+
     });
 }
 

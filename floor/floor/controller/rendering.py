@@ -13,12 +13,19 @@ class BaseRenderLayer(object):
 
     def __init__(self):
         self.enabled = True
+        self.alpha = 1.0
 
     def set_enabled(self, enabled):
         self.enabled = bool(enabled)
 
     def is_enabled(self):
-        return self.enabled
+        return self.enabled and self.alpha > 0
+
+    def get_alpha(self):
+        return self.alpha
+    
+    def set_alpha(self, alpha):
+        self.alpha = min(1.0, max(0, alpha))
 
     def on_ranged_value_change(self, num, val):
         pass
