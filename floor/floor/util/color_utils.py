@@ -158,7 +158,7 @@ def normalize_pixel(pixel):
     )
 
 def alpha_blend(pixel_above, pixel_below, alpha):
-    """Blends `pixel_above` onto `pixel_above` with given alpha."""
+    """Blends `pixel_above` onto `pixel_below` with given alpha."""
     if pixel_above == (0, 0, 0):
         # We treat black pixels as fully transparent.
         # TODO(mikey): If/when pixels are managed with a separate alpha channel,
