@@ -123,13 +123,6 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
 
-def blend_pixel_copy(bottom, top):
-    """Blends pixels without an alpha channel by treating black as tranparent."""
-    if top == (0, 0, 0):
-        return bottom
-    return top
-
-
 # palettes as hex strings
 palettes = {
     'rainbow_bunny': ['31cb00', 'f9c80e', 'f86624', 'f86624', 'ea3546', '662e9b', '43bccd'],
@@ -163,3 +156,31 @@ def normalize_pixel(pixel):
         max(0, min(int(g), COLOR_MAXIMUM)),
         max(0, min(int(b), COLOR_MAXIMUM)),
     )
+
+
+def set_brightness(pixel, brightness):
+    if brightness == 1.0:
+        return pixel
+    return tuple(map(lambda x: x * brightness, pixel))
+
+
+def alpha_blend(pixel_above, pixel_below, alpha):
+    """Blends `pixel_above` onto `pixel_below` with given alpha."""
+    if pixel_above == (0, 0, 0):
+        # We treat black pixels as fully transparent.
+        # TODO(mikey): If/when pixels are managed with a separate alpha channel,
+        # we can remove this hack.
+        return pixel_below
+    elif alpha == 1.0:
+        return pixel_above
+    elif alpha == 0.0:
+        return pixel_below
+    else:
+        rAbove, gAbove, bAbove = pixel_above
+        rBelow, gBelow, bBelow = pixel_below
+
+        rOut = alpha * rAbove + (1 - alpha) * rBelow
+        gOut = alpha * gAbove + (1 - alpha) * gBelow
+        bOut = alpha * bAbove + (1 - alpha) * bBelow
+
+        return normalize_pixel((rOut, gOut, bOut))

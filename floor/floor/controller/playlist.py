@@ -31,10 +31,11 @@ class Playlist(object):
         return playlist
 
     @classmethod
-    def from_single_processor(cls, processor):
-        all_processors = [processor]
+    def from_single_processor(cls, processor, args=None):
+        processor_name = processor.__class__.__name__
+        all_processors = {processor_name: processor}
         playlist = cls(all_processors)
-        playlist.append(processor.__class__.__name__)
+        playlist.append(processor_name, args=args)
         return playlist
 
     @staticmethod

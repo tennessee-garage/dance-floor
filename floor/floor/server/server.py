@@ -230,6 +230,7 @@ def api_layout():
 def view_processor_layer(layer):
     return {
         'enabled': layer.is_enabled(),
+        'alpha': layer.get_alpha(),
         'processor_name': layer.get_processor_name(),
     }
 
@@ -261,6 +262,15 @@ def api_layer_detail(layer_name):
                 abort(400, 'Processor "{}" not found'.format(processor_name))
                 return
             layer.set_processor(processor())
+
+        alpha = content.get('alpha')
+        if alpha is not None:
+            try:
+                alpha = float(alpha)
+            except ValueError:
+                abort(400, 'Bad alpha value.')
+                return
+            layer.set_alpha(alpha)
 
     return jsonify(view_processor_layer(layer))
 

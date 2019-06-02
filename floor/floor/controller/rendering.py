@@ -13,12 +13,19 @@ class BaseRenderLayer(object):
 
     def __init__(self):
         self.enabled = True
+        self.alpha = 1.0
 
     def set_enabled(self, enabled):
         self.enabled = bool(enabled)
 
     def is_enabled(self):
-        return self.enabled
+        return self.enabled and self.alpha > 0
+
+    def get_alpha(self):
+        return self.alpha
+    
+    def set_alpha(self, alpha):
+        self.alpha = min(1.0, max(0, alpha))
 
     def on_ranged_value_change(self, num, val):
         pass
@@ -27,16 +34,14 @@ class BaseRenderLayer(object):
         """Perform any setup prior to next call of `generate_frame`."""
         pass
 
-    def render(self, render_context, leds):
+    def render(self, render_context):
         """Return a frame of pixels
 
         Arguments:
             render_context {RenderContext} -- The current rendering context.
-            leds {list} -- The pixels rendered by previous layers, or None if
-                           this is the first layter.
 
         Returns:
-            An iterable of pixels.
+            An iterable of pixels, or `None` if layer is disabled.
         """
         raise NotImplementedError
 
@@ -57,7 +62,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
         if self.current_processor:
             self.current_processor.on_ranged_value_change(num, val)
 
-    def render(self, render_context, leds):
+    def render(self, render_context):
         self._check_playlist(render_context)
         try:
             leds = self.current_processor.get_next_frame(render_context)
@@ -68,6 +73,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
             self.logger.exception('Error generating frame for processor {}'.format(self.current_processor_name))
             self.logger.warning('Removing processor due to error.')
             self.playlist.remove(self.playlist.position)
+            return None
 
     def _check_playlist(self, render_context):
         item = self.playlist.get_current()
@@ -117,10 +123,10 @@ class ProcessorRenderLayer(BaseRenderLayer):
         if self.processor:
             self.processor.on_ranged_value_change(num, val)
 
-    def render(self, render_context, leds):
+    def render(self, render_context):
         if self.processor:
             return self.processor.get_next_frame(render_context)
-        return leds
+        return None
 
     def set_processor(self, processor):
         self.processor = processor

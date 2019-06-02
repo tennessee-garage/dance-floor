@@ -13,8 +13,9 @@ from floor import processor
 from floor.processor.base import RenderContext
 from floor.controller.rendering import PlaylistRenderLayer
 from floor.controller.rendering import ProcessorRenderLayer
-from floor.util.color_utils import blend_pixel_copy
+from floor.util.color_utils import alpha_blend
 from floor.util.color_utils import normalize_pixel
+from floor.util.color_utils import set_brightness
 from floor.util.simple_profile import profile
 
 
@@ -160,21 +161,16 @@ class Controller(object):
         )
 
         composited_leds = [(0, 0, 0)] * 64
-        last_leds = None
         for layer in self._iter_enabled_layers():
-            current_leds = layer.render(context, leds=last_leds)
+            current_leds = layer.render(context)
             if not current_leds:
                 continue
             for idx, current_pixel in enumerate(current_leds):
                 current_pixel = normalize_pixel(current_pixel)
-                if last_leds:
-                    last_pixel = last_leds[idx]
-                    composited_leds[idx] = blend_pixel_copy(last_pixel, current_pixel)
-                else:
-                    composited_leds[idx] = current_pixel
-            last_leds = current_leds
+                last_pixel = composited_leds[idx]
+                composited_leds[idx] = alpha_blend(current_pixel, last_pixel, layer.get_alpha())
 
-        leds = [[color * self.brightness for color in pixel] for pixel in composited_leds]
+        leds = [set_brightness(pixel, self.brightness) for pixel in composited_leds]
         self.driver.set_leds(leds)
 
     @profile()
