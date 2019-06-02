@@ -157,6 +157,13 @@ def normalize_pixel(pixel):
         max(0, min(int(b), COLOR_MAXIMUM)),
     )
 
+
+def set_brightness(pixel, brightness):
+    if brightness == 1.0:
+        return pixel
+    return tuple(map(lambda x: x * brightness, pixel))
+
+
 def alpha_blend(pixel_above, pixel_below, alpha):
     """Blends `pixel_above` onto `pixel_below` with given alpha."""
     if pixel_above == (0, 0, 0):
