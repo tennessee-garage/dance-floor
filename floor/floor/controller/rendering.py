@@ -57,16 +57,15 @@ class PlaylistRenderLayer(BaseRenderLayer):
         self.current_processor = None
         self.current_processor_name = None
         self.current_processor_args = None
+        self.processor_render_layer = ProcessorRenderLayer()
 
     def on_ranged_value_change(self, num, val):
-        if self.current_processor:
-            self.current_processor.on_ranged_value_change(num, val)
+        return self.processor_render_layer.on_ranged_value_change(num, val)
 
     def render(self, render_context):
         self._check_playlist(render_context)
         try:
-            leds = self.current_processor.get_next_frame(render_context)
-            return leds
+            return self.processor_render_layer.render(render_context)
         except KeyboardInterrupt:
             raise
         except Exception:
@@ -95,6 +94,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
         self.current_processor = self._build_processor(processor_name, processor_args)
         self.current_processor_name = processor_name
         self.current_processor_args = processor_args
+        self.processor_render_layer.set_processor(self.current_processor)
         self.logger.info("Started processor '{}'".format(processor_name))
 
     def _build_processor(self, name, args=None):
