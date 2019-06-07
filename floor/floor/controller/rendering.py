@@ -46,6 +46,37 @@ class BaseRenderLayer(object):
         raise NotImplementedError
 
 
+class ProcessorRenderLayer(BaseRenderLayer):
+    """A RenderLayer that encapsulates a single Processor."""
+    def __init__(self, processor=None):
+        super(ProcessorRenderLayer, self).__init__()
+        self.processor = processor
+        self.logger = logging.getLogger(__name__)
+
+    def is_enabled(self):
+        return self.processor is not None and self.enabled
+
+    def on_ranged_value_change(self, num, val):
+        if self.processor:
+            self.processor.on_ranged_value_change(num, val)
+
+    def render(self, render_context):
+        if self.processor:
+            return self.processor.get_next_frame(render_context)
+        return None
+
+    def set_processor(self, processor):
+        self.processor = processor
+
+    def get_processor(self):
+        return self.processor
+
+    def get_processor_name(self):
+        if not self.processor:
+            return None
+        return self.processor.__class__.__name__
+
+
 class PlaylistRenderLayer(BaseRenderLayer):
     """A RenderLayer that encapsulates a Playlist."""
     def __init__(self, playlist, all_processors):
@@ -107,34 +138,3 @@ class PlaylistRenderLayer(BaseRenderLayer):
             return processor_cls(**args)
         except Exception as e:
             raise ValueError('Processor "{}" could not be created: {}'.format(name, str(e)))
-
-
-class ProcessorRenderLayer(BaseRenderLayer):
-    """A RenderLayer that encapsulates a single Processor."""
-    def __init__(self, processor=None):
-        super(ProcessorRenderLayer, self).__init__()
-        self.processor = processor
-        self.logger = logging.getLogger(__name__)
-
-    def is_enabled(self):
-        return self.processor is not None and self.enabled
-
-    def on_ranged_value_change(self, num, val):
-        if self.processor:
-            self.processor.on_ranged_value_change(num, val)
-
-    def render(self, render_context):
-        if self.processor:
-            return self.processor.get_next_frame(render_context)
-        return None
-
-    def set_processor(self, processor):
-        self.processor = processor
-
-    def get_processor(self):
-        return self.processor
-
-    def get_processor_name(self):
-        if not self.processor:
-            return None
-        return self.processor.__class__.__name__
