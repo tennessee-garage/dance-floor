@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 from unittest import TestCase
 from . import color_utils
+from floor.processor.constants import BLACK, WHITE, COLOR_MAXIMUM
 
 
 class ColorUtilsTests(TestCase):
@@ -28,3 +29,24 @@ class ColorUtilsTests(TestCase):
 
         above = 0, 0, 255
         self.assertEqual((0, 0, 63), color_utils.alpha_blend(above, below, 0.25))
+
+    def test_tint(self):
+        red = (COLOR_MAXIMUM, 0, 0)
+        self.assertEqual(red, color_utils.tint(red, 0))
+        self.assertEqual(WHITE, color_utils.tint(red, 1))
+        self.assertEqual((COLOR_MAXIMUM, COLOR_MAXIMUM/2, COLOR_MAXIMUM/2), color_utils.tint(red, 0.5))
+
+    def test_shade(self):
+        red = (COLOR_MAXIMUM, 0, 0)
+        self.assertEqual(red, color_utils.shade(red, 0))
+        self.assertEqual(BLACK, color_utils.shade(red, 1))
+        self.assertEqual((512, 0, 0), color_utils.shade(red, 0.5))
+
+    def test_hex_to_rgb(self):
+        self.assertEqual(WHITE, color_utils.hex_to_rgb('#ffffff'))
+        self.assertEqual(BLACK, color_utils.hex_to_rgb('#000000'))
+        self.assertEqual((0, COLOR_MAXIMUM, 0), color_utils.hex_to_rgb('#00ff00'))
+
+    def test_get_pallet(self):
+        for p in color_utils.palettes.keys():
+            color_utils.get_palette(p)

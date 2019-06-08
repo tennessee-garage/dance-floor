@@ -5,7 +5,6 @@ import math
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 import floor.util.color_utils as color
-from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Hyperspace(Base):
@@ -16,8 +15,7 @@ class Hyperspace(Base):
         super(Hyperspace, self).__init__(**kwargs)
         self.pixels = []
         self.times = [0 for _ in range(64)]
-        # self.palette = color.get_random_palette(COLOR_MAXIMUM)
-        self.palette = color.get_palette('rainbow_bunny', COLOR_MAXIMUM)
+        self.palette = color.get_palette('rainbow_bunny')
         self.palette_length = len(self.palette)
         self.radius_map_1 = [None] * 64
         self.radius_map_2 = [None] * 64

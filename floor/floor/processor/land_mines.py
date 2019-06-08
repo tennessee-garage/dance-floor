@@ -16,7 +16,7 @@ class LandMines(Base):
         self.pixels = []
         self.mines = []
         self.walkers = self.init_walkers()
-        self.palette = color_utils.get_random_palette(COLOR_MAXIMUM)
+        self.palette = color_utils.get_random_palette()
         self.palette_length = len(self.palette)
         for x in range(0, 8):
             for y in range(0, 8):

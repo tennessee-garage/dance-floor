@@ -7,5 +7,8 @@ from __future__ import unicode_literals
 # colors have a 10-bit range of `[0, 1024]`
 COLOR_MAXIMUM = 1024
 
+WHITE = (COLOR_MAXIMUM, COLOR_MAXIMUM, COLOR_MAXIMUM)
+BLACK = (0, 0, 0)
+
 # Maximum value of a ranged input.
 RANGED_INPUT_MAX = 127

@@ -5,15 +5,13 @@ import time
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 import floor.util.color_utils as color
-from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Fishies(Base):
     def __init__(self, **kwargs):
         super(Fishies, self).__init__(**kwargs)
         self.pixels = []
-        # self.palette = color.get_random_palette(COLOR_MAXIMUM)
-        self.palette = color.get_palette('rainbow_bunny', COLOR_MAXIMUM)
+        self.palette = color.get_palette('rainbow_bunny')
         self.palette_length = len(self.palette)
         self.fishies = self.init_fishies()
         self.last_time = None
