@@ -16,7 +16,7 @@ class BaseRenderLayer(object):
         self.enabled = True
         self.alpha = 1.0
         self.ranged_values = [0] * 4
-        self.switches = [0] * 4
+        self.switches = [False] * 4
 
     def set_enabled(self, enabled):
         self.enabled = bool(enabled)
@@ -118,6 +118,9 @@ class PlaylistRenderLayer(BaseRenderLayer):
 
     def on_switch_change(self, num, is_on):
         return self.processor_render_layer.on_switch_change(num, is_on)
+
+    def get_processor_name(self):
+        return self.processor_render_layer.get_processor_name()
 
     def render(self, render_context):
         self._check_playlist(render_context)
