@@ -18,7 +18,8 @@ DEMO_MAPPING = MidiMapping(name='demo', mappings={
     (COMMAND_NOTE_ON, 'C4'): MidiFunctions.playlist_previous,
     (COMMAND_NOTE_ON, 'C#-1', 127): MidiFunctions.playlist_stay,
     (COMMAND_CONTROL_MODE_CHANGE, 21, 127): MidiFunctions.playlist_stop,
-    (COMMAND_CONTROL_MODE_CHANGE, 48): MidiFunctions.ranged_value_2,
+    (COMMAND_CONTROL_MODE_CHANGE, 48): MidiFunctions.playlist_ranged_value_2,
+    (COMMAND_NOTE_ON, 'C2'): MidiFunctions.overlay2_switch_3,
 })
 
 
@@ -94,11 +95,18 @@ class MidiManagerTestCase(TestCase):
         self.inject_control_mode_change(21, 127)
         self.assertEqual(1, self.controller.playlist.stop_playlist.call_count)
 
-        self.assertEqual(0, self.controller.handle_ranged_value.call_count)
+        self.assertEqual(0, self.controller.handle_input_event.call_count)
         self.inject_control_mode_change(48, 99)
-        self.assertEqual(1, self.controller.handle_ranged_value.call_count)
-        self.controller.handle_ranged_value.assert_has_calls([
-            mock.call(1, 99),
+        self.assertEqual(1, self.controller.handle_input_event.call_count)
+        self.controller.handle_input_event.assert_has_calls([
+            mock.call('playlist_ranged_value', 1, 99),
+        ])
+
+        self.controller.handle_input_event.reset_mock()
+        self.assertEqual(0, self.controller.handle_input_event.call_count)
+        self.inject_note_on('C2', 127)
+        self.controller.handle_input_event.assert_has_calls([
+            mock.call('overlay2_switch', 2, 127),
         ])
 
     def test_note_name_translation(self):

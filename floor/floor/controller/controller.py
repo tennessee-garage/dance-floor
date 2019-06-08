@@ -25,7 +25,6 @@ logger = logging.getLogger('controller')
 class Controller(object):
     DEFAULT_FPS = 120
     DEFAULT_BPM = 120.0
-    MAX_RANGED_VALUES = 4
 
     # Give outside controllers a chance to fake foot steps on the floor
     # Use the SYNTHETIC_WEIGHT_ACTIVE flag to determine if we need to spend
@@ -70,8 +69,6 @@ class Controller(object):
         # A global "brightness" level, a value between 0.0 and 1.0.
         self.brightness = 1.0
 
-        self.ranged_values = [0] * self.MAX_RANGED_VALUES
-
     def _iter_enabled_layers(self):
         """Returns an iterable of all enabled layers."""
         return [layer for layer in list(self.layers.values()) if layer.is_enabled()]
@@ -94,6 +91,23 @@ class Controller(object):
         self.brightness = max(0.0, min(1.0, factor))
         logger.info('Set brightness to: {}%'.format(int(self.brightness * 100)))
 
+    def handle_input_event(self, event_name, num, value):
+        logger.debug('input event: {}: {} -> {}'.format(event_name, num, value))
+        if event_name == 'playlist_ranged_value':
+            self.layers['playlist'].on_ranged_value_change(num, value)
+        elif event_name == 'overlay1_ranged_value':
+            self.layers['overlay1'].on_ranged_value_change(num, value)
+        elif event_name == 'overlay2_ranged_value':
+            self.layers['overlay2'].on_ranged_value_change(num, value)
+        elif event_name == 'playlist_switch':
+            self.layers['playlist'].on_switch_change(num, value)
+        elif event_name == 'overlay1_switch':
+            self.layers['overlay1'].on_switch_change(num, value)
+        elif event_name == 'overlay2_switch':
+            self.layers['overlay2'].on_switch_change(num, value)
+        else:
+            logger.warning('Ignoring unknown event {}'.format(event_name))
+
     def square_weight_on(self, index):
         if index > 63 or index < 0:
             logger.error("Ignoring square_weight_on() value beyond bounds")
@@ -114,16 +128,6 @@ class Controller(object):
 
         # If nothing is set, there are no longer any synthetic weights active
         self.SYNTHETIC_WEIGHT_ACTIVE = False
-
-    def handle_ranged_value(self, control_number, control_value):
-        if control_number > self.MAX_RANGED_VALUES:
-            logger.warning('Ignoring MIDI control {}, greater than {}'.format(control_number, self.MAX_RANGED_VALUES))
-
-        # Capture state.
-        self.ranged_values[control_number] = control_value
-        # Update current processor.
-        for layer in self._iter_enabled_layers():
-            layer.on_ranged_value_change(control_number, control_value)
 
     def run_forever(self):
         while True:

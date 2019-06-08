@@ -12,8 +12,11 @@ class BaseRenderLayer(object):
     """Abstract class for anything that can return a frame of pixels."""
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.enabled = True
         self.alpha = 1.0
+        self.ranged_values = [0] * 4
+        self.switches = [0] * 4
 
     def set_enabled(self, enabled):
         self.enabled = bool(enabled)
@@ -28,7 +31,18 @@ class BaseRenderLayer(object):
         self.alpha = min(1.0, max(0, alpha))
 
     def on_ranged_value_change(self, num, val):
-        pass
+        val = max(0, min(val, 255))
+        self.logger.debug('on_ranged_value_change: {} -> {}'.format(num, val))
+        if num >= len(self.ranged_values):
+            return
+        self.ranged_values[num] = val
+
+    def on_switch_change(self, num, is_on):
+        is_on = bool(is_on)
+        self.logger.debug('on_switch_change: {} -> {}'.format(num, is_on))
+        if num >= len(self.switches):
+            return
+        self.switches[num] = bool(is_on)
 
     def prepare(self):
         """Perform any setup prior to next call of `generate_frame`."""
@@ -51,12 +65,12 @@ class ProcessorRenderLayer(BaseRenderLayer):
     def __init__(self, processor=None):
         super(ProcessorRenderLayer, self).__init__()
         self.processor = processor
-        self.logger = logging.getLogger(__name__)
 
     def is_enabled(self):
         return self.processor is not None and self.enabled
 
     def on_ranged_value_change(self, num, val):
+        super(ProcessorRenderLayer, self).on_ranged_value_change(num, val)
         if self.processor:
             self.processor.on_ranged_value_change(num, val)
 
@@ -92,6 +106,9 @@ class PlaylistRenderLayer(BaseRenderLayer):
 
     def on_ranged_value_change(self, num, val):
         return self.processor_render_layer.on_ranged_value_change(num, val)
+
+    def on_switch_change(self, num, is_on):
+        return self.processor_render_layer.on_switch_change(num, is_on)
 
     def render(self, render_context):
         self._check_playlist(render_context)

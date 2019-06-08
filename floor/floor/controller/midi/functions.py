@@ -96,12 +96,22 @@ MidiFunctions.add('set_brightness',
                   callback=lambda controller, value: controller.set_brightness(value/127.0),
                   help_text='Adjust the max brightness of the floor')
 
-# Add a number of ranged values, likely faders or knobs, that can be used within processor code
-# to tweak parameters.
-for idx in range(0, 4):
-    MidiFunctions.add('ranged_value_{}'.format(idx+1),
-                      callback=lambda controller, value, i=idx: controller.handle_ranged_value(i, value),
-                      help_text='A generic ranged value for adjusting processor parameters')
+# Add events to send ranged values and switches to each render layer.
+for event_base_name in (
+    'playlist_ranged_value',
+    'overlay1_ranged_value',
+    'overlay2_ranged_value',
+    'playlist_switch',
+    'overlay1_switch',
+    'overlay2_switch'):
+    for idx in range(0, 4):
+        event_name = '{}_{}'.format(event_base_name, idx+1)
+        def callback(controller, value, event_base_name=event_base_name, i=idx):
+            controller.handle_input_event(event_base_name, i, value)
+        MidiFunctions.add(event_name,
+                        callback=callback,
+                        help_text='An event for adjusting processor parameters')
+
 
 # Setup methods for floor foot presses
 for idx in range(1, 65):
