@@ -141,7 +141,6 @@ class Controller(object):
             return
 
         self.init_loop()
-        self.prepare()
         self.generate_frame()
         self.transfer_data()
         self.delay()
@@ -149,11 +148,6 @@ class Controller(object):
     @profile()
     def init_loop(self):
         self.frame_start = self.clocksource.time()
-
-    @profile()
-    def prepare(self):
-        for layer in self._iter_enabled_layers():
-            layer.prepare()
 
     @profile()
     def generate_frame(self):

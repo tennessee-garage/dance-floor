@@ -31,22 +31,30 @@ class BaseRenderLayer(object):
         self.alpha = min(1.0, max(0, alpha))
 
     def on_ranged_value_change(self, num, val):
-        val = max(0, min(val, 255))
+        """Sets the ranged input value.
+        
+        Arguments:
+            num {integer} -- The 0-indexed fader/slider number, between 0-3 inclusive
+            val {integer} -- The position value, between 0-127 inclusive
+        """
+        val = max(0, min(val, 127))
         self.logger.debug('on_ranged_value_change: {} -> {}'.format(num, val))
         if num >= len(self.ranged_values):
             return
         self.ranged_values[num] = val
 
     def on_switch_change(self, num, is_on):
+        """Sets the on/off switch value.
+
+        Arguments:
+            num {integer} -- The 0-indexed switch number, between 0-3 inclusive
+            is_on {bool} -- Whether the switch should be on or off
+        """
         is_on = bool(is_on)
         self.logger.debug('on_switch_change: {} -> {}'.format(num, is_on))
         if num >= len(self.switches):
             return
         self.switches[num] = bool(is_on)
-
-    def prepare(self):
-        """Perform any setup prior to next call of `generate_frame`."""
-        pass
 
     def render(self, render_context):
         """Return a frame of pixels
@@ -70,6 +78,7 @@ class ProcessorRenderLayer(BaseRenderLayer):
         return self.processor is not None and self.enabled
 
     def on_ranged_value_change(self, num, val):
+        """Extends the base implementation to add a callback to the current processor."""
         super(ProcessorRenderLayer, self).on_ranged_value_change(num, val)
         if self.processor:
             self.processor.on_ranged_value_change(num, val)
