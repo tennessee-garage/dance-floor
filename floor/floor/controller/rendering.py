@@ -7,6 +7,8 @@ from builtins import str
 from builtins import object
 import logging
 
+from floor.processor.constants import RANGED_INPUT_MAX
+
 
 class BaseRenderLayer(object):
     """Abstract class for anything that can return a frame of pixels."""
@@ -35,9 +37,9 @@ class BaseRenderLayer(object):
         
         Arguments:
             num {integer} -- The 0-indexed fader/slider number, between 0-3 inclusive
-            val {integer} -- The position value, between 0-127 inclusive
+            val {integer} -- The position value, between 0-`RANGED_INPUT_MAX` inclusive
         """
-        val = max(0, min(val, 127))
+        val = max(0, min(val, RANGED_INPUT_MAX))
         self.logger.debug('on_ranged_value_change: {} -> {}'.format(num, val))
         if num >= len(self.ranged_values):
             return

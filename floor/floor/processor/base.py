@@ -9,7 +9,7 @@ import logging
 import colorsys
 import sys
 
-from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.constants import COLOR_MAXIMUM, RANGED_INPUT_MAX
 from future.utils import with_metaclass
 
 
@@ -37,11 +37,51 @@ class RenderContext(object):
     This class is how the `Controller` passes state to the `Processor`. As such,
     it can be considered write-only for the Controller, and read-only for the Processor.
     """
-    def __init__(self, clock, downbeat, weights, bpm):
+    class RangedInput:
+        """Simple enum for logical `ranged_values` names."""
+        WET_DRY = 0
+        INTENSITY = 1
+        AUX1 = 2
+        AUX2 = 3
+
+    def __init__(self, clock, downbeat, weights, bpm, ranged_values, switches):
         self.clock = clock
         self.downbeat = downbeat
         self.weights = weights
         self.bpm = bpm
+        self.ranged_values = ranged_values
+        self.switches = switches
+
+    @classmethod
+    def ranged_selection(cls, ranged_value, choices):
+        """
+        Helper method to easily map a set of options to a ranged input.
+
+        Given a list of `choices`, pick the choice matching the current state of
+        the ranged_value defined by `input_number`.
+
+        Since ranged inputs have a range of `RANGED_INPUT_MAX` steps, we attempt
+        to distribute choices evenly over the range. For example, given choices:
+
+            ['purple', 'yellow', 'orange']
+
+        Then the following values would be returned
+
+            ranged_input  result
+            ------------  ------
+            0  - 41       purple
+            42 - 81       yellow
+            82 - 127      orange
+
+        When the number of choices cannot be evenly divided by the number of steps
+        in the range, the final choice receives the balance. This is illustrated above,
+        since `128 // 3 == 42`, but `42 * 3 < 127`.
+        """
+        choices = choices[:RANGED_INPUT_MAX + 1]
+        num_choices = len(choices)
+        steps_per_choice = (RANGED_INPUT_MAX + 1) // num_choices
+        current_position = ranged_value
+        return choices[min(num_choices - 1, current_position // steps_per_choice)]
 
 
 class Base(with_metaclass(ProcessorRegistry, object)):
