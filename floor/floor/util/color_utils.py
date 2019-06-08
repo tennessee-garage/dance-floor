@@ -132,13 +132,14 @@ palettes = {
     'autumn': ['8ea604', 'f5bb00', 'ec9f05', 'd76a03', 'bf3100'],
     'unicorns': ['dec5e3', 'cdedfd', 'b6dcfe', 'a9f8fb', '81f7e5'],
     'linoleum': ['d33f49', 'd7c0d0', 'eff0d1', '77ba99', '806c89'],
-    'wedding1': ['f8aeaa', 'abaab2', 'f5927b']
+    'wedding1': ['f8aeaa', 'abaab2', 'f5927b'],
+    'rygw': ['ff0000', 'ffff00', '00ff00', 'ffffff'],
 }
 palette_keys = list(palettes.keys())
 palettes_length = len(palette_keys)
 
 
-def get_palette(name, max_value):
+def get_palette(name, max_value=COLOR_MAXIMUM):
     hex_list = palettes[name]
     return [scale_color(hex_to_rgb(s), max_value/256.0) for s in hex_list]
 
