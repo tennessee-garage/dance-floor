@@ -31,19 +31,19 @@
     },
     {
       "command": ["control_mode_change", 48],
-      "function": "ranged_value_1"
+      "function": "playlist_ranged_value_1"
     },
     {
       "command": ["control_mode_change", 49],
-      "function": "ranged_value_2"
+      "function": "playlist_ranged_value_2"
     },
     {
       "command": ["control_mode_change", 50],
-      "function": "ranged_value_3"
+      "function": "playlist_ranged_value_3"
     },
     {
       "command": ["control_mode_change", 51],
-      "function": "ranged_value_4"
+      "function": "playlist_ranged_value_4"
     },
     {
       "command": ["note_on", "G#3"],
