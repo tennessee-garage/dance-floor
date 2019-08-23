@@ -10,9 +10,10 @@ from floor.processor.constants import BLACK, WHITE, COLOR_MAXIMUM
 
 class ColorUtilsTests(TestCase):
     def test_normalize_pixel(self):
-        self.assertEqual((0, 0, 0), color_utils.normalize_pixel((0, 1e-14, 0.000001)))
-        self.assertEqual((0, 12, 340), color_utils.normalize_pixel((1e-14, 12, 340)))
-        self.assertEqual((0, 1024, 340), color_utils.normalize_pixel((1e-14, 99999, 340)))
+        self.assertEqual((0, 0, 0, 1.0), color_utils.normalize_pixel((0, 1e-14, 0.000001)))
+        self.assertEqual((0, 12, 340, 1.0), color_utils.normalize_pixel((1e-14, 12, 340)))
+        self.assertEqual((0, 1024, 340, 1.0), color_utils.normalize_pixel((1e-14, 99999, 340)))
+        self.assertEqual((0, 12, 340, 0.5), color_utils.normalize_pixel((1e-14, 12, 340, 0.5)))
 
     def test_alpha_blend(self):
         above = 255, 255, 255
