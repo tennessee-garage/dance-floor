@@ -38,6 +38,8 @@ def test_run_all_processors():
                     downbeat=0,
                     weights=fake_weights,
                     bpm=120.0,
+                    ranged_values=[0] * 4,
+                    switches=[False] * 4,
                 )
                 instance.get_next_frame(context)
                 fake_time.tick(delta=clock_time_per_frame)

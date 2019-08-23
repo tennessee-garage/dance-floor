@@ -151,15 +151,17 @@ class Controller(object):
 
     @profile()
     def generate_frame(self):
-        context = RenderContext(
-            clock=self.frame_start,
-            downbeat=self.downbeat,
-            weights=self.get_weights(),
-            bpm=self.bpm,
-        )
-
+        weights = self.get_weights()
         composited_leds = [(0, 0, 0)] * 64
         for layer in self._iter_enabled_layers():
+            context = RenderContext(
+                clock=self.frame_start,
+                downbeat=self.downbeat,
+                weights=weights,
+                bpm=self.bpm,
+                ranged_values=layer.ranged_values,
+                switches=layer.switches,
+            )
             current_leds = layer.render(context)
             if not current_leds:
                 continue

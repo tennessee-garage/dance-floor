@@ -55,9 +55,9 @@ function handlePlaylistUpdate(playlist) {
     playlistDiv.innerHTML = '';
     playlistDiv.appendChild(listGroup);
 
-    if (activeElement) {
-        activeElement.scrollIntoView();
-    }
+    // if (activeElement) {
+    //     activeElement.scrollIntoView();
+    // }
 }
 
 function getStatus() {
@@ -154,12 +154,8 @@ function handleTempoUpdate(tempoData) {
     status.value = tempoData.bpm;
 }
 
-function setLayer(layerName, processorName, alpha) {
-    var data = {
-        processor_name: processorName,
-        alpha: alpha,
-    };
-    return axios.patch('/api/layers/' + layerName, data).then(function (response) {
+function setLayer(layerName, options) {
+    return axios.patch('/api/layers/' + layerName, options).then(function (response) {
         return getStatus();
     }).catch(function (error) {
         handleError(error);
@@ -170,16 +166,12 @@ function hackyDeepEqual(a, b) {
     return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function handleLayersUpdate(layers, processors) {
-    if (lastStatus && hackyDeepEqual(layers, lastStatus.layers)) {
-        return;
-    }
+function buildLayerControls(processors, layerName, layerDetail, element) {
+    var currentProcessor = layerDetail.processor_name;
 
-    Object.entries(layers).forEach(function (layerEntry) {
-        var layerName = layerEntry[0];
-        var layerDetail = layerEntry[1];
-        var currentProcessor = layerDetail.processor_name;
+    element.innerHTML = '';
 
+    if (layerName !== 'playlist') {
         var layerSelect = document.createElement('select');
         layerSelect.className = 'form-control'
         layerSelect.id = layerName + '_select';
@@ -198,14 +190,14 @@ function handleLayersUpdate(layers, processors) {
         });
         layerSelect.value = currentProcessor;
 
-        var element = document.getElementById(layerName + '_controls');
-        element.innerHTML = '';
         element.appendChild(layerSelect);
 
         layerSelect.addEventListener('change', function (e) {
             var newValue = e.target.value || '';
-            setLayer(layerName, newValue, layerDetail.alpha);
-        });
+            setLayer(layerName, {
+                'processor_name': newValue
+            });
+        });    
 
         var alphaInput = document.createElement('div');
         alphaInput.className = 'form-control'
@@ -218,10 +210,65 @@ function handleLayersUpdate(layers, processors) {
             step: 0.01,
             change: function () {
                 var newValue = $(alphaInput).slider('value');
-                setLayer(layerName, layerDetail.processor_name, newValue);
+                setLayer(layerName, {
+                    'alpha': newValue,
+                });
             },
         });
         element.appendChild(alphaInput);
+    }
+
+    var wetDryInput = document.createElement('div');
+    wetDryInput.className = 'form-control'
+    wetDryInput.id = layerName + '_wetDry';
+    wetDryInput.setAttribute('style', 'margin-top: 10px;');
+    $(wetDryInput).slider({
+        value: layerDetail.ranged_values[0],
+        min: 0,
+        max: 127,
+        step: 1,
+        change: function () {
+            var newValue = $(wetDryInput).slider('value');
+            setLayer(layerName, {
+                'ranged_values': {
+                    '0': newValue,
+                }
+            });
+        },
+    });
+    element.appendChild(wetDryInput);
+
+    var intensityInput = document.createElement('div');
+    intensityInput.className = 'form-control'
+    intensityInput.id = layerName + '_intensity';
+    intensityInput.setAttribute('style', 'margin-top: 10px;');
+    $(intensityInput).slider({
+        value: layerDetail.ranged_values[1],
+        min: 0,
+        max: 127,
+        step: 1,
+        change: function () {
+            var newValue = $(intensityInput).slider('value');
+            setLayer(layerName, {
+                'ranged_values': {
+                    '1': newValue,
+                }
+            });
+        },
+    });
+    element.appendChild(intensityInput);
+}
+
+function handleLayersUpdate(layers, processors) {
+    if (lastStatus && hackyDeepEqual(layers, lastStatus.layers)) {
+        return;
+    }
+
+    Object.entries(layers).forEach(function (layerEntry) {
+        var layerName = layerEntry[0];
+        var layerDetail = layerEntry[1];
+        var element = document.getElementById(layerName + '_controls');
+        buildLayerControls(processors, layerName, layerDetail, element);
     });
 }
 

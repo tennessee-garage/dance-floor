@@ -66,9 +66,7 @@ def view_processors(processors):
 def view_all_layers(layers):
     result = {}
     for k, v in list(layers.items()):
-        if k == 'playlist':
-            continue
-        result[k] = view_processor_layer(v)
+        result[k] = view_layer(v)
     return result
 
 
@@ -227,20 +225,21 @@ def api_layout():
     pass
 
 
-def view_processor_layer(layer):
+def view_layer(layer):
+    processor_name = None
+    if hasattr(layer, 'get_processor_name'):
+        processor_name = layer.get_processor_name()
     return {
         'enabled': layer.is_enabled(),
         'alpha': layer.get_alpha(),
-        'processor_name': layer.get_processor_name(),
+        'ranged_values': dict(enumerate(layer.ranged_values)),
+        'switches': dict(enumerate(layer.switches)),
+        'processor_name': processor_name,
     }
 
 
 @app.route('/api/layers/<string:layer_name>', methods=['GET', 'PATCH'])
 def api_layer_detail(layer_name):
-    if layer_name == 'playlist':
-        abort(400, 'Playlist layer is not supported by this API.')
-        return
-
     layer = app.controller.layers.get(layer_name)
     if not layer:
         abort(404, 'Unknown layer.')
@@ -253,15 +252,30 @@ def api_layer_detail(layer_name):
         if enabled is not None:
             layer.set_enabled(enabled)
 
-        processor_name = content.get('processor_name')
-        if processor_name == '':
-            layer.set_processor(None)
-        else:
-            processor = app.controller.all_processors.get(processor_name)
-            if not processor:
-                abort(400, 'Processor "{}" not found'.format(processor_name))
-                return
-            layer.set_processor(processor())
+        processor_name = content.get('processor_name', None)
+        if processor_name is not None and hasattr(layer, 'set_processor'):
+            if processor_name == '':
+                layer.set_processor(None)
+            else:
+                processor = app.controller.all_processors.get(processor_name)
+                if not processor:
+                    abort(400, 'Processor "{}" not found'.format(processor_name))
+                    return
+                layer.set_processor(processor())
+
+        ranged_values = content.get('ranged_values', None)
+        if ranged_values is not None:
+            for k, v in enumerate(layer.ranged_values):
+                new_value = ranged_values.get(str(k), None)
+                if new_value is not None:
+                    layer.on_ranged_value_change(k, new_value)
+
+        switches = content.get('switches', None)
+        if switches is not None:
+            for k, v in enumerate(layer.switches):
+                new_value = ranged_values.get(str(k), None)
+                if new_value is not None:
+                    layer.on_switch_change(k, new_value)
 
         alpha = content.get('alpha')
         if alpha is not None:
@@ -272,7 +286,7 @@ def api_layer_detail(layer_name):
                 return
             layer.set_alpha(alpha)
 
-    return jsonify(view_processor_layer(layer))
+    return jsonify(view_layer(layer))
 
 
 def run_server(controller, host='0.0.0.0', port=1977, debug=True):

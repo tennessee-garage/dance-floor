@@ -6,3 +6,6 @@ from __future__ import unicode_literals
 # Maximum value for any component color in a pixel. As currently defined,
 # colors have a 10-bit range of `[0, 1024]`
 COLOR_MAXIMUM = 1024
+
+# Maximum value of a ranged input.
+RANGED_INPUT_MAX = 127
