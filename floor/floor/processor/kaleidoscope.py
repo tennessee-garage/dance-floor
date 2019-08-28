@@ -4,7 +4,6 @@ import random
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 import floor.util.color_utils as color
-from floor.processor.constants import COLOR_MAXIMUM
 
 
 class Kaleidoscope(Base):
@@ -15,7 +14,7 @@ class Kaleidoscope(Base):
         super(Kaleidoscope, self).__init__(**kwargs)
         self.active_px = []
         self.times = [0 for _ in range(64)]
-        self.palette = color.get_random_palette(COLOR_MAXIMUM)
+        self.palette = color.get_random_palette()
         self.palette_length = len(self.palette)
 
         for x in range(0, 64):

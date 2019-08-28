@@ -2,7 +2,8 @@ import importlib
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
-
+from floor.util.color_utils import scale_color
+from floor.processor.constants import COLOR_MAXIMUM
 
 class Animator(Base):
 
@@ -28,4 +29,5 @@ class Animator(Base):
 
         self.floor_frame = (self.floor_frame + 1) % 24
 
+        pixels = [scale_color(p, COLOR_MAXIMUM / 255.0) for p in pixels]
         return pixels

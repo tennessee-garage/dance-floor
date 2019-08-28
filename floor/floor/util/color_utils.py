@@ -6,8 +6,7 @@ from __future__ import division
 from builtins import range
 import math
 import random
-from floor.processor.constants import COLOR_MAXIMUM
-
+from floor.processor.constants import COLOR_MAXIMUM, WHITE, BLACK
 
 def remap(x, oldmin, oldmax, newmin, newmax):
     """
@@ -118,10 +117,12 @@ def scale_color(color, scale):
 
 
 def hex_to_rgb(value):
+    """Given an RGB hex value, returns a 3-tuple scaled to COLOR_MAXIMUM."""
     value = value.lstrip('#')
     lv = len(value)
-    return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
-
+    hex_values = (value[i:i + lv // 3] for i in range(0, lv, lv // 3))
+    raw_color = tuple(int(v, 16) for v in hex_values)
+    return scale_color(raw_color, COLOR_MAXIMUM / 255.0)
 
 # palettes as hex strings
 palettes = {
@@ -139,15 +140,14 @@ palette_keys = list(palettes.keys())
 palettes_length = len(palette_keys)
 
 
-def get_palette(name, max_value=COLOR_MAXIMUM):
-    hex_list = palettes[name]
-    return [scale_color(hex_to_rgb(s), max_value/256.0) for s in hex_list]
+def get_palette(name):
+    return [hex_to_rgb(c) for c in palettes[name]]
 
 
-def get_random_palette(max_value):
+def get_random_palette():
     idx = random.randint(0, palettes_length - 1)
     name = palette_keys[idx]
-    return get_palette(name, max_value)
+    return get_palette(name)
 
 
 def normalize_pixel(pixel):
@@ -165,9 +165,19 @@ def set_brightness(pixel, brightness):
     return tuple(map(lambda x: x * brightness, pixel))
 
 
-def alpha_blend(pixel_above, pixel_below, alpha):
+def tint(color, percent):
+    """Lighten `color` to white by `percent`"""
+    return alpha_blend(WHITE, color, percent)
+
+
+def shade(color, percent):
+    """Lighten `color` to black by `percent`"""
+    return alpha_blend(BLACK, color, percent, black_is_transparent=False)
+
+
+def alpha_blend(pixel_above, pixel_below, alpha, black_is_transparent=True):
     """Blends `pixel_above` onto `pixel_below` with given alpha."""
-    if pixel_above == (0, 0, 0):
+    if pixel_above == (0, 0, 0) and black_is_transparent:
         # We treat black pixels as fully transparent.
         # TODO(mikey): If/when pixels are managed with a separate alpha channel,
         # we can remove this hack.

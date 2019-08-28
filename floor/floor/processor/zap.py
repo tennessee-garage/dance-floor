@@ -3,15 +3,7 @@ import collections
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
-
-
-def tint(color, percent):
-    """Lighten `color` to white by `percent`"""
-    r, g, b = color
-    new_r = r + (255 - r) * percent
-    new_g = g + (255 - g) * percent
-    new_b = b + (255 - b) * percent
-    return new_r, new_g, new_b
+from floor.util.color_utils import tint, hex_to_rgb
 
 
 def gradient(color, steps=4):
@@ -24,12 +16,12 @@ def gradient(color, steps=4):
     return ret
 
 
-RED = (0xff, 0x00, 0x00)
-ORANGE = (0xff, 0xa5, 0x00)
-GREEN = (0x00, 0xff, 0x00)
-YELLOW = (0xff, 0xff, 0x00)
-BLUE = (0, 0, 0xff)
-PURPLE = (0x94, 0x00, 0xd3)
+RED = hex_to_rgb('#ff0000')
+ORANGE = hex_to_rgb('#ffa500')
+GREEN = hex_to_rgb('#00ff00')
+YELLOW = hex_to_rgb('#ffff00')
+BLUE = hex_to_rgb('#0000ff')
+PURPLE = hex_to_rgb('#9400d3')
 
 COLOR_SETS = [
     gradient(RED),
