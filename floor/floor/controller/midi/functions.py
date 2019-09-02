@@ -90,28 +90,30 @@ MidiFunctions.add('playlist_goto_16',
                   callback=lambda controller, _: controller.playlist.go_to(16),
                   help_text='Go to playlist position 16.')
 MidiFunctions.add('set_bpm',
-                  callback=lambda controller, value: controller.set_bpm(90 + 80 * (value/127.0)),
+                  callback=lambda controller, value: controller.set_bpm(90 + 80 * (value / 127.0)),
                   help_text='Set the global bpm based on note velocity or controller value.')
 MidiFunctions.add('set_brightness',
-                  callback=lambda controller, value: controller.set_brightness(value/127.0),
+                  callback=lambda controller, value: controller.set_brightness(value / 127.0),
                   help_text='Adjust the max brightness of the floor')
 
 # Add events to send ranged values and switches to each render layer.
-for event_base_name in (
-    'playlist_ranged_value',
-    'overlay1_ranged_value',
-    'overlay2_ranged_value',
-    'playlist_switch',
-    'overlay1_switch',
-    'overlay2_switch'):
+for base in (
+        'playlist_ranged_value',
+        'overlay1_ranged_value',
+        'overlay2_ranged_value',
+        'playlist_switch',
+        'overlay1_switch',
+        'overlay2_switch'):
     for idx in range(0, 4):
-        event_name = '{}_{}'.format(event_base_name, idx+1)
-        def callback(controller, value, event_base_name=event_base_name, i=idx):
-            controller.handle_input_event(event_base_name, i, value)
-        MidiFunctions.add(event_name,
-                        callback=callback,
-                        help_text='An event for adjusting processor parameters')
+        event_name = '{}_{}'.format(base, idx + 1)
 
+        def callback(controller, value, event_base_name=base, i=idx):
+            controller.handle_input_event(event_base_name, i, value)
+
+
+        MidiFunctions.add(event_name,
+                          callback=callback,
+                          help_text='An event for adjusting processor parameters')
 
 # Setup methods for floor foot presses
 for idx in range(1, 65):

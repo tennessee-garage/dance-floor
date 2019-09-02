@@ -2,6 +2,9 @@ from builtins import chr
 from builtins import range
 from builtins import object
 import serial
+import logging
+
+logger = logging.getLogger('serial_read')
 
 
 class SerialRead(object):
@@ -51,7 +54,7 @@ class SerialRead(object):
     @staticmethod
     def is_stop_marker(val):
         # The first 6 bits of the first byte should always be zero for normal data so this condition is unique
-        return val[0] == chr(0xFF) and val[1] == chr(0xFF)
+        return ord(val[0]) == 0xFF and ord(val[1]) == 0xFF
 
     def generate_null_packet(self):
         return [chr(0) for _ in range(self.packet_bytes)]
@@ -63,9 +66,9 @@ class SerialRead(object):
 
         available = self.ser.inWaiting()
 
-        while available > 0:
+        while available >= self.packet_bytes:
             data = self.ser.read(self.packet_bytes)
-            available -= 2
+            available -= self.packet_bytes
 
             if self.is_stop_marker(data):
                 self.data_ready = True
@@ -80,3 +83,16 @@ class SerialRead(object):
         # Return only the last self.frame_bytes (in case we got extra)
         start_index = len(self.read_buffer) - self.frame_bytes
         return self.read_buffer[start_index:]
+
+    def flush(self):
+        """
+        Read in any waiting data and discard
+        :return:
+        """
+        available = self.ser.inWaiting()
+        while available >= self.packet_bytes:
+            data = self.ser.read(self.packet_bytes)
+            available -= self.packet_bytes
+
+        self.read_buffer = []
+        self.data_ready = False

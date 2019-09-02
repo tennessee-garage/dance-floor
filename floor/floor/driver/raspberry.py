@@ -11,6 +11,8 @@ logger = logging.getLogger('raspberry')
 
 class Raspberry(Base):
 
+    PROBE_MARKER = 0xEE
+
     # For debugging high frequency loops, only output 1 out of this many times.
     DEBUG_SKIP_RESET = 10
 
@@ -58,12 +60,58 @@ class Raspberry(Base):
         self.spi.open(0, 0)
 
         self.weights = [0] * self.NUM_TILES
+        self.raw_weights = [0] * self.NUM_TILES
 
         # The maximum value seen after filtering.
         self.value_ceiling = [0] * self.NUM_TILES
         self.value_floor = [0] * self.NUM_TILES
 
         self.reader = SerialRead()
+        self.probe_floor()
+
+    def probe_floor(self):
+        """
+        Send data into the floor with a unique value in the first byte and a counter
+        in the second byte.  The tiles will read these just like LED data, but if there are
+        less than 64 tiles, we'll see some of this test data come out the other side as
+        weight data.  We can use the counter in this data to determine how many tiles are
+        connected and adjust the floor to suit.
+
+        :return:
+        """
+        self.reader.flush()
+        self.send_probe_data()
+        num_squares = self.read_probe_data()
+
+        logger.info("Probed floor: {} tiles connected".format(num_squares))
+
+    def send_probe_data(self):
+        data = list()
+
+        for i in range(self.WEIGHT_PACKETS):
+            data.append(self.PROBE_MARKER)
+            data.append(i)
+            data.append(0)
+            data.append(0)
+
+        self.spi.xfer(data)
+
+    def read_probe_data(self):
+        result = self.read_frame_once()
+
+        marker = ord(result[-2])
+        value = ord(result[-1])
+
+        # If there's no probe marker, there are 64 floor tiles configured that consumed
+        # all the probe values we sent
+        if marker != self.PROBE_MARKER:
+            return self.WEIGHT_PACKETS
+
+        # The number in "value" is the highest number between 0..63 that escaped the
+        # floor.  So if there are only 8 tiles, we'll see value == 55 which means
+        # the 8 values 56..63 were read and retained by those 8 tiles
+        num_squares = (self.WEIGHT_PACKETS - 1) - value
+        return num_squares
 
     def send_data(self):
         """
@@ -99,6 +147,12 @@ class Raspberry(Base):
         """
 
         self.spi.xfer(data)
+
+    def read_frame_once(self):
+        while not self.reader.data_ready:
+            self.reader.read()
+
+        return self.reader.get_frame()
 
     def read_data(self):
         """
@@ -163,6 +217,8 @@ class Raspberry(Base):
 
             # Use TILE_ORDER to map the single stream back to a left to right, left to right orders
             position = self.TILE_ORDER[packet]
+
+            self.raw_weights[position] = value
 
             self.value_ceiling[position] = max(self.value_ceiling[position], value)
             self.value_floor[position] = min(self.value_floor[position], value)
