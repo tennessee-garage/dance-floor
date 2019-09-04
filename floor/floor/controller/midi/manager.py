@@ -88,11 +88,15 @@ class MidiManager(object):
         for command in commands:
             func = mapping.get_function(command)
             if not func:
+                self.logger.info("Received unmapped command: {} {}".format(command[0], command[1]))
                 continue
 
             value = command[2]
 
-            func.callback(self.controller, value)
+            try:
+                func.callback(self.controller, value)
+            except AttributeError as e:
+                self.logger.error('Error processing MIDI command: {}'.format(e))
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)
