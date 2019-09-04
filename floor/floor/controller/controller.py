@@ -109,17 +109,17 @@ class Controller(object):
             logger.warning('Ignoring unknown event {}'.format(event_name))
 
     def square_weight_on(self, index):
-        if index > 63 or index < 0:
+        if index > 64 or index < 1:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index] = 1
+        self.SYNTHETIC_WEIGHTS[index-1] = 1
         self.SYNTHETIC_WEIGHT_ACTIVE = True
 
     def square_weight_off(self, index):
-        if index > 63 or index < 0:
+        if index > 64 or index < 1:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index] = 0
+        self.SYNTHETIC_WEIGHTS[index-1] = 0
 
         # Scan the weighs and see if anything is still set
         for value in self.SYNTHETIC_WEIGHTS:

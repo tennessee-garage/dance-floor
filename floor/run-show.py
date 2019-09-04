@@ -7,24 +7,28 @@ from floor.controller import Layout
 from floor.controller.midi import MidiManager
 from floor.server.server import run_server
 from floor.processor import all_processors
-from floor.util.simple_profile import profile
 
 import argparse
 import importlib
 import os
 import sys
 import logging
+import re
 
 LOG_FORMAT = '%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s'
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-CONFIG_DIR = os.path.join(SCRIPT_DIR, 'config')
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+CONFIG_DIR = os.path.join(BASE_DIR, 'config')
 PLAYLIST_DIR = os.path.join(CONFIG_DIR, 'playlists')
 MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, 'midi_maps')
+
 DEFAULT_PLAYLIST = os.path.join(PLAYLIST_DIR, 'default.json')
-DEFAULT_FLOOR_CONFIG_FILE = os.path.join(SCRIPT_DIR, 'config/floor-layout.json')
 
 logger = logging.getLogger('show')
+
+
+def driver_to_classname(name):
+    return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), name)
 
 
 def load_driver(driver_name, driver_args):
@@ -34,7 +38,7 @@ def load_driver(driver_name, driver_args):
         logger.exception("Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e))
         return None
 
-    driver = getattr(module, driver_name.title())(driver_args)
+    driver = getattr(module, driver_to_classname(driver_name))(driver_args)
     logger.info("Loaded driver '{}'".format(driver_name))
     return driver
 
@@ -62,20 +66,8 @@ def get_options():
     parser.add_argument(
         '--floor_config',
         dest='floor_config',
-        default=DEFAULT_FLOOR_CONFIG_FILE,
+        default=None,
         help='Use this floor configuration'
-    )
-    parser.add_argument(
-        '--no-opc-input',
-        dest='opc_input',
-        action='store_false',
-        help='Turn off keyboard input handling'
-    )
-    parser.add_argument(
-        '--opc-input',
-        dest='opc_input',
-        action='store_true',
-        help='Turn on keyboard input handling'
     )
     parser.add_argument(
         '--verbose',
@@ -102,7 +94,7 @@ def get_options():
         default=None,
         help='Function mapping between a MIDI device and floor functions'
     )
-    parser.set_defaults(opc_input=True, server_port=1977)
+    parser.set_defaults(server_port=1977)
     return parser.parse_args()
 
 
@@ -112,8 +104,7 @@ def main():
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     driver = load_driver(args.driver_name, {
-        "opc_input": args.opc_input,
-        "layout": Layout(args.floor_config),
+        "layout": Layout(config_dir=CONFIG_DIR, config_name=args.floor_config),
     })
     if not driver:
         logger.error('No driver, exiting.')
