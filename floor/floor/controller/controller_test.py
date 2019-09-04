@@ -64,7 +64,7 @@ class ControllerTest(TestCase):
         controller = Controller(driver, playlist)
 
         controller.run_one_frame()
-        self.assertEqual([BLUE] * 64, driver.set_leds.call_args[0][0])
+        self.assertEqual([BLUE + (1.0,)] * 64, driver.set_leds.call_args[0][0])
 
         overlay2 = controller.layers['overlay2']
         overlay2.set_processor(red_processor)

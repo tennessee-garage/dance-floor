@@ -151,11 +151,16 @@ def get_random_palette():
 
 
 def normalize_pixel(pixel):
-    r, g, b = pixel
+    r, g, b = pixel[:3]
+    if len(pixel) == 4:
+        alpha = pixel[3]
+    else:
+        alpha = 1.0
     return (
         max(0, min(int(r), COLOR_MAXIMUM)),
         max(0, min(int(g), COLOR_MAXIMUM)),
         max(0, min(int(b), COLOR_MAXIMUM)),
+        alpha,
     )
 
 
@@ -177,21 +182,23 @@ def shade(color, percent):
 
 def alpha_blend(pixel_above, pixel_below, alpha, black_is_transparent=True):
     """Blends `pixel_above` onto `pixel_below` with given alpha."""
+    pixel_alpha = 1.0
+    if len(pixel_above) == 4:
+        pixel_alpha = pixel_above[3]
+    alpha = alpha * pixel_alpha
     if pixel_above == (0, 0, 0) and black_is_transparent:
         # We treat black pixels as fully transparent.
-        # TODO(mikey): If/when pixels are managed with a separate alpha channel,
-        # we can remove this hack.
         return pixel_below
     elif alpha == 1.0:
         return pixel_above
     elif alpha == 0.0:
         return pixel_below
     else:
-        rAbove, gAbove, bAbove = pixel_above
-        rBelow, gBelow, bBelow = pixel_below
+        rAbove, gAbove, bAbove = pixel_above[:3]
+        rBelow, gBelow, bBelow = pixel_below[:3]
 
         rOut = alpha * rAbove + (1 - alpha) * rBelow
         gOut = alpha * gAbove + (1 - alpha) * gBelow
         bOut = alpha * bAbove + (1 - alpha) * bBelow
 
-        return normalize_pixel((rOut, gOut, bOut))
+        return normalize_pixel((rOut, gOut, bOut))[:3]
