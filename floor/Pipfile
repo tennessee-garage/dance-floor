@@ -17,8 +17,8 @@ flask-sockets = "*"
 pymidi = "*"
 mock = "*"
 gevent = "*"
+flask-cors = "*"
 
 [scripts]
 show = "python run-show.py"
 benchmark = "python bin/benchmark.py"
-
