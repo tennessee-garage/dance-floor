@@ -215,6 +215,7 @@ function buildLayerControls(processors, layerName, layerDetail, element) {
                 });
             },
         });
+        alphaInput.childNodes[0].setAttribute('title', 'Alpha');
         element.appendChild(alphaInput);
     }
 
@@ -236,6 +237,7 @@ function buildLayerControls(processors, layerName, layerDetail, element) {
             });
         },
     });
+    wetDryInput.childNodes[0].setAttribute('title', 'Wet/Dry');
     element.appendChild(wetDryInput);
 
     var intensityInput = document.createElement('div');
@@ -256,6 +258,7 @@ function buildLayerControls(processors, layerName, layerDetail, element) {
             });
         },
     });
+    intensityInput.childNodes[0].setAttribute('title', 'Intensity');
     element.appendChild(intensityInput);
 }
 
