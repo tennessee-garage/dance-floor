@@ -95,8 +95,8 @@ class MidiManager(object):
 
             try:
                 func.callback(self.controller, value)
-            except AttributeError as e:
-                self.logger.error('Error processing MIDI command: {}'.format(e))
+            except Exception:
+                self.logger.exception('Error in MIDI command callback')
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)
