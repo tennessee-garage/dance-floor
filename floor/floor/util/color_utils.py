@@ -186,7 +186,7 @@ def alpha_blend(pixel_above, pixel_below, alpha, black_is_transparent=True):
     if len(pixel_above) == 4:
         pixel_alpha = pixel_above[3]
     alpha = alpha * pixel_alpha
-    if pixel_above == (0, 0, 0) and black_is_transparent:
+    if pixel_above[:3] == (0, 0, 0) and black_is_transparent:
         # We treat black pixels as fully transparent.
         return pixel_below
     elif alpha == 1.0:
