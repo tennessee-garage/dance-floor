@@ -1,11 +1,12 @@
 # Dancefloor Server
 
-This is a simple HTTP service that exposes a public API and control web page to the running dance floor.
+This is a simple HTTP service that exposes a public API and control web page to the running dance floor. It also exposes a GUI control interface.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [GUI Frontend](#gui-frontend)
 - [API](#api)
   - [`GET /api/status`](#get-apistatus)
   - [`POST /api/playlist/advance`](#post-apiplaylistadvance)
@@ -23,6 +24,24 @@ This is a simple HTTP service that exposes a public API and control web page to 
 - [TODO](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## GUI Frontend
+
+The frontend is developed in a separate project. See source here: https://github.com/tennessee-garage/ddfui
+
+For "production", we periodically check in a snapshot of this frontend to the `./static` folder here, so the RPi can serve it directly. These are the rough steps to follow:
+
+```
+### Build "production" frontend js, css, and assets.
+
+$ cd ~/git/ddfui
+$ yarn build
+
+### Copy the built assets into this project.
+
+$ cd ~/git/dance-floor/floor
+$ ./bin/sync-frontend.sh ~/git/ddfui/build
+```
 
 ## API
 

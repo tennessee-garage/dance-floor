@@ -13,27 +13,14 @@ MAX_BPM = 220
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-app = Flask(__name__, root_path=BASE_DIR)
+app = Flask(__name__, root_path=BASE_DIR, static_url_path='/')
 CORS(app)
 app.controller = None  # type: Controller
 
 
 @app.route('/')
 def main():
-    # TODO(mikey): Brittle.
-    hostname = request.host.split(':')[0]
-    devserver_url = 'http://{}:1979'.format(hostname)
-    return render_template('index.html', devserver_url=devserver_url)
-
-
-@app.route('/layout')
-def layout():
-    return render_template('layout.html', nav="layout")
-
-
-@app.route('/static/<path:path>')
-def static_assets(path):
-    return send_from_directory('static', path)
+    return send_from_directory('static', 'index.html')
 
 
 def view_playlist(playlist):
