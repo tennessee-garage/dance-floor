@@ -115,6 +115,14 @@ class PlaylistRenderLayer(BaseRenderLayer):
         self.current_processor_args = None
         self.processor_render_layer = ProcessorRenderLayer()
 
+    def set_enabled(self, enabled):
+        """Suspend/unsuspend the playlist when the layer is enabled/disabled."""
+        super(PlaylistRenderLayer, self).set_enabled(enabled)
+        if self.enabled and not self.playlist.is_running():
+            self.playlist.start_playlist()
+        elif not self.enabled and self.playlist.is_running():
+            self.playlist.stop_playlist()
+
     def on_ranged_value_change(self, num, val):
         return self.processor_render_layer.on_ranged_value_change(num, val)
 
@@ -125,6 +133,8 @@ class PlaylistRenderLayer(BaseRenderLayer):
         return self.processor_render_layer.get_processor_name()
 
     def render(self, render_context):
+        if not self.playlist.is_running():
+            return None
         self._check_playlist(render_context)
         try:
             return self.processor_render_layer.render(render_context)

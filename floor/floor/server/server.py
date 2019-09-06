@@ -90,20 +90,6 @@ def api_playlist():
     return jsonify(view_playlist(playlist))
 
 
-@app.route('/api/playlist/start', methods=['POST'])
-def api_playlist_start():
-    playlist = app.controller.playlist
-    playlist.start_playlist()
-    return jsonify(view_playlist(playlist))
-
-
-@app.route('/api/playlist/stop', methods=['POST'])
-def api_playlist_stop():
-    playlist = app.controller.playlist
-    playlist.stop_playlist()
-    return jsonify(view_playlist(playlist))
-
-
 @app.route('/api/playlist/advance', methods=['POST'])
 def api_playlist_advance():
     playlist = app.controller.playlist
