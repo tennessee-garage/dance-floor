@@ -135,11 +135,6 @@ class Controller(object):
 
     @profile(print_seconds=2)
     def run_one_frame(self):
-        if not self.playlist.is_running():
-            # If the playlist is stopped/paused, sleep a bit then restart the loop
-            self.clocksource.sleep(0.5)
-            return
-
         self.init_loop()
         self.generate_frame()
         self.transfer_data()
