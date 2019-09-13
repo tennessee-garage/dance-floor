@@ -33,6 +33,7 @@ SOCKETS = set()
 FAKE_WEIGHTS = [0] * 64
 WEIGHT_ON_SECONDS = 1.0
 
+
 @sockets_app.route('/events')
 def echo_socket(ws):
     logger.info('Socket connected: {}'.format(ws))
@@ -90,6 +91,7 @@ class Devserver(Base):
     """Floor driver interface."""
 
     def __init__(self, args):
+        super(Devserver, self).__init__(args)
         self.weights = [0] * 64
         self.thr = threading.Thread(target=serve_forever)
         self.thr.daemon = True

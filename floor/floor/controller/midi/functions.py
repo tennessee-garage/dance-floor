@@ -33,7 +33,7 @@ MidiFunctions.add('playlist_previous',
                   callback=lambda controller, _: controller.playlist.previous(),
                   help_text='Go to previous item in the current playlist.')
 MidiFunctions.add('playlist_play',
-                  callback=lambda controller, _: controller.playlist.play(),
+                  callback=lambda controller, _: controller.playlist.start_playlist(),
                   help_text='Play the current playlist.')
 MidiFunctions.add('playlist_stay',
                   callback=lambda controller, _: controller.playlist.stay(),
