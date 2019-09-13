@@ -3,6 +3,7 @@ import os
 import time
 import threading
 from flask import Flask, jsonify, request, abort, render_template, send_from_directory
+from flask_cors import CORS
 
 from floor.controller import Controller
 from floor.controller.playlist import ProcessorNotFound
@@ -13,6 +14,7 @@ MAX_BPM = 220
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 app = Flask(__name__, root_path=BASE_DIR)
+CORS(app)
 app.controller = None  # type: Controller
 
 
