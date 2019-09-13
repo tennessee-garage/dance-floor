@@ -103,12 +103,16 @@ def main():
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
-    driver = load_driver(args.driver_name, {
-        "layout": Layout(config_dir=CONFIG_DIR, config_name=args.floor_config),
-    })
+    layout = None
+    if args.floor_config:
+        layout = Layout(config_dir=CONFIG_DIR, config_name=args.floor_config)
+
+    driver = load_driver(args.driver_name, {"config_dir": CONFIG_DIR})
     if not driver:
         logger.error('No driver, exiting.')
         sys.exit(1)
+    driver.init_layout(layout)
+    logger.info("Using layout: {}".format(driver.layout.name))
 
     if args.playlist and args.processor_name:
         logger.error('Cannot provide both --playlist and --processor')

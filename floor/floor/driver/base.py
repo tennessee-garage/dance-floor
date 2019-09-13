@@ -1,18 +1,28 @@
-
-
 from builtins import range
 from builtins import object
+
+from floor.controller import Layout
+
+
 class Base(object):
 
     def __init__(self, driver_args):
         self.weights = []
         self.leds = [[0, 0, 0, 0] for _ in range(64)]
         self.args = driver_args
+        self.layout = None
 
-        if "layout" in driver_args:
-            self.layout = driver_args["layout"]
+    def init_layout(self, layout_name=None):
+        if layout_name:
+            self.layout = Layout(config_dir=self.args.config_dir,
+                                 config_name=layout_name)
         else:
-            self.layout = None
+            num_squares = self.probe_floor()
+            self.layout = Layout.from_squares(config_dir=self.args['config_dir'],
+                                              num_squares=num_squares)
+
+    def probe_floor(self):
+        return 64
 
     def get_weights(self):
         """

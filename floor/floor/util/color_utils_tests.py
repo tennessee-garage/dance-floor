@@ -12,7 +12,7 @@ class ColorUtilsTests(TestCase):
     def test_normalize_pixel(self):
         self.assertEqual((0, 0, 0, 1.0), color_utils.normalize_pixel((0, 1e-14, 0.000001)))
         self.assertEqual((0, 12, 340, 1.0), color_utils.normalize_pixel((1e-14, 12, 340)))
-        self.assertEqual((0, 1024, 340, 1.0), color_utils.normalize_pixel((1e-14, 99999, 340)))
+        self.assertEqual((0, 1023, 340, 1.0), color_utils.normalize_pixel((1e-14, 99999, 340)))
         self.assertEqual((0, 12, 340, 0.5), color_utils.normalize_pixel((1e-14, 12, 340, 0.5)))
 
     def test_alpha_blend(self):
@@ -35,13 +35,13 @@ class ColorUtilsTests(TestCase):
         red = (COLOR_MAXIMUM, 0, 0)
         self.assertEqual(red, color_utils.tint(red, 0))
         self.assertEqual(WHITE, color_utils.tint(red, 1))
-        self.assertEqual((COLOR_MAXIMUM, COLOR_MAXIMUM/2, COLOR_MAXIMUM/2), color_utils.tint(red, 0.5))
+        self.assertEqual((COLOR_MAXIMUM, COLOR_MAXIMUM//2, COLOR_MAXIMUM//2), color_utils.tint(red, 0.5))
 
     def test_shade(self):
         red = (COLOR_MAXIMUM, 0, 0)
         self.assertEqual(red, color_utils.shade(red, 0))
         self.assertEqual(BLACK, color_utils.shade(red, 1))
-        self.assertEqual((512, 0, 0), color_utils.shade(red, 0.5))
+        self.assertEqual((511, 0, 0), color_utils.shade(red, 0.5))
 
     def test_hex_to_rgb(self):
         self.assertEqual(WHITE, color_utils.hex_to_rgb('#ffffff'))

@@ -10,7 +10,8 @@ logger = logging.getLogger('raspberry')
 
 
 class Raspberry(Base):
-
+    # Unique bytes to send through the floor when probing.  Can tell whether the
+    # data we get back is what we sent vs. random existing data
     PROBE_MARKER = 0xEE
 
     # For debugging high frequency loops, only output 1 out of this many times.
@@ -67,7 +68,6 @@ class Raspberry(Base):
         self.value_floor = [0] * self.NUM_TILES
 
         self.reader = SerialRead()
-        self.probe_floor()
 
     def probe_floor(self):
         """
@@ -77,13 +77,14 @@ class Raspberry(Base):
         weight data.  We can use the counter in this data to determine how many tiles are
         connected and adjust the floor to suit.
 
-        :return:
+        :return: Number of squares found
         """
         self.reader.flush()
         self.send_probe_data()
         num_squares = self.read_probe_data()
 
         logger.info("Probed floor: {} tiles connected".format(num_squares))
+        return num_squares
 
     def send_probe_data(self):
         data = list()
