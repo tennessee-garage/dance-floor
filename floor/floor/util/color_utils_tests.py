@@ -31,6 +31,14 @@ class ColorUtilsTests(TestCase):
         above = 0, 0, 255
         self.assertEqual((0, 0, 63), color_utils.alpha_blend(above, below, 0.25))
 
+        # Test `black_is_alpha` function
+        above = 0, 0, 1, 1.0
+        below = 1, 2, 3
+        self.assertEqual((0, 0, 1, 1.0), color_utils.alpha_blend(above, below, 1.0))
+
+        above = 0, 0, 0, 1.0
+        self.assertEqual((1, 2, 3), color_utils.alpha_blend(above, below, 1.0))
+
     def test_tint(self):
         red = (COLOR_MAXIMUM, 0, 0)
         self.assertEqual(red, color_utils.tint(red, 0))
