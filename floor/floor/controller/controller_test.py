@@ -33,10 +33,17 @@ class SingleColorProcessor(BaseProcessor):
 
 
 class ControllerTest(TestCase):
+    @staticmethod
+    def new_fake_driver():
+        driver = Mock()
+        driver.get_weights = Mock(return_value=[0] * 64)
+        return driver
+
     def setUp(self):
         self.playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
         self.driver = Mock()
-        self.controller = Controller(self.driver, self.playlist)
+        self.driver = self.new_fake_driver()
+        self.controller = Controller([self.driver], self.playlist)
 
     def test_initialization(self):
         """Verifies initial state."""
@@ -60,8 +67,8 @@ class ControllerTest(TestCase):
         green_processor = SingleColorProcessor(color=GREEN)
         
         playlist = Playlist.from_single_processor(SingleColorProcessor(), args={'color': BLUE})
-        driver = Mock()
-        controller = Controller(driver, playlist)
+        driver = self.new_fake_driver()
+        controller = Controller([driver], playlist)
 
         controller.run_one_frame()
         self.assertEqual([BLUE + (1.0,)] * 64, driver.set_leds.call_args[0][0])
@@ -77,3 +84,27 @@ class ControllerTest(TestCase):
         overlay1.set_alpha(0.5)
         controller.run_one_frame()
         self.assertEqual([(0x3f, 0x7f, 0x3f)] * 64, driver.set_leds.call_args[0][0])
+
+    def test_multiple_drivers_get_weights_are_blended(self):
+        driver1 = Mock()
+        driver1.get_weights = Mock(return_value=[0, 1, 0, 0] * 16)
+
+        driver2 = Mock()
+        driver2.get_weights = Mock(return_value=[0, 0, 0, 1] * 16)
+
+        playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
+        controller = Controller([driver1, driver2], playlist)
+        weights = controller.get_weights()
+
+        expected_weights = [0, 1] * 32
+        self.assertEqual(expected_weights, weights)
+
+        controller.square_weight_on(1)
+        expected_weights[0] = 1
+        weights = controller.get_weights()
+        self.assertEqual(expected_weights, weights)
+
+        controller.square_weight_off(1)
+        expected_weights[0] = 0
+        weights = controller.get_weights()
+        self.assertEqual(expected_weights, weights)
