@@ -41,7 +41,7 @@ class ControllerTest(TestCase):
 
     def setUp(self):
         all_procs = all_processors()
-        self.playlist = Playlist.from_file(all_procs, DEFAULT_PLAYLIST)
+        self.playlist = Playlist.from_file(DEFAULT_PLAYLIST, all_procs)
         self.playlist_manager = PlaylistManager(self.playlist)
         self.driver = Mock()
         self.driver = self.new_fake_driver()
@@ -95,7 +95,7 @@ class ControllerTest(TestCase):
         driver2 = Mock()
         driver2.get_weights = Mock(return_value=[0, 0, 0, 1] * 16)
 
-        playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
+        playlist = Playlist.from_file(DEFAULT_PLAYLIST, all_processors())
         playlist_manager = PlaylistManager(playlist)
         controller = Controller([driver1, driver2], playlist_manager)
         weights = controller.get_weights()

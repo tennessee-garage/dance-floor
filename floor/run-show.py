@@ -140,11 +140,9 @@ def main():
             logger.error('Processor "{}" unknown'.format(args.processor_name))
             sys.exit(1)
     elif args.playlist:
-        playlist = Playlist('Default')
-        playlist.load_from(args.playlist, all_processors())
+        playlist = Playlist.from_file(args.playlist, all_processors())
     else:
-        playlist = Playlist('Default')
-        playlist.load_from(DEFAULT_PLAYLIST, all_processors())
+        playlist = Playlist.from_file(DEFAULT_PLAYLIST, all_processors())
 
     playlist_manager = PlaylistManager(playlist, user_playlists_dir=args.user_playlists_dir)
     show = Controller(drivers, playlist_manager)

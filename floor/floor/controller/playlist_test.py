@@ -18,7 +18,7 @@ class PlaylistTest(TestCase):
         self.all_procs = all_processors()
 
     def test_default_playlist(self):
-        p = Playlist.from_file(self.all_procs, DEFAULT_PLAYLIST, strict=True)
+        p = Playlist.from_file(DEFAULT_PLAYLIST, self.all_procs, strict=True)
         self.assert_(len(p.queue) > 0, 'Expected non-zero default playlist.')
 
     def test_playlist_item_from_and_to_object(self):
