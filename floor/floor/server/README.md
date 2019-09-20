@@ -14,6 +14,10 @@ This is a simple HTTP service that exposes a public API and control web page to 
   - [`POST /api/playlist/add`](#post-apiplaylistadd)
   - [`POST /api/playlist/stay`](#post-apiplayliststay)
   - [`DELETE /api/playlist/:position`](#delete-apiplaylistposition)
+  - [`GET /api/playlists`](#get-apiplaylists)
+  - [`GET /api/playlists/:name`](#get-apiplaylistsname)
+  - [`POST /api/playlists/:name`](#post-apiplaylistsname)
+  - [`POST /api/playlists/:name/activate`](#post-apiplaylistsnameactivate)
   - [`GET /api/tempo`](#get-apitempo)
   - [`POST /api/tempo`](#post-apitempo)
   - [`POST /api/tempo/nudge`](#post-apitemponudge)
@@ -234,6 +238,58 @@ None.
 **Response**
 
 The playlist object upon success; HTTP `400` on error.
+
+
+### `GET /api/playlists`
+
+Lists _all_ playlists known to the system.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+A dictionary of playlist items, keyed by a slug-like playlist name. Each value has the same format as `GET /api/playlist`.
+
+
+### `GET /api/playlists/:name`
+
+Fetches a single playlist, by slug-like playlist name.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The playlist object upon success; HTTP `404` if not found.
+
+
+### `POST /api/playlists/:name`
+
+Creates or updates a single playlist, by slug-like playlist name.
+
+**Request arguments**
+
+The request body should be a well-formed playlist object.
+
+**Response**
+
+The playlist object upon success; HTTP `400` upon failure.
+
+
+### `POST /api/playlists/:name/activate`
+
+Set this playlist as the current playlist.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The playlist object upon success; HTTP `404` if not found.
 
 
 ### `GET /api/tempo`
