@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 from floor.processor import all_processors
 from floor.controller.controller import Controller
-from floor.controller.playlist import Playlist
+from floor.controller.playlist import Playlist, PlaylistManager
 from unittest import TestCase
 from mock import Mock
 from floor.processor.base import Base as BaseProcessor
@@ -40,10 +40,12 @@ class ControllerTest(TestCase):
         return driver
 
     def setUp(self):
-        self.playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
+        all_procs = all_processors()
+        self.playlist = Playlist.from_file(all_procs, DEFAULT_PLAYLIST)
+        self.playlist_manager = PlaylistManager(self.playlist)
         self.driver = Mock()
         self.driver = self.new_fake_driver()
-        self.controller = Controller([self.driver], self.playlist)
+        self.controller = Controller([self.driver], self.playlist_manager)
 
     def test_initialization(self):
         """Verifies initial state."""
@@ -67,8 +69,9 @@ class ControllerTest(TestCase):
         green_processor = SingleColorProcessor(color=GREEN)
         
         playlist = Playlist.from_single_processor(SingleColorProcessor, args={'color': BLUE})
+        playlist_manager = PlaylistManager(playlist)
         driver = self.new_fake_driver()
-        controller = Controller([driver], playlist)
+        controller = Controller([driver], playlist_manager)
 
         controller.run_one_frame()
         self.assertEqual([BLUE + (1.0,)] * 64, driver.set_leds.call_args[0][0])
@@ -93,7 +96,8 @@ class ControllerTest(TestCase):
         driver2.get_weights = Mock(return_value=[0, 0, 0, 1] * 16)
 
         playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
-        controller = Controller([driver1, driver2], playlist)
+        playlist_manager = PlaylistManager(playlist)
+        controller = Controller([driver1, driver2], playlist_manager)
         weights = controller.get_weights()
 
         expected_weights = [0, 1] * 32

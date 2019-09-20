@@ -62,7 +62,7 @@ def view_all_layers(layers):
 @app.route('/api/status', methods=['GET'])
 def api_status():
     result = {
-        'playlist': view_playlist(app.controller.playlist),
+        'playlist': view_playlist(app.controller.playlist_manager.get_current_playlist()),
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
         'processors': view_processors(app.controller.all_processors),
         'layers': view_all_layers(app.controller.layers),
@@ -73,20 +73,20 @@ def api_status():
 
 @app.route('/api/playlist', methods=['GET'])
 def api_playlist():
-    playlist = app.controller.playlist
+    playlist = app.controller.playlist_manager.get_current_playlist()
     return jsonify(view_playlist(playlist))
 
 
 @app.route('/api/playlist/advance', methods=['POST'])
 def api_playlist_advance():
-    playlist = app.controller.playlist
+    playlist = app.controller.playlist_manager.get_current_playlist()
     playlist.advance()
     return jsonify(view_playlist(playlist))
 
 
 @app.route('/api/playlist/previous', methods=['POST'])
 def api_playlist_previous():
-    playlist = app.controller.playlist
+    playlist = app.controller.playlist_manager.get_current_playlist()
     playlist.previous()
     return jsonify(view_playlist(playlist))
 
@@ -109,7 +109,7 @@ def api_playlist_add():
         abort(400, 'Processor "{}" not found'.format(name))
     item = PlaylistItem(processor, title=title, duration=duration, processor_args=args)
 
-    playlist = app.controller.playlist
+    playlist = app.controller.playlist_manager.get_current_playlist()
     try:
         if play_next:
             position = playlist.append(item)
@@ -127,14 +127,14 @@ def api_playlist_add():
 
 @app.route('/api/playlist/stay', methods=['POST'])
 def api_playlist_stay():
-    playlist = app.controller.playlist
-    app.controller.playlist.stay()
+    playlist = app.controller.playlist_manager.get_current_playlist()
+    app.controller.playlist_manager.get_current_playlist().stay()
     return jsonify(view_playlist(playlist))
 
 
 @app.route('/api/playlist/<int:position>', methods=['GET', 'DELETE'])
 def api_playlist_position(position):
-    playlist = app.controller.playlist
+    playlist = app.controller.playlist_manager.get_current_playlist()
     if request.method == 'DELETE':
         try:
             playlist.remove(position)

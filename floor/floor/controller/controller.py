@@ -13,6 +13,7 @@ from floor import processor
 from floor.processor.base import RenderContext
 from floor.controller.rendering import PlaylistRenderLayer
 from floor.controller.rendering import ProcessorRenderLayer
+from floor.controller.playlist import PlaylistManager
 from floor.util.color_utils import alpha_blend
 from floor.util.color_utils import normalize_pixel
 from floor.util.color_utils import set_brightness
@@ -26,12 +27,12 @@ class Controller(object):
     DEFAULT_FPS = 120
     DEFAULT_BPM = 120.0
 
-    def __init__(self, drivers, playlist, clocksource=time):
+    def __init__(self, drivers, playlist_manager, clocksource=time):
         """Constructor.
         
         Arguments:
             drivers {floor.driver.Base} -- One or more drivers for show output
-            playlist {floor.playlist.Playlist} -- The show's playlist
+            playlist_manager {floor.playlist.PlaylistManager} -- The show's playlist manager
         
         Keyword Arguments:
             clocksource {function} -- An object that should have `.time()`
@@ -39,7 +40,8 @@ class Controller(object):
         """
         assert len(drivers) > 0, 'Must provide 1 or more drivers'
         self.drivers = drivers
-        self.playlist = playlist
+        assert isinstance(playlist_manager, PlaylistManager), 'playlist_manager is not a PlaylistManager'
+        self.playlist_manager = playlist_manager
         self.clocksource = clocksource
         self.frame_start = 0
         self.fps = None
@@ -51,7 +53,7 @@ class Controller(object):
 
         # Ordered dict of layers to render, bottom-most layer first.
         self.layers = OrderedDict((
-            ('playlist', PlaylistRenderLayer(playlist=self.playlist, all_processors=self.all_processors)),
+            ('playlist', PlaylistRenderLayer(playlist_manager=self.playlist_manager, all_processors=self.all_processors)),
             ('overlay2', ProcessorRenderLayer()),
             ('overlay1', ProcessorRenderLayer()),
         ))

@@ -104,9 +104,9 @@ class ProcessorRenderLayer(BaseRenderLayer):
 
 class PlaylistRenderLayer(BaseRenderLayer):
     """A RenderLayer that encapsulates a Playlist."""
-    def __init__(self, playlist, all_processors):
+    def __init__(self, playlist_manager, all_processors):
         super(PlaylistRenderLayer, self).__init__()
-        self.playlist = playlist
+        self.playlist_manager = playlist_manager
         self.all_processors = all_processors
         self.logger = logging.getLogger(__name__)
 
@@ -117,10 +117,11 @@ class PlaylistRenderLayer(BaseRenderLayer):
     def set_enabled(self, enabled):
         """Suspend/unsuspend the playlist when the layer is enabled/disabled."""
         super(PlaylistRenderLayer, self).set_enabled(enabled)
-        if self.enabled and not self.playlist.is_running():
-            self.playlist.start_playlist()
-        elif not self.enabled and self.playlist.is_running():
-            self.playlist.stop_playlist()
+        current_playlist = self.playlist_manager.get_current_playlist()
+        if self.enabled and not current_playlist.is_running():
+            current_playlist.start_playlist()
+        elif not self.enabled and current_playlist.is_running():
+            current_playlist.stop_playlist()
 
     def on_ranged_value_change(self, num, val):
         return self.processor_render_layer.on_ranged_value_change(num, val)
@@ -132,9 +133,10 @@ class PlaylistRenderLayer(BaseRenderLayer):
         return self.processor_render_layer.get_processor_name()
 
     def render(self, render_context):
-        if not self.playlist.is_running():
+        current_playlist = self.playlist_manager.get_current_playlist()
+        if not current_playlist.is_running():
             return None
-        self._check_playlist(render_context)
+        self._check_playlist(current_playlist, render_context)
         try:
             return self.processor_render_layer.render(render_context)
         except KeyboardInterrupt:
@@ -142,11 +144,11 @@ class PlaylistRenderLayer(BaseRenderLayer):
         except Exception:
             self.logger.exception('Error generating frame for processor {}'.format(self.current_processor))
             self.logger.warning('Removing processor due to error.')
-            self.playlist.remove(self.playlist.position)
+            current_playlist.remove(current_playlist.position)
             return None
 
-    def _check_playlist(self, render_context):
-        item = self.playlist.get_current()
+    def _check_playlist(self, playlist, render_context):
+        item = playlist.get_current()
         if not item:
             return
 

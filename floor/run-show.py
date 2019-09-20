@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from floor.controller import Controller
-from floor.controller import Playlist
+from floor.controller import Playlist, PlaylistManager
 from floor.controller.playlist import ProcessorNotFound
 from floor.controller import Layout
 from floor.controller.midi import MidiManager
@@ -24,6 +24,7 @@ MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, 'midi_maps')
 
 DEFAULT_PLAYLIST = os.path.join(PLAYLIST_DIR, 'default.json')
 DEFAULT_DRIVERS = ['raspberry', 'devserver']
+DEFAULT_USER_PLAYLISTS_DIR = PLAYLIST_DIR
 
 logger = logging.getLogger('show')
 
@@ -64,6 +65,12 @@ def get_options():
         dest='playlist',
         default=None,
         help='Load this playlist instead of the default {}'.format(DEFAULT_PLAYLIST)
+    )
+    parser.add_argument(
+        '--user_playlists_dir',
+        dest='user_playlists_dir',
+        default=DEFAULT_USER_PLAYLISTS_DIR,
+        help='Store and load user playlists here; blank to disable.'
     )
     parser.add_argument(
         '--floor_config',
@@ -133,13 +140,14 @@ def main():
             logger.error('Processor "{}" unknown'.format(args.processor_name))
             sys.exit(1)
     elif args.playlist:
-        playlist = Playlist()
+        playlist = Playlist('Default')
         playlist.load_from(args.playlist, all_processors())
     else:
-        playlist = Playlist()
+        playlist = Playlist('Default')
         playlist.load_from(DEFAULT_PLAYLIST, all_processors())
 
-    show = Controller(drivers, playlist)
+    playlist_manager = PlaylistManager(playlist, user_playlists_dir=args.user_playlists_dir)
+    show = Controller(drivers, playlist_manager)
 
     if args.midi_server_port:
         midi_manager = MidiManager(
@@ -155,6 +163,7 @@ def main():
         run_server(show, port=args.server_port)
 
     try:
+        playlist_manager.initialize(all_processors())
         show.run_forever()
     except KeyboardInterrupt:
         logger.info('Got CTRL-C, quitting.')
