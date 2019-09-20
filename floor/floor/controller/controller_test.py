@@ -59,14 +59,14 @@ class ControllerTest(TestCase):
         self.driver.read_data.assert_called_once()
         self.driver.send_data.assert_called_once()
 
-        first_processor_name = self.playlist.queue[0]['name']
-        self.assertEqual(first_processor_name, c.layers['playlist'].current_processor.__class__.__name__)
+        first_processor_class = self.playlist.queue[0].processor_cls
+        self.assertEqual(first_processor_class, c.layers['playlist'].current_processor.__class__)
 
     def test_layer_blending(self):
         red_processor = SingleColorProcessor(color=RED)
         green_processor = SingleColorProcessor(color=GREEN)
         
-        playlist = Playlist.from_single_processor(SingleColorProcessor(), args={'color': BLUE})
+        playlist = Playlist.from_single_processor(SingleColorProcessor, args={'color': BLUE})
         driver = self.new_fake_driver()
         controller = Controller([driver], playlist)
 

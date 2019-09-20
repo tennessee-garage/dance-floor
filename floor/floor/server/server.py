@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request, abort, render_template, send_from_dir
 from flask_cors import CORS
 
 from floor.controller import Controller
-from floor.controller.playlist import ProcessorNotFound
+from floor.controller.playlist import PlaylistItem, ProcessorNotFound
 
 MIN_BPM = 40
 MAX_BPM = 220
@@ -32,7 +32,7 @@ def view_playlist(playlist):
     return {
         'current_position': playlist.position,
         'millis_remaining': remain_millis,
-        'queue': playlist.queue,
+        'queue': [i.to_object() for i in playlist.queue],
     }
 
 
@@ -95,6 +95,7 @@ def api_playlist_previous():
 def api_playlist_add():
     content = request.get_json(silent=True)
     name = content.get('name')
+    title = content.get('title')
     args = content.get('args')
     duration = int(content.get('duration', 0))
     immediate = content.get('immediate', False)
@@ -103,12 +104,17 @@ def api_playlist_add():
     if not name:
         abort(400, 'Missing `name` parameter.')
 
+    processor = app.controller.all_processors.get(name)
+    if not processor:
+        abort(400, 'Processor "{}" not found'.format(name))
+    item = PlaylistItem(processor, title=title, duration=duration, processor_args=args)
+
     playlist = app.controller.playlist
     try:
         if play_next:
-            position = playlist.append(name, duration, args)
+            position = playlist.append(item)
         else:
-            position = playlist.insert_next(name, duration, args)
+            position = playlist.insert_next(item)
     except ProcessorNotFound as e:
         abort(400, str(e))
         return

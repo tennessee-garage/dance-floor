@@ -4,7 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-from floor.controller.playlist import Playlist
+from floor.controller.playlist import Playlist, PlaylistItem
 from floor.controller.playlist import ProcessorNotFound
 from floor.processor import all_processors
 from unittest import TestCase
@@ -21,11 +21,36 @@ class PlaylistTest(TestCase):
         p = Playlist.from_file(self.all_procs, DEFAULT_PLAYLIST, strict=True)
         self.assert_(len(p.queue) > 0, 'Expected non-zero default playlist.')
 
-        all_procs = all_processors()
-        for processor in p.queue:
-            name = processor['name']
-            if name not in all_procs:
-                self.fail('Default playlist defines unknown processor "{}"'.format(name))
+    def test_playlist_item_from_and_to_object(self):
+        item = PlaylistItem.from_object({
+            'name': 'Animator',
+        }, self.all_procs)
 
+        item_object = item.to_object()
+        self.assertEqual({
+            'name': 'Animator',
+            'title': 'Animator',
+            'args': {},
+            'duration': None,
+        }, item_object)
+
+        item = PlaylistItem.from_object({
+            'name': 'Animator',
+            'title': 'My Other Animator',
+            'args': {'foo': 'bar'},
+            'duration': 123,
+        }, self.all_procs)
+
+        item_object = item.to_object()
+        self.assertEqual({
+            'name': 'Animator',
+            'title': 'My Other Animator',
+            'args': {'foo': 'bar'},
+            'duration': 123,
+        }, item_object)
+
+    def test_playlist_item_invalid_processor_name(self):
         with self.assertRaises(ProcessorNotFound):
-            p.append('ZoopZap')
+            PlaylistItem.from_object({
+                'name': 'ZoopZap',
+            }, self.all_procs)

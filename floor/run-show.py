@@ -126,17 +126,18 @@ def main():
         logger.error('Cannot provide both --playlist and --processor')
         sys.exit(1)
 
-    playlist = Playlist(all_processors())
     if args.processor_name:
         try:
-            playlist.append(args.processor_name)
+            playlist = Playlist.from_object({'name': args.processor_name})
         except ProcessorNotFound:
             logger.error('Processor "{}" unknown'.format(args.processor_name))
             sys.exit(1)
     elif args.playlist:
-        playlist.load_from(args.playlist)
+        playlist = Playlist()
+        playlist.load_from(args.playlist, all_processors())
     else:
-        playlist.load_from(DEFAULT_PLAYLIST)
+        playlist = Playlist()
+        playlist.load_from(DEFAULT_PLAYLIST, all_processors())
 
     show = Controller(drivers, playlist)
 
