@@ -110,9 +110,9 @@ def main():
         layout = Layout(config_dir=CONFIG_DIR, config_name=args.floor_config)
 
     drivers = []
-    driver_names = set(args.driver_names) or DEFAULT_DRIVERS
+    driver_names = set(args.driver_names or DEFAULT_DRIVERS)
 
-    for driver_name in args.driver_names:
+    for driver_name in driver_names:
         logger.info('Initializing driver "{}"'.format(driver_name))
         driver = load_driver(driver_name, {"config_dir": CONFIG_DIR})
         if not driver:
