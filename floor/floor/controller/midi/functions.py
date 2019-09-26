@@ -27,67 +27,67 @@ class MidiFunctions(object):
 
 
 MidiFunctions.add('playlist_next',
-                  callback=lambda controller, _: controller.playlist_manager.advance(),
+                  callback=lambda controller, _: controller.playlist.advance(),
                   help_text='Advance to the next item in the current playlist.')
 MidiFunctions.add('playlist_previous',
-                  callback=lambda controller, _: controller.playlist_manager.previous(),
+                  callback=lambda controller, _: controller.playlist.previous(),
                   help_text='Go to previous item in the current playlist.')
 MidiFunctions.add('playlist_play',
-                  callback=lambda controller, _: controller.playlist_manager.start_playlist(),
+                  callback=lambda controller, _: controller.playlist.start_playlist(),
                   help_text='Play the current playlist.')
 MidiFunctions.add('playlist_stay',
-                  callback=lambda controller, _: controller.playlist_manager.stay(),
+                  callback=lambda controller, _: controller.playlist.stay(),
                   help_text='Loop/repeat the current item in the playlist.')
 MidiFunctions.add('playlist_stop',
-                  callback=lambda controller, _: controller.playlist_manager.stop_playlist(),
+                  callback=lambda controller, _: controller.playlist.stop_playlist(),
                   help_text='Stop playback of the current playlist.')
 MidiFunctions.add('playlist_goto_1',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(1),
+                  callback=lambda controller, _: controller.playlist.go_to(1),
                   help_text='Go to playlist position 1.')
 MidiFunctions.add('playlist_goto_2',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(2),
+                  callback=lambda controller, _: controller.playlist.go_to(2),
                   help_text='Go to playlist position 2.')
 MidiFunctions.add('playlist_goto_3',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(3),
+                  callback=lambda controller, _: controller.playlist.go_to(3),
                   help_text='Go to playlist position 3.')
 MidiFunctions.add('playlist_goto_4',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(4),
+                  callback=lambda controller, _: controller.playlist.go_to(4),
                   help_text='Go to playlist position 4.')
 MidiFunctions.add('playlist_goto_5',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(5),
+                  callback=lambda controller, _: controller.playlist.go_to(5),
                   help_text='Go to playlist position 5.')
 MidiFunctions.add('playlist_goto_6',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(6),
+                  callback=lambda controller, _: controller.playlist.go_to(6),
                   help_text='Go to playlist position 6.')
 MidiFunctions.add('playlist_goto_7',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(7),
+                  callback=lambda controller, _: controller.playlist.go_to(7),
                   help_text='Go to playlist position 7.')
 MidiFunctions.add('playlist_goto_8',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(8),
+                  callback=lambda controller, _: controller.playlist.go_to(8),
                   help_text='Go to playlist position 8.')
 MidiFunctions.add('playlist_goto_9',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(9),
+                  callback=lambda controller, _: controller.playlist.go_to(9),
                   help_text='Go to playlist position 9.')
 MidiFunctions.add('playlist_goto_10',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(10),
+                  callback=lambda controller, _: controller.playlist.go_to(10),
                   help_text='Go to playlist position 10.')
 MidiFunctions.add('playlist_goto_11',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(11),
+                  callback=lambda controller, _: controller.playlist.go_to(11),
                   help_text='Go to playlist position 11.')
 MidiFunctions.add('playlist_goto_12',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(12),
+                  callback=lambda controller, _: controller.playlist.go_to(12),
                   help_text='Go to playlist position 12.')
 MidiFunctions.add('playlist_goto_13',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(13),
+                  callback=lambda controller, _: controller.playlist.go_to(13),
                   help_text='Go to playlist position 13.')
 MidiFunctions.add('playlist_goto_14',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(14),
+                  callback=lambda controller, _: controller.playlist.go_to(14),
                   help_text='Go to playlist position 14.')
 MidiFunctions.add('playlist_goto_15',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(15),
+                  callback=lambda controller, _: controller.playlist.go_to(15),
                   help_text='Go to playlist position 15.')
 MidiFunctions.add('playlist_goto_16',
-                  callback=lambda controller, _: controller.playlist_manager.go_to(16),
+                  callback=lambda controller, _: controller.playlist.go_to(16),
                   help_text='Go to playlist position 16.')
 MidiFunctions.add('set_bpm',
                   callback=lambda controller, value: controller.set_bpm(90 + 80 * (value / 127.0)),

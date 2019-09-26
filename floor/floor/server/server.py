@@ -6,21 +6,34 @@ from flask import Flask, jsonify, request, abort, render_template, send_from_dir
 from flask_cors import CORS
 
 from floor.controller import Controller
-from floor.controller.playlist import Playlist, PlaylistItem, ProcessorNotFound
+from floor.controller.playlist import ProcessorNotFound
 
 MIN_BPM = 40
 MAX_BPM = 220
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-app = Flask(__name__, root_path=BASE_DIR, static_url_path='/')
+app = Flask(__name__, root_path=BASE_DIR)
 CORS(app)
 app.controller = None  # type: Controller
 
 
 @app.route('/')
 def main():
-    return send_from_directory('static', 'index.html')
+    # TODO(mikey): Brittle.
+    hostname = request.host.split(':')[0]
+    devserver_url = 'http://{}:1979'.format(hostname)
+    return render_template('index.html', devserver_url=devserver_url)
+
+
+@app.route('/layout')
+def layout():
+    return render_template('layout.html', nav="layout")
+
+
+@app.route('/static/<path:path>')
+def static_assets(path):
+    return send_from_directory('static', path)
 
 
 def view_playlist(playlist):
@@ -32,8 +45,7 @@ def view_playlist(playlist):
     return {
         'current_position': playlist.position,
         'millis_remaining': remain_millis,
-        'queue': [i.to_object() for i in playlist.queue],
-        'title': playlist.title,
+        'queue': playlist.queue,
     }
 
 
@@ -63,7 +75,7 @@ def view_all_layers(layers):
 @app.route('/api/status', methods=['GET'])
 def api_status():
     result = {
-        'playlist': view_playlist(app.controller.playlist_manager.get_current_playlist()),
+        'playlist': view_playlist(app.controller.playlist),
         'tempo': view_tempo(app.controller.bpm, app.controller.downbeat),
         'processors': view_processors(app.controller.all_processors),
         'layers': view_all_layers(app.controller.layers),
@@ -74,20 +86,20 @@ def api_status():
 
 @app.route('/api/playlist', methods=['GET'])
 def api_playlist():
-    playlist = app.controller.playlist_manager.get_current_playlist()
+    playlist = app.controller.playlist
     return jsonify(view_playlist(playlist))
 
 
 @app.route('/api/playlist/advance', methods=['POST'])
 def api_playlist_advance():
-    playlist = app.controller.playlist_manager.get_current_playlist()
+    playlist = app.controller.playlist
     playlist.advance()
     return jsonify(view_playlist(playlist))
 
 
 @app.route('/api/playlist/previous', methods=['POST'])
 def api_playlist_previous():
-    playlist = app.controller.playlist_manager.get_current_playlist()
+    playlist = app.controller.playlist
     playlist.previous()
     return jsonify(view_playlist(playlist))
 
@@ -96,7 +108,6 @@ def api_playlist_previous():
 def api_playlist_add():
     content = request.get_json(silent=True)
     name = content.get('name')
-    title = content.get('title')
     args = content.get('args')
     duration = int(content.get('duration', 0))
     immediate = content.get('immediate', False)
@@ -105,17 +116,12 @@ def api_playlist_add():
     if not name:
         abort(400, 'Missing `name` parameter.')
 
-    processor = app.controller.all_processors.get(name)
-    if not processor:
-        abort(400, 'Processor "{}" not found'.format(name))
-    item = PlaylistItem(processor, title=title, duration=duration, processor_args=args)
-
-    playlist = app.controller.playlist_manager.get_current_playlist()
+    playlist = app.controller.playlist
     try:
         if play_next:
-            position = playlist.append(item)
+            position = playlist.append(name, duration, args)
         else:
-            position = playlist.insert_next(item)
+            position = playlist.insert_next(name, duration, args)
     except ProcessorNotFound as e:
         abort(400, str(e))
         return
@@ -128,14 +134,14 @@ def api_playlist_add():
 
 @app.route('/api/playlist/stay', methods=['POST'])
 def api_playlist_stay():
-    playlist = app.controller.playlist_manager.get_current_playlist()
-    app.controller.playlist_manager.get_current_playlist().stay()
+    playlist = app.controller.playlist
+    app.controller.playlist.stay()
     return jsonify(view_playlist(playlist))
 
 
 @app.route('/api/playlist/<int:position>', methods=['GET', 'DELETE'])
 def api_playlist_position(position):
-    playlist = app.controller.playlist_manager.get_current_playlist()
+    playlist = app.controller.playlist
     if request.method == 'DELETE':
         try:
             playlist.remove(position)
@@ -144,52 +150,6 @@ def api_playlist_position(position):
         return jsonify(view_playlist(playlist))
     else:
         return jsonify(playlist.queue[position])
-
-
-@app.route('/api/playlists', methods=['GET'])
-def api_playlists():
-    playlist_manager = app.controller.playlist_manager
-    if request.method == 'POST':
-        content = request.get_json(silent=True)
-        playlist_content = content['playlist']
-        playlist_name = content['name']
-        playlist = Playlist.from_object(playlist_content, app.controller.all_processors)
-        playlist_manager.add_playlist(playlist_name, playlist)
-        playlist_manager.save_playlist(playlist_name)
-
-    all_playlists = playlist_manager.get_all_playlists()
-    result_object = dict(((k, view_playlist(v)) for k, v in all_playlists.items()))
-    return jsonify(result_object)
-
-
-@app.route('/api/playlists/<string:name>', methods=['GET', 'POST'])
-def api_playlists_detail(name):
-    playlist_manager = app.controller.playlist_manager
-
-    if request.method == 'POST':
-        content = request.get_json(silent=True)
-        playlist = Playlist.from_object(content, app.controller.all_processors)
-        playlist_manager.add_playlist(name, playlist)
-        playlist_manager.save_playlist(name)
-
-    playlist = playlist_manager.get_playlist(name)
-    if not playlist:
-        abort(404, 'Unknown playlist.')
-        return
-
-    return jsonify(view_playlist(playlist))
-
-
-@app.route('/api/playlists/<string:name>/activate', methods=['POST'])
-def api_playlists_detail_activate(name):
-    playlist_manager = app.controller.playlist_manager
-    playlist = playlist_manager.get_playlist(name)
-    if not playlist:
-        abort(404, 'Unknown playlist.')
-        return
-
-    playlist_manager.set_current_playlist(name)
-    return jsonify(view_playlist(playlist_manager.get_current_playlist()))
 
 
 @app.route('/api/tempo', methods=['GET', 'POST'])

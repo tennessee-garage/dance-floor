@@ -2,9 +2,6 @@ from builtins import object
 import json
 from time import time
 import logging
-from floor.processor.base import Base as ProcessorBase
-import os
-import re
 
 logger = logging.getLogger('playlist')
 
@@ -17,42 +14,9 @@ class ProcessorNotFound(PlaylistError):
     """Thrown when attempting to append an unknown processor."""
 
 
-class InvalidPlaylistFile(PlaylistError):
-    """Thrown when json playlist contents are malformed."""
-
-
-class PlaylistItem:
-    """An immutable holder of a playlist entry."""
-    def __init__(self, processor_cls, title=None, duration=None, processor_args=None):
-        assert issubclass(processor_cls, ProcessorBase), '{} is not a subclass of processor.Base'.format(processor_cls)
-        self.processor_cls = processor_cls
-        self.processor_args = processor_args or {}
-        self.duration = int(duration) if duration is not None else None
-        self.title = title or self.processor_cls.__name__
-
-    @classmethod
-    def from_object(cls, obj, all_processors):
-        processor_name = obj['name']
-        processor = all_processors.get(processor_name)
-        if processor is None:
-            raise ProcessorNotFound('Processor "{}" is unknown'.format(processor_name))
-        title = obj.get('title')
-        duration = obj.get('duration')
-        processor_args = obj.get('args')
-        return cls(processor, title=title, duration=duration, processor_args=processor_args)
-
-    def to_object(self):
-        return {
-            'name': self.processor_cls.__name__,
-            'title': self.title,
-            'duration': self.duration,
-            'args': self.processor_args,
-        }
-
-
 class Playlist(object):
-    def __init__(self, title, items=None):
-        self.title = title
+    def __init__(self, all_processors):
+        self.all_processors = all_processors
         # The index into the queue array
         self.position = None
         # Time when the playlist should auto advance.
@@ -60,44 +24,28 @@ class Playlist(object):
         self.queue = []
         self.running = True
 
-        if items:
-            self.queue.extend(items)
-
     @classmethod
-    def from_file(cls, filename, all_processors, strict=False):
-        try:
-            with open(filename) as fd:
-                return cls.from_object(json.loads(fd.read()), all_processors, strict)
-        except json.decoder.JSONDecodeError as e:
-            raise InvalidPlaylistFile('File "{}" json is malformed: {}'.format(filename, e))
-
-    @classmethod
-    def from_object(cls, obj, all_processors, strict=False):
-        try:
-            title = obj['title']
-        except KeyError:
-            raise InvalidPlaylistFile('Playlist object is missing "title" field')
-
-        json_items = obj.get('queue', [])
-
-        items = []
-        for item_json in json_items:
-            try:
-                item = PlaylistItem.from_object(item_json, all_processors)
-            except ProcessorNotFound as e:
-                if strict:
-                    raise e
-                else:
-                    logger.warning(e)
-            else:
-                items.append(item)
-        return Playlist(title, items=items)
-
-    @classmethod
-    def from_single_processor(cls, processor_cls, args=None):
-        playlist = cls('Playlist')
-        playlist.append(PlaylistItem(processor_cls, processor_args=args))
+    def from_file(cls, all_processors, filename, strict=False):
+        playlist = cls(all_processors)
+        playlist.load_from(filename, strict=strict)
         return playlist
+
+    @classmethod
+    def from_single_processor(cls, processor, args=None):
+        processor_name = processor.__class__.__name__
+        all_processors = {processor_name: processor}
+        playlist = cls(all_processors)
+        playlist.append(processor_name, args=args)
+        return playlist
+
+    @staticmethod
+    def item(name, duration=0, args=None):
+        """Builds a playlist entry."""
+        return {
+            'name': name,
+            'duration': int(duration),
+            'args': args,
+        }
 
     def __len__(self):
         return len(self.queue)
@@ -107,10 +55,29 @@ class Playlist(object):
         self.next_advance = None
         self.queue = []
 
+    def load_from(self, input_filename, strict=False):
+        """Replaces the current playlist with contents of the file."""
+        self.clear()
+        with open(input_filename) as json_data:
+            items = json.load(json_data).get('queue', [])
+            for item in items:
+                name = item['name']
+                try:
+                    duration = int(item.get('duration', 0))
+                except ValueError:
+                    duration = 0
+                args = item.get('args')
+                try:
+                    self.append(name, duration, args)
+                except ProcessorNotFound as e:
+                    if strict:
+                        raise e
+                    else:
+                        logger.warning(e)
+
     def save_to(self, output_filename):
         playlist = {
-            'queue': [i.to_object() for i in self.queue],
-            'title': self.title,
+            "queue": self.queue,
         }
         with open(output_filename, 'w') as fp:
             fp.write(json.dumps(playlist, indent=2))
@@ -142,16 +109,20 @@ class Playlist(object):
 
         self.running = True
 
-    def append(self, item):
+    def append(self, name, duration=0, args=None):
         """Add an item at the end of the playlist."""
-        self.queue.append(item)
+        if name not in self.all_processors:
+            raise ProcessorNotFound('Processor "{}" is unknown'.format(name))
+        self.queue.append(Playlist.item(name, duration, args))
         return len(self.queue) - 1
 
-    def insert_next(self, item):
+    def insert_next(self, name, duration=0, args=None):
         """Add an item at the current position in the playlist."""
+        if name not in self.all_processors:
+            raise ProcessorNotFound('Processor "{}" is unknown'.format(name))
         position = self.position
         position = max(0, position)  # handle position=-1
-        self.queue.insert(self.position, item)
+        self.queue.insert(self.position, Playlist.item(name, duration, args))
         return position
 
     def get_current(self):
@@ -194,12 +165,12 @@ class Playlist(object):
         self.position = position
 
         current = self.queue[self.position]
-        if current.duration:
-            self.next_advance = time() + current.duration
+        if current['duration']:
+            self.next_advance = time() + current['duration']
         else:
             self.next_advance = None
 
-        logger.info('Advanced to: {} (position={})'.format(current.title, self.position))
+        logger.info('Advanced to: {} (position={})'.format(current['name'], self.position))
 
     def remove(self, position):
         """Removes an item from the playlist. If removing the current item,
@@ -224,103 +195,3 @@ class Playlist(object):
 
     def stay(self):
         self.next_advance = None
-
-
-class PlaylistManager:
-    PLAYLIST_NAME_DEFAULT = 'default'
-    PLAYLIST_NAME_RE = re.compile('[0-9a-zA-Z_\s]+')
-
-    def __init__(self, default_playlist, user_playlists_dir=None):
-        self.default_playlist = default_playlist
-        self.user_playlists_dir = user_playlists_dir
-        # Map of slug-like names to playlist objects.
-        self.user_playlists = {}
-        self.current_playlist = self.default_playlist
-        self.logger = logging.getLogger('PlaylistManager')
-
-    def initialize(self, all_processors):
-        """Load all user playlists into memory."""
-        if not self.user_playlists_dir or not os.path.isdir(self.user_playlists_dir):
-            return
-        all_playlists = os.listdir(self.user_playlists_dir)
-        for filename in all_playlists:
-            if not filename.endswith('.json'):
-                continue
-            full_path = os.path.join(self.user_playlists_dir, filename)
-            playlist_basename = os.path.basename(full_path)
-            playlist_name = os.path.splitext(playlist_basename)[0]
-            if playlist_name == self.PLAYLIST_NAME_DEFAULT:
-                continue
-            try:
-                self._load_playlist_from_file(playlist_name, full_path, all_processors)
-            except PlaylistError as e:
-                self.logger.warning('Error loading "{}", skipping: {}'.format(full_path, e))
-
-    def _load_playlist_from_file(self, playlist_name, filename, all_processors):
-        playlist = Playlist.from_file(filename, all_processors)
-        self.add_playlist(playlist_name, playlist)
-
-    def add_playlist(self, playlist_name, playlist):
-        playlist_name = playlist_name.lower()
-        if playlist_name == self.PLAYLIST_NAME_DEFAULT:
-            raise ValueError('cannot replace the default playlist')
-        elif not self.PLAYLIST_NAME_RE.match(playlist_name):
-            raise ValueError('Illegal playlist name: "{}"'.format(playlist_name))
-        self.user_playlists[playlist_name] = playlist
-        self.logger.info('Loaded playlist "{}"'.format(playlist_name))
-
-    def get_playlist(self, name):
-        if name == self.PLAYLIST_NAME_DEFAULT:
-            return self.default_playlist
-        return self.user_playlists.get(name)
-
-    def save_playlist(self, name):
-        name = name.lower()
-        playlist = self.user_playlists.get(name)
-        if not playlist:
-            self.logger.warning('save_playlist: playlist "{}" not found'.format(name))
-            return
-
-        output_filename = os.path.join(self.user_playlists_dir, '{}.json'.format(name))
-        playlist.save_to(output_filename)
-
-    def get_current_playlist(self):
-        return self.current_playlist
-
-    def get_all_playlists(self):
-        result = {}
-        result.update(self.user_playlists)
-        result[self.PLAYLIST_NAME_DEFAULT] = self.default_playlist
-        return result
-
-    def set_current_playlist(self, name):
-        if name == self.PLAYLIST_NAME_DEFAULT:
-            self.current_playlist = self.default_playlist
-        elif name in self.user_playlists:
-            self.current_playlist = self.user_playlists[name]
-        else:
-            self.logger.warning('set_current_playlist: Unknown playlist: "{}"'.format(name))
-
-    def advance(self):
-        """Convenience proxy for self.get_current_playlist().advance()"""
-        return self.current_playlist.advance()
-
-    def previous(self):
-        """Convenience proxy for self.get_current_playlist().previous()"""
-        return self.current_playlist.previous()
-
-    def start_playlist(self):
-        """Convenience proxy for self.get_current_playlist().start_playlist()"""
-        return self.current_playlist.start_playlist()
-
-    def stay(self):
-        """Convenience proxy for self.get_current_playlist().stay()"""
-        return self.current_playlist.stay()
-
-    def stop_playlist(self):
-        """Convenience proxy for self.get_current_playlist().stop_playlist()"""
-        return self.current_playlist.stop_playlist()
-
-    def go_to(self, position):
-        """Convenience proxy for self.get_current_playlist().go_to(position)"""
-        return self.current_playlist.go_to(position)
