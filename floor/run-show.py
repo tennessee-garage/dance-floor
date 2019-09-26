@@ -23,6 +23,7 @@ PLAYLIST_DIR = os.path.join(CONFIG_DIR, 'playlists')
 MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, 'midi_maps')
 
 DEFAULT_PLAYLIST = os.path.join(PLAYLIST_DIR, 'default.json')
+DEFAULT_DRIVERS = ['raspberry', 'devserver']
 
 logger = logging.getLogger('show')
 
@@ -47,8 +48,9 @@ def get_options():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
     parser.add_argument(
         '--driver',
-        dest='driver_name',
-        default='raspberry',
+        dest='driver_names',
+        default=None,
+        action='append',
         help='Sets the driver to use when writing LED data and reading weight data (default "raspberry")'
     )
     parser.add_argument(
@@ -107,12 +109,18 @@ def main():
     if args.floor_config:
         layout = Layout(config_dir=CONFIG_DIR, config_name=args.floor_config)
 
-    driver = load_driver(args.driver_name, {"config_dir": CONFIG_DIR})
-    if not driver:
-        logger.error('No driver, exiting.')
-        sys.exit(1)
-    driver.init_layout(layout)
-    logger.info("Using layout: {}".format(driver.layout.name))
+    drivers = []
+    driver_names = set(args.driver_names or DEFAULT_DRIVERS)
+
+    for driver_name in driver_names:
+        logger.info('Initializing driver "{}"'.format(driver_name))
+        driver = load_driver(driver_name, {"config_dir": CONFIG_DIR})
+        if not driver:
+            logger.error('No driver, exiting.')
+            sys.exit(1)
+        driver.init_layout(layout)
+        logger.info("Using layout: {}".format(driver.layout.name))
+        drivers.append(driver)
 
     if args.playlist and args.processor_name:
         logger.error('Cannot provide both --playlist and --processor')
@@ -130,7 +138,7 @@ def main():
     else:
         playlist.load_from(DEFAULT_PLAYLIST)
 
-    show = Controller(driver, playlist)
+    show = Controller(drivers, playlist)
 
     if args.midi_server_port:
         midi_manager = MidiManager(

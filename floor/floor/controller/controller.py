@@ -26,25 +26,19 @@ class Controller(object):
     DEFAULT_FPS = 120
     DEFAULT_BPM = 120.0
 
-    # Give outside controllers a chance to fake foot steps on the floor
-    # Use the SYNTHETIC_WEIGHT_ACTIVE flag to determine if we need to spend
-    # cycles mixing in the weight values.
-    SYNTHETIC_WEIGHT_ACTIVE = False
-    SYNTHETIC_WEIGHTS = [0]*64
-
-    def __init__(self, driver, playlist, clocksource=time):
+    def __init__(self, drivers, playlist, clocksource=time):
         """Constructor.
         
         Arguments:
-            driver {floor.driver.Base} -- The driver powering the show
+            drivers {floor.driver.Base} -- One or more drivers for show output
             playlist {floor.playlist.Playlist} -- The show's playlist
         
         Keyword Arguments:
             clocksource {function} -- An object that should have `.time()`
             and `.sleep()` methods (default: {time})
         """
-
-        self.driver = driver
+        assert len(drivers) > 0, 'Must provide 1 or more drivers'
+        self.drivers = drivers
         self.playlist = playlist
         self.clocksource = clocksource
         self.frame_start = 0
@@ -65,6 +59,9 @@ class Controller(object):
         self.bpm = None
         self.downbeat = None
         self.set_bpm(self.DEFAULT_BPM)
+
+        # Give outside controllers a chance to fake foot steps on the floor
+        self.synthetic_weights = [0] * 64
 
         # A global "brightness" level, a value between 0.0 and 1.0.
         self.brightness = 1.0
@@ -112,22 +109,13 @@ class Controller(object):
         if index > 64 or index < 1:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index-1] = 1
-        self.SYNTHETIC_WEIGHT_ACTIVE = True
+        self.synthetic_weights[index-1] = 1
 
     def square_weight_off(self, index):
         if index > 64 or index < 1:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.SYNTHETIC_WEIGHTS[index-1] = 0
-
-        # Scan the weighs and see if anything is still set
-        for value in self.SYNTHETIC_WEIGHTS:
-            if value:
-                return
-
-        # If nothing is set, there are no longer any synthetic weights active
-        self.SYNTHETIC_WEIGHT_ACTIVE = False
+        self.synthetic_weights[index-1] = 0
 
     def run_forever(self):
         while True:
@@ -166,23 +154,27 @@ class Controller(object):
                 composited_leds[idx] = alpha_blend(current_pixel, last_pixel, layer.get_alpha())
 
         leds = [set_brightness(pixel, self.brightness) for pixel in composited_leds]
-        self.driver.set_leds(leds)
+        for driver in self.drivers:
+            driver.set_leds(leds)
 
     @profile()
     def get_weights(self):
-        weights = self.driver.get_weights()
-        if self.SYNTHETIC_WEIGHT_ACTIVE:
-            for idx in range(64):
-                val = self.SYNTHETIC_WEIGHTS[idx]
-                if val:
-                    weights[idx] = val
+        # Returns a single frame of weights, by taking the `max()` of
+        # every driver's reported weight for every pixel.
+        all_weights = [driver.get_weights() for driver in self.drivers]
+        all_weights.append(self.synthetic_weights)
 
+        weights = [0] * 64
+        for i in range(len(weights)):
+            max_weight = max(w[i] if len(w) > i else 0 for w in all_weights)
+            weights[i] = max_weight
         return weights
 
     @profile()
     def transfer_data(self):
-        self.driver.send_data()
-        self.driver.read_data()
+        for driver in self.drivers:
+            driver.send_data()
+            driver.read_data()
 
     @profile()
     def delay(self):
