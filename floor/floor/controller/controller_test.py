@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 from floor.processor import all_processors
 from floor.controller.controller import Controller
-from floor.controller.playlist import Playlist
+from floor.controller.playlist import Playlist, PlaylistManager
 from unittest import TestCase
 from mock import Mock
 from floor.processor.base import Base as BaseProcessor
@@ -40,10 +40,12 @@ class ControllerTest(TestCase):
         return driver
 
     def setUp(self):
-        self.playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
+        all_procs = all_processors()
+        self.playlist = Playlist.from_file(DEFAULT_PLAYLIST, all_procs)
+        self.playlist_manager = PlaylistManager(self.playlist)
         self.driver = Mock()
         self.driver = self.new_fake_driver()
-        self.controller = Controller([self.driver], self.playlist)
+        self.controller = Controller([self.driver], self.playlist_manager)
 
     def test_initialization(self):
         """Verifies initial state."""
@@ -59,16 +61,17 @@ class ControllerTest(TestCase):
         self.driver.read_data.assert_called_once()
         self.driver.send_data.assert_called_once()
 
-        first_processor_name = self.playlist.queue[0]['name']
-        self.assertEqual(first_processor_name, c.layers['playlist'].current_processor.__class__.__name__)
+        first_processor_class = self.playlist.queue[0].processor_cls
+        self.assertEqual(first_processor_class, c.layers['playlist'].current_processor.__class__)
 
     def test_layer_blending(self):
         red_processor = SingleColorProcessor(color=RED)
         green_processor = SingleColorProcessor(color=GREEN)
         
-        playlist = Playlist.from_single_processor(SingleColorProcessor(), args={'color': BLUE})
+        playlist = Playlist.from_single_processor(SingleColorProcessor, args={'color': BLUE})
+        playlist_manager = PlaylistManager(playlist)
         driver = self.new_fake_driver()
-        controller = Controller([driver], playlist)
+        controller = Controller([driver], playlist_manager)
 
         controller.run_one_frame()
         self.assertEqual([BLUE + (1.0,)] * 64, driver.set_leds.call_args[0][0])
@@ -92,8 +95,9 @@ class ControllerTest(TestCase):
         driver2 = Mock()
         driver2.get_weights = Mock(return_value=[0, 0, 0, 1] * 16)
 
-        playlist = Playlist.from_file(all_processors(), DEFAULT_PLAYLIST)
-        controller = Controller([driver1, driver2], playlist)
+        playlist = Playlist.from_file(DEFAULT_PLAYLIST, all_processors())
+        playlist_manager = PlaylistManager(playlist)
+        controller = Controller([driver1, driver2], playlist_manager)
         weights = controller.get_weights()
 
         expected_weights = [0, 1] * 32
