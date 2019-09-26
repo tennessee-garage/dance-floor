@@ -39,12 +39,13 @@ For "production", we periodically check in a snapshot of this frontend to the `.
 ### Build "production" frontend js, css, and assets.
 
 $ cd ~/git/ddfui
+$ npm install
 $ yarn build
 
 ### Copy the built assets into this project.
 
 $ cd ~/git/dance-floor/floor
-$ ./bin/sync-frontend.sh ~/git/ddfui/build
+$ ./bin/sync-frontend.sh ~/git/ddfui/build/
 ```
 
 ## API
