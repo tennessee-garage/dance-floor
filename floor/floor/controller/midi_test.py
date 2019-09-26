@@ -81,19 +81,19 @@ class MidiManagerTestCase(TestCase):
         handler.on_midi_commands(peer, [command])
 
     def test_midi_passthru(self):
-        self.assertEqual(0, self.controller.playlist.advance.call_count)
+        self.assertEqual(0, self.controller.playlist_manager.advance.call_count)
         self.inject_note_on('C3', 127)
-        self.assertEqual(1, self.controller.playlist.advance.call_count)
+        self.assertEqual(1, self.controller.playlist_manager.advance.call_count)
 
-        self.assertEqual(0, self.controller.playlist.previous.call_count)
+        self.assertEqual(0, self.controller.playlist_manager.previous.call_count)
         self.inject_note_on('C4', 55)
-        self.assertEqual(1, self.controller.playlist.previous.call_count)
+        self.assertEqual(1, self.controller.playlist_manager.previous.call_count)
 
-        self.assertEqual(0, self.controller.playlist.stop_playlist.call_count)
+        self.assertEqual(0, self.controller.playlist_manager.stop_playlist.call_count)
         self.inject_control_mode_change(21, 11)
-        self.assertEqual(0, self.controller.playlist.stop_playlist.call_count)
+        self.assertEqual(0, self.controller.playlist_manager.stop_playlist.call_count)
         self.inject_control_mode_change(21, 127)
-        self.assertEqual(1, self.controller.playlist.stop_playlist.call_count)
+        self.assertEqual(1, self.controller.playlist_manager.stop_playlist.call_count)
 
         self.assertEqual(0, self.controller.handle_input_event.call_count)
         self.inject_control_mode_change(48, 99)
@@ -110,6 +110,6 @@ class MidiManagerTestCase(TestCase):
         ])
 
     def test_note_name_translation(self):
-        self.assertEqual(0, self.controller.playlist.stay.call_count)
+        self.assertEqual(0, self.controller.playlist_manager.stay.call_count)
         self.inject_note_on('Csn1', 127)
-        self.assertEqual(1, self.controller.playlist.stay.call_count)
+        self.assertEqual(1, self.controller.playlist_manager.stay.call_count)

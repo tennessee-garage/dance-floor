@@ -1,11 +1,12 @@
 # Dancefloor Server
 
-This is a simple HTTP service that exposes a public API and control web page to the running dance floor.
+This is a simple HTTP service that exposes a public API and control web page to the running dance floor. It also exposes a GUI control interface.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [GUI Frontend](#gui-frontend)
 - [API](#api)
   - [`GET /api/status`](#get-apistatus)
   - [`POST /api/playlist/advance`](#post-apiplaylistadvance)
@@ -13,6 +14,10 @@ This is a simple HTTP service that exposes a public API and control web page to 
   - [`POST /api/playlist/add`](#post-apiplaylistadd)
   - [`POST /api/playlist/stay`](#post-apiplayliststay)
   - [`DELETE /api/playlist/:position`](#delete-apiplaylistposition)
+  - [`GET /api/playlists`](#get-apiplaylists)
+  - [`GET /api/playlists/:name`](#get-apiplaylistsname)
+  - [`POST /api/playlists/:name`](#post-apiplaylistsname)
+  - [`POST /api/playlists/:name/activate`](#post-apiplaylistsnameactivate)
   - [`GET /api/tempo`](#get-apitempo)
   - [`POST /api/tempo`](#post-apitempo)
   - [`POST /api/tempo/nudge`](#post-apitemponudge)
@@ -23,6 +28,25 @@ This is a simple HTTP service that exposes a public API and control web page to 
 - [TODO](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## GUI Frontend
+
+The frontend is developed in a separate project. See source here: https://github.com/tennessee-garage/ddfui
+
+For "production", we periodically check in a snapshot of this frontend to the `./static` folder here, so the RPi can serve it directly. These are the rough steps to follow:
+
+```
+### Build "production" frontend js, css, and assets.
+
+$ cd ~/git/ddfui
+$ npm install
+$ yarn build
+
+### Copy the built assets into this project.
+
+$ cd ~/git/dance-floor/floor
+$ ./bin/sync-frontend.sh ~/git/ddfui/build/
+```
 
 ## API
 
@@ -215,6 +239,58 @@ None.
 **Response**
 
 The playlist object upon success; HTTP `400` on error.
+
+
+### `GET /api/playlists`
+
+Lists _all_ playlists known to the system.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+A dictionary of playlist items, keyed by a slug-like playlist name. Each value has the same format as `GET /api/playlist`.
+
+
+### `GET /api/playlists/:name`
+
+Fetches a single playlist, by slug-like playlist name.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The playlist object upon success; HTTP `404` if not found.
+
+
+### `POST /api/playlists/:name`
+
+Creates or updates a single playlist, by slug-like playlist name.
+
+**Request arguments**
+
+The request body should be a well-formed playlist object.
+
+**Response**
+
+The playlist object upon success; HTTP `400` upon failure.
+
+
+### `POST /api/playlists/:name/activate`
+
+Set this playlist as the current playlist.
+
+**Request arguments**
+
+None.
+
+**Response**
+
+The playlist object upon success; HTTP `404` if not found.
 
 
 ### `GET /api/tempo`

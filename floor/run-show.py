@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from floor.controller import Controller
-from floor.controller import Playlist
+from floor.controller import Playlist, PlaylistManager
 from floor.controller.playlist import ProcessorNotFound
 from floor.controller import Layout
 from floor.controller.midi import MidiManager
@@ -23,6 +23,8 @@ PLAYLIST_DIR = os.path.join(CONFIG_DIR, 'playlists')
 MIDI_MAPPING_DIR = os.path.join(CONFIG_DIR, 'midi_maps')
 
 DEFAULT_PLAYLIST = os.path.join(PLAYLIST_DIR, 'default.json')
+DEFAULT_DRIVERS = ['raspberry', 'devserver']
+DEFAULT_USER_PLAYLISTS_DIR = PLAYLIST_DIR
 
 logger = logging.getLogger('show')
 
@@ -47,8 +49,9 @@ def get_options():
     parser = argparse.ArgumentParser(description='Run the disco dance floor')
     parser.add_argument(
         '--driver',
-        dest='driver_name',
-        default='raspberry',
+        dest='driver_names',
+        default=None,
+        action='append',
         help='Sets the driver to use when writing LED data and reading weight data (default "raspberry")'
     )
     parser.add_argument(
@@ -62,6 +65,12 @@ def get_options():
         dest='playlist',
         default=None,
         help='Load this playlist instead of the default {}'.format(DEFAULT_PLAYLIST)
+    )
+    parser.add_argument(
+        '--user_playlists_dir',
+        dest='user_playlists_dir',
+        default=DEFAULT_USER_PLAYLISTS_DIR,
+        help='Store and load user playlists here; blank to disable.'
     )
     parser.add_argument(
         '--floor_config',
@@ -107,30 +116,36 @@ def main():
     if args.floor_config:
         layout = Layout(config_dir=CONFIG_DIR, config_name=args.floor_config)
 
-    driver = load_driver(args.driver_name, {"config_dir": CONFIG_DIR})
-    if not driver:
-        logger.error('No driver, exiting.')
-        sys.exit(1)
-    driver.init_layout(layout)
-    logger.info("Using layout: {}".format(driver.layout.name))
+    drivers = []
+    driver_names = set(args.driver_names or DEFAULT_DRIVERS)
+
+    for driver_name in driver_names:
+        logger.info('Initializing driver "{}"'.format(driver_name))
+        driver = load_driver(driver_name, {"config_dir": CONFIG_DIR})
+        if not driver:
+            logger.error('No driver, exiting.')
+            sys.exit(1)
+        driver.init_layout(layout)
+        logger.info("Using layout: {}".format(driver.layout.name))
+        drivers.append(driver)
 
     if args.playlist and args.processor_name:
         logger.error('Cannot provide both --playlist and --processor')
         sys.exit(1)
 
-    playlist = Playlist(all_processors())
     if args.processor_name:
         try:
-            playlist.append(args.processor_name)
+            playlist = Playlist.from_object({'name': args.processor_name})
         except ProcessorNotFound:
             logger.error('Processor "{}" unknown'.format(args.processor_name))
             sys.exit(1)
     elif args.playlist:
-        playlist.load_from(args.playlist)
+        playlist = Playlist.from_file(args.playlist, all_processors())
     else:
-        playlist.load_from(DEFAULT_PLAYLIST)
+        playlist = Playlist.from_file(DEFAULT_PLAYLIST, all_processors())
 
-    show = Controller(driver, playlist)
+    playlist_manager = PlaylistManager(playlist, user_playlists_dir=args.user_playlists_dir)
+    show = Controller(drivers, playlist_manager)
 
     if args.midi_server_port:
         midi_manager = MidiManager(
@@ -146,6 +161,7 @@ def main():
         run_server(show, port=args.server_port)
 
     try:
+        playlist_manager.initialize(all_processors())
         show.run_forever()
     except KeyboardInterrupt:
         logger.info('Got CTRL-C, quitting.')
