@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from builtins import range
 import importlib
 import logging
+import time
 
 from .base import Base
 from floor.util.serial_read import SerialRead
@@ -13,6 +14,9 @@ class Raspberry(Base):
     # Unique bytes to send through the floor when probing.  Can tell whether the
     # data we get back is what we sent vs. random existing data
     PROBE_MARKER = 0xEE
+
+    # Number of seconds before the probe times out
+    PROBE_TIMEOUT = 2
 
     # For debugging high frequency loops, only output 1 out of this many times.
     DEBUG_SKIP_RESET = 10
@@ -79,11 +83,16 @@ class Raspberry(Base):
 
         :return: Number of squares found
         """
-        self.reader.flush()
-        self.send_probe_data()
-        num_squares = self.read_probe_data()
+        try:
+            self.reader.flush()
+            self.send_probe_data()
+            num_squares = self.read_probe_data()
 
-        logger.info("Probed floor: {} tiles connected".format(num_squares))
+            logger.info("Probed floor: {} tiles connected".format(num_squares))
+        except ProbeException as e:
+            logger.error("Failed to probe floor, using default tile count: {}".format(e))
+            num_squares = self.NUM_TILES
+
         return num_squares
 
     def send_probe_data(self):
@@ -150,8 +159,11 @@ class Raspberry(Base):
         self.spi.xfer(data)
 
     def read_frame_once(self):
+        start = time.time()
         while not self.reader.data_ready:
             self.reader.read()
+            if time.time() - start > self.PROBE_TIMEOUT:
+                raise ProbeException("timeout")
 
         return self.reader.get_frame()
 
@@ -242,3 +254,8 @@ class Raspberry(Base):
 
         scaled_value = float(value) / self.MAX_FLOOR_VALUE
         return scaled_value
+
+
+class ProbeException(Exception):
+    """Raised when probing the floor fails"""
+    pass
