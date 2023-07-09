@@ -10,7 +10,6 @@ import colorsys
 import sys
 
 from floor.processor.constants import COLOR_MAXIMUM, RANGED_INPUT_MAX
-from future.utils import with_metaclass
 
 
 class ProcessorRegistry(type):
@@ -84,7 +83,7 @@ class RenderContext(object):
         return choices[min(num_choices - 1, current_position // steps_per_choice)]
 
 
-class Base(with_metaclass(ProcessorRegistry, object)):
+class Base(metaclass=ProcessorRegistry):
     CONTROLS = []
 
     FLOOR_WIDTH = 8
