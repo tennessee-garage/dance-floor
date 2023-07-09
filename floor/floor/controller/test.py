@@ -1,17 +1,21 @@
 from __future__ import print_function
-from builtins import object
+
 import importlib
+from builtins import object
 
 
 class Test(object):
-
     def __init__(self):
         driver_name = "raspberry"
 
         try:
             module = importlib.import_module("floor.driver.{}".format(driver_name))
         except ImportError as e:
-            print("Error: Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e))
+            print(
+                "Error: Driver '{}' does not exist or could not be loaded: {}".format(
+                    driver_name, e
+                )
+            )
             raise
 
         self.driver = getattr(module, driver_name.title())({})

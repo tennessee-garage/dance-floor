@@ -1,9 +1,9 @@
-from builtins import range
 import random
+from builtins import range
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
 
 class Pulsar(Base):
@@ -24,29 +24,29 @@ class Pulsar(Base):
         sum = 0
         if x > 0:
             # middle-left
-            sum += px[y*8 + (x-1)][i]
+            sum += px[y * 8 + (x - 1)][i]
             if y > 0:
                 # top-left
-                sum += anti_alias*px[(y-1)*8 + (x-1)][i]
+                sum += anti_alias * px[(y - 1) * 8 + (x - 1)][i]
             if y < 7:
                 # bottom-left
-                sum += anti_alias*px[(y+1)*8 + (x-1)][i]
+                sum += anti_alias * px[(y + 1) * 8 + (x - 1)][i]
         if x < 7:
             # middle-right
-            sum += px[y*8 + (x+1)][i]
+            sum += px[y * 8 + (x + 1)][i]
             if y > 0:
                 # top-right
-                sum += anti_alias*px[(y-1)*8 + (x+1)][i]
+                sum += anti_alias * px[(y - 1) * 8 + (x + 1)][i]
             if y < 7:
                 # bottom-right
-                sum += anti_alias*px[(y+1)*8 + (x+1)][i]
+                sum += anti_alias * px[(y + 1) * 8 + (x + 1)][i]
 
         if y > 0:
             # top-middle
-            sum += px[(y-1)*8 + x][i]
+            sum += px[(y - 1) * 8 + x][i]
         if y < 7:
             # bottom-middle
-            sum += px[(y+1)*8 + x][i]
+            sum += px[(y + 1) * 8 + x][i]
 
         # we're not wrapping, and we add a little extra decay factor at the edges
         if x == 0 or y == 0 or x == 7 or y == 7:
@@ -61,7 +61,8 @@ class Pulsar(Base):
                 self.pixels[i] = (
                     COLOR_MAXIMUM * random.random(),
                     COLOR_MAXIMUM * random.random(),
-                    COLOR_MAXIMUM * random.random())
+                    COLOR_MAXIMUM * random.random(),
+                )
 
     def random_weight_input(self):
         count = random.randint(1, 5)
@@ -71,7 +72,7 @@ class Pulsar(Base):
             self.pixels[index] = (
                 COLOR_MAXIMUM * random.random(),
                 COLOR_MAXIMUM * random.random(),
-                COLOR_MAXIMUM * random.random()
+                COLOR_MAXIMUM * random.random(),
             )
 
     @clocked(frames_per_second=24)
@@ -99,7 +100,7 @@ class Pulsar(Base):
                     self.pixels.append((0, 0, 0))
 
             # Uncomment to have random weight inputs
-#            self.random_weight_input()
+        #            self.random_weight_input()
 
         # after a certain amount of time, toggle wave direction and make it recede, but weakly
         elif (next_time - self.last_time) > (0.5 * reset_time):
@@ -114,12 +115,15 @@ class Pulsar(Base):
         for y in range(0, 8):
             for x in range(0, 8):
                 last_pixel = self.pixels[y * 8 + x]
-                next_red = self_decay * \
-                    (last_pixel[0] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 0) / 8)
-                next_blue = self_decay * \
-                    (last_pixel[1] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 1) / 8)
-                next_green = self_decay *\
-                    (last_pixel[2] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 2) / 8)
+                next_red = self_decay * (
+                    last_pixel[0] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 0) / 8
+                )
+                next_blue = self_decay * (
+                    last_pixel[1] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 1) / 8
+                )
+                next_green = self_decay * (
+                    last_pixel[2] + self.wave_toggle * wave_decay * self.neighbor_sum(x, y, 2) / 8
+                )
 
                 if next_red > adjusted_max:
                     next_red = adjusted_max

@@ -1,7 +1,7 @@
 from builtins import range
+
 from floor.processor.base import Base
 from floor.processor.utils import clocked
-
 
 # Matrix of distances so we don't have to calculate them.  Distances
 # are from the corner at 0, 0.  Can be reflected over x or y to give distance
@@ -19,30 +19,21 @@ DISTANCE = [
 
 
 class HeatStep(Base):
-
     CONTROLS = [
-        {
-            'name': 'HUE',
-            'scale': 1.0,
-            'default': 1.0
-        },
-        {
-            'name': 'SAT',
-            'scale': 1.0,
-            'default': 1.0
-        },
+        {"name": "HUE", "scale": 1.0, "default": 1.0},
+        {"name": "SAT", "scale": 1.0, "default": 1.0},
         # Good single steps for heat, cool: 3.5, 0.75
         # Good group steps for heat, cool: 20.5, 0.95
         {
-            'name': 'HEAT',  # How much foot steps "heat" up the floor
-            'range': [30.0, 3.5],
-            'default': 20.0
+            "name": "HEAT",  # How much foot steps "heat" up the floor
+            "range": [30.0, 3.5],
+            "default": 20.0,
         },
         {
-            'name': 'COOL',  # How fast the floor "cools" over time
-            'range': [0.95, 0.75],
-            'default': 0.95
-        }
+            "name": "COOL",  # How fast the floor "cools" over time
+            "range": [0.95, 0.75],
+            "default": 0.95,
+        },
     ]
 
     def __init__(self, **kwargs):
@@ -65,7 +56,7 @@ class HeatStep(Base):
                 dist_y = abs(y - other_y)
                 if dist_x == 0 and dist_y == 0:
                     continue
-                scale = (DISTANCE[dist_y][dist_x]**2) * self.HEAT
+                scale = (DISTANCE[dist_y][dist_x] ** 2) * self.HEAT
                 idx = (other_x * self.FLOOR_WIDTH) + other_y
                 pixel = self.pixels[idx]
 

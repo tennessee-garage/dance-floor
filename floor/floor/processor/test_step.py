@@ -1,8 +1,9 @@
 from builtins import range
+
 from floor.processor.base import Base
+from floor.processor.constants import COLOR_MAXIMUM
 from floor.processor.utils import clocked
 from floor.util import color_utils
-from floor.processor.constants import COLOR_MAXIMUM
 
 
 def create(args=None):
@@ -10,7 +11,6 @@ def create(args=None):
 
 
 class TestStep(Base):
-
     MAX_WEIGHT = 40
 
     def __init__(self):

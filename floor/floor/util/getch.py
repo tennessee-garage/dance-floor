@@ -1,8 +1,7 @@
-
-
 def getch():
+    import sys
     import termios
-    import sys, tty
+    import tty
 
     def _getch():
         fd = sys.stdin.fileno()
@@ -13,4 +12,5 @@ def getch():
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
+
     return _getch()

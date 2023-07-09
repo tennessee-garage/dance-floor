@@ -1,7 +1,7 @@
 import json
 
-from .functions import MidiFunctions
 from .constants import SUPPORTED_COMMANDS
+from .functions import MidiFunctions
 
 
 class MidiMapping(object):
@@ -40,6 +40,7 @@ class MidiMapping(object):
             ]
         }
     """
+
     def __init__(self, name, mappings=None):
         self.name = name
         self.mappings = mappings or {}
@@ -62,13 +63,15 @@ class MidiMapping(object):
     def to_json(self):
         mappings_list = []
         for command, func in self.mappings.items():
-            mappings_list.append({
-                'command': command,
-                'function': func.name,
-            })
+            mappings_list.append(
+                {
+                    "command": command,
+                    "function": func.name,
+                }
+            )
         return {
-            'name': self.name,
-            'mappings': mappings_list,
+            "name": self.name,
+            "mappings": mappings_list,
         }
 
     @classmethod
@@ -86,14 +89,14 @@ class MidiMapping(object):
         Entries for unknown commands or unknown functions will be ignored.
         Structural errors will throw a KeyError.
         """
-        name = obj['name']
-        mapping_list = obj['mappings']
+        name = obj["name"]
+        mapping_list = obj["mappings"]
         mapping_dict = {}
         for item in mapping_list:
-            command = item['command']
+            command = item["command"]
             if command[0] not in SUPPORTED_COMMANDS:
                 continue
-            func = MidiFunctions.ALL_FUNCTIONS.get(item['function'])
+            func = MidiFunctions.ALL_FUNCTIONS.get(item["function"])
             if not func:
                 continue
             mapping_dict[tuple(command)] = func

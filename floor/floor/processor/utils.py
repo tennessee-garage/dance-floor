@@ -1,10 +1,10 @@
-
 from builtins import object
+
 BLANK_FRAME = [(0, 0, 0)] * 64
 
 
 class clocked(object):
-    """Utility decorator that interpolates a `get_next_frame` call according to bpm or time. 
+    """Utility decorator that interpolates a `get_next_frame` call according to bpm or time.
 
     You can think of this decorator as providing a TTL cache decorator for
     the method it decorates, the TTL being dynamically computed from
@@ -22,6 +22,7 @@ class clocked(object):
             color = COLORS[self.position]
             return [color] * 64
     """
+
     def __init__(self, frames_per_beat=None, frames_per_second=None):
         """Decorator constructor.
 
@@ -35,7 +36,7 @@ class clocked(object):
                 33ms.
         """
         if frames_per_beat is None and frames_per_second is None:
-            raise ValueError('Must provide frames_per_beat and/or frames_per_second')
+            raise ValueError("Must provide frames_per_beat and/or frames_per_second")
         self.frames_per_beat = frames_per_beat
         self.frames_per_second = frames_per_second
         self.last_retval = None
@@ -56,14 +57,14 @@ class clocked(object):
             bps_deadline = None
             if self.frames_per_beat:
                 bpm = context.bpm or 120.0
-                beats_per_second = 60.0/bpm
+                beats_per_second = 60.0 / bpm
                 bps_frame_period = beats_per_second / float(self.frames_per_beat)
                 bps_deadline = now + bps_frame_period
 
             fps_deadline = None
             if self.frames_per_second:
                 fps_deadline = now + fps_frame_period
-            
+
             if bps_deadline is not None and fps_deadline is not None:
                 next_time = min(bps_deadline, fps_deadline)
             elif bps_deadline is not None:
@@ -76,4 +77,5 @@ class clocked(object):
             # Generate a new frame and return it.
             self.last_retval = fn(*args, **kwargs)
             return self.last_retval
+
         return new_fn

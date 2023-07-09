@@ -1,10 +1,9 @@
-from builtins import object
 import math
 import time
+from builtins import object
 
 
 class Easing(object):
-
     def __init__(self, duration, start, end=None, change=None):
         self.t_start = None
         self.t = None
@@ -14,11 +13,11 @@ class Easing(object):
         self.d = duration
         self.b = start
         if end:
-            self.c = end-start
+            self.c = end - start
         elif change:
             self.c = change
         else:
-            raise AttributeError('Easing need either end or change defined')
+            raise AttributeError("Easing need either end or change defined")
 
     def mark(self):
         # Initialize t_start if this easing has been reset or is new

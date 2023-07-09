@@ -1,15 +1,14 @@
-from builtins import range
-import os.path
 import colorsys
 import importlib
+import os.path
+from builtins import range
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
 
 class Message(Base):
-
     # The font to use
     DEFAULT_FONT = "synchronizer"
     # How far apart should the letters be
@@ -66,7 +65,7 @@ class Message(Base):
             self.load_default_message()
 
     def load_messages_from_file(self):
-        msg_file = open(self.MESSAGE_FILE, 'r')
+        msg_file = open(self.MESSAGE_FILE, "r")
         for line in msg_file:
             self.messages.append(line)
         msg_file.close()
@@ -130,7 +129,7 @@ class Message(Base):
     def get_next_frame(self, context):
         pixels = []
         for row in range(0, 8):
-            for col in range(int(self.window), int(self.window)+self.WINDOW_WIDTH):
+            for col in range(int(self.window), int(self.window) + self.WINDOW_WIDTH):
                 if self.wall[row][col]:
                     pixels.append(self.current_rgb_tuple())
                 else:

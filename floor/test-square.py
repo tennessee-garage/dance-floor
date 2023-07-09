@@ -1,5 +1,6 @@
-from floor.controller import Test
 import sys
+
+from floor.controller import Test
 
 
 def main():
@@ -19,5 +20,5 @@ def main():
     test.run(leds)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

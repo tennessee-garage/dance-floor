@@ -1,11 +1,10 @@
-from builtins import range
-from builtins import object
-import random
 import math
+import random
+from builtins import object, range
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
 
 class Balls(Base):
@@ -22,15 +21,16 @@ class Balls(Base):
         self.in_flight = []
 
     def rand_color(self):
-        return [random.randrange(COLOR_MAXIMUM),
-                random.randrange(COLOR_MAXIMUM),
-                random.randrange(COLOR_MAXIMUM)]
+        return [
+            random.randrange(COLOR_MAXIMUM),
+            random.randrange(COLOR_MAXIMUM),
+            random.randrange(COLOR_MAXIMUM),
+        ]
 
     def can_spawn_ball(self):
-        """Max self.spawn_chance chance of spawning a ball, modulated by a sine curve.
-        """
+        """Max self.spawn_chance chance of spawning a ball, modulated by a sine curve."""
         val = random.random() * (math.sin(self.count) + 1.0)
-#        print "Val = {}".format(val)
+        #        print "Val = {}".format(val)
         return val > self.spawn_chance
 
     @clocked(frames_per_second=24)
@@ -39,14 +39,16 @@ class Balls(Base):
 
         if len(self.in_flight) < self.max_in_flight:
             if self.can_spawn_ball():
-                ball = Ball(row=random.randrange(8), delta=0.08, decay=0.85, color=self.rand_color())
+                ball = Ball(
+                    row=random.randrange(8), delta=0.08, decay=0.85, color=self.rand_color()
+                )
                 self.in_flight.append(ball)
 
         remaining = []
         for ball in self.in_flight:
             row_pos = int(round(ball.position))
             if row_pos <= 7:
-                index = int(round(ball.position)) + (ball.row*8)
+                index = int(round(ball.position)) + (ball.row * 8)
                 pixels[index] = ball.color
 
             ball.run()
@@ -61,7 +63,6 @@ class Balls(Base):
 
 
 class Ball(object):
-
     def __init__(self, row, delta, decay, color):
         self.t = 0
 
@@ -81,7 +82,7 @@ class Ball(object):
         self.position = self.start_position + (self.v * self.t) + (-9.8 * self.t**2)
         self.max_height = max(self.max_height, self.position)
 
-#        print "t={}, p={}, v={}".format(self.t, self.position, self.v)
+        #        print "t={}, p={}, v={}".format(self.t, self.position, self.v)
 
         if self.position < 0.0:
             if self.max_height < 0.5:
@@ -89,13 +90,13 @@ class Ball(object):
                 return
 
             self.max_height = 0.0
-#            self.v = math.sqrt(2 * 9.8 * self.start_position)
+            #            self.v = math.sqrt(2 * 9.8 * self.start_position)
             self.start_position = 0.0
             self.position = 0.0
             self.v = 9.8 * self.t * self.decay
 
             self.t = 0.0
 
-#            print "bounce: t={}, p={}, v={}".format(self.t, self.position, self.v)
+        #            print "bounce: t={}, p={}, v={}".format(self.t, self.position, self.v)
 
         self.t += self.delta

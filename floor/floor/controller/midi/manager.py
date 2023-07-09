@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import os
@@ -9,7 +6,12 @@ import threading
 
 from pymidi import server as pymidi_server
 
-from .constants import COMMAND_NOTE_ON, COMMAND_NOTE_OFF, MIDI_NOTE_NAMES, COMMAND_CONTROL_MODE_CHANGE
+from .constants import (
+    COMMAND_CONTROL_MODE_CHANGE,
+    COMMAND_NOTE_OFF,
+    COMMAND_NOTE_ON,
+    MIDI_NOTE_NAMES,
+)
 from .mapping import MidiMapping
 
 
@@ -29,20 +31,21 @@ class MidiHandler(pymidi_server.Handler):
 
 class MidiManager(object):
     """Binds a pymidi server to the dance floor controller."""
+
     def __init__(self, port, controller, default_midi_mapping=None):
         self.controller = controller
-        self.midi_server = pymidi_server.Server([('0.0.0.0', port)])
+        self.midi_server = pymidi_server.Server([("0.0.0.0", port)])
         self.midi_handler = MidiHandler(self)
         self.midi_server.add_handler(self.midi_handler)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.midi_peers_to_mappings = {}
-        self.logger.info('Midi enabled, port={}'.format(port))
-        self.default_midi_mapping = default_midi_mapping or MidiMapping(name='default')
+        self.logger.info("Midi enabled, port={}".format(port))
+        self.default_midi_mapping = default_midi_mapping or MidiMapping(name="default")
 
     def load_default_midi_mapping(self, mapping_dir, map_name):
         """Can be used to load a mapping JSON file to use as the default MIDI mapping"""
 
-        mapping_file = mapping_dir + '/' + map_name + '.json'
+        mapping_file = mapping_dir + "/" + map_name + ".json"
         if os.path.isfile(mapping_file):
             try:
                 self.default_midi_mapping = MidiMapping.from_file(mapping_file)
@@ -73,11 +76,11 @@ class MidiManager(object):
         return None
 
     def on_midi_peer_connected(self, peer):
-        self.logger.info('Peer connected: {}'.format(peer))
+        self.logger.info("Peer connected: {}".format(peer))
         self.midi_peers_to_mappings[peer.ssrc] = self.default_midi_mapping
 
     def on_midi_peer_disconnected(self, peer):
-        self.logger.info('Peer disconnected: {}'.format(peer))
+        self.logger.info("Peer disconnected: {}".format(peer))
         del self.midi_peers_to_mappings[peer.ssrc]
 
     def on_midi_commands(self, peer, commands):
@@ -96,10 +99,10 @@ class MidiManager(object):
             try:
                 func.callback(self.controller, value)
             except Exception:
-                self.logger.exception('Error in MIDI command callback')
+                self.logger.exception("Error in MIDI command callback")
 
     def run_server(self):
         thr = threading.Thread(target=self.midi_server.serve_forever)
         thr.daemon = True
-        self.logger.info('Starting midi server thread')
+        self.logger.info("Starting midi server thread")
         thr.start()

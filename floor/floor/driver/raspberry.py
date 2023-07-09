@@ -1,13 +1,15 @@
 from __future__ import absolute_import
-from builtins import range
+
 import importlib
 import logging
 import time
+from builtins import range
 
-from .base import Base
 from floor.util.serial_read import SerialRead
 
-logger = logging.getLogger('raspberry')
+from .base import Base
+
+logger = logging.getLogger("raspberry")
 
 
 class Raspberry(Base):
@@ -39,14 +41,70 @@ class Raspberry(Base):
     # Define the order in which we output the LEDs.  This could be calculated
     # but spelling it out here to reduce the time to display a frame
     TILE_ORDER = [
-        00,  1,  2,  3,  4,  5,  6,  7,
-        15, 14, 13, 12, 11, 10,  9,  8,
-        16, 17, 18, 19, 20, 21, 22, 23,
-        31, 30, 29, 28, 27, 26, 25, 24,
-        32, 33, 34, 35, 36, 37, 38, 39,
-        47, 46, 45, 44, 43, 42, 41, 40,
-        48, 49, 50, 51, 52, 53, 54, 55,
-        63, 62, 61, 60, 59, 58, 57, 56,
+        00,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        15,
+        14,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        31,
+        30,
+        29,
+        28,
+        27,
+        26,
+        25,
+        24,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        47,
+        46,
+        45,
+        44,
+        43,
+        42,
+        41,
+        40,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        63,
+        62,
+        61,
+        60,
+        59,
+        58,
+        57,
+        56,
     ]
 
     NUM_TILES = len(TILE_ORDER)
@@ -54,7 +112,7 @@ class Raspberry(Base):
     def __init__(self, args):
         super(Raspberry, self).__init__(args)
 
-        self.floor_threshold = args.get('floor_threshold', self.DEFAULT_FLOOR_THRESHOLD)
+        self.floor_threshold = args.get("floor_threshold", self.DEFAULT_FLOOR_THRESHOLD)
 
         module = importlib.import_module("spidev")
 
@@ -209,11 +267,8 @@ class Raspberry(Base):
             position = self.TILE_ORDER[packet]
 
             log_line += "{}: {:>2} ({:>2}/{:>2}) | ".format(
-                    position,
-                    values[position],
-                    self.value_floor[position],
-                    self.value_ceiling[position]
-                )
+                position, values[position], self.value_floor[position], self.value_ceiling[position]
+            )
 
             if packet % 8 == 7:
                 log_line += " | \n"
@@ -258,4 +313,5 @@ class Raspberry(Base):
 
 class ProbeException(Exception):
     """Raised when probing the floor fails"""
+
     pass
