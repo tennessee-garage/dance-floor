@@ -9,11 +9,11 @@ readme = "README.md"
 python = "^3.11"
 pyserial = "^3.5"
 flask = "^2.3.2"
-flask-sockets = "^0.2.1"
 pymidi = "^0.5.0"
 mock = "^5.0.2"
 gevent = "^22.10.2"
 flask-cors = "^4.0.0"
+flask-sock = "^0.6.0"
 
 
 [tool.poetry.group.dev.dependencies]
