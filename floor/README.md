@@ -55,6 +55,12 @@ To run tests:
 $ pytest
 ```
 
+It is recommend you install `pre-commit` to take care of auto-formatting code.
+```
+$ brew install pre-commit
+$ pre-commit install
+```
+
 ### Production setup (Raspberry Pi)
 
 
