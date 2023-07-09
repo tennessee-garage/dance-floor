@@ -11,11 +11,11 @@ import time
 logger = logging.getLogger('devserver')
 
 import gevent
-from geventwebsocket.handler import WebSocketHandler
+from gevent.pywsgi import WSGIServer
 
 from flask import Flask
 from flask import render_template, request
-from flask_sockets import Sockets
+from flask_sock import Sock
 
 from floor.driver.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'devserver')
 
 app = Flask(__name__, root_path=BASE_DIR, template_folder=TEMPLATE_DIR)
-sockets_app = Sockets(app)
+sockets_app = Sock(app)
 
 WAITER = gevent.event.Event()
 MESSAGE_QUEUE = collections.deque()
@@ -39,7 +39,7 @@ def echo_socket(ws):
     logger.info('Socket connected: {}'.format(ws))
     SOCKETS.add(ws)
     try:
-        while not ws.closed:
+        while ws.connected:
             message = ws.receive()
             if not message:
                 continue
@@ -83,7 +83,7 @@ def _broadcast(message):
 def serve_forever(port=1979):
     logger.info('Starting devserver on port {}'.format(port))
     gevent.spawn(sender)
-    server = gevent.pywsgi.WSGIServer(('', port), app, handler_class=WebSocketHandler)
+    server = WSGIServer(('', port), app)
     server.serve_forever()
 
 
