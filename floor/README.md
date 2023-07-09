@@ -28,31 +28,31 @@ For development and testing, use the devserver driver. It allows you to run the 
 
 ### Prerequisites
 
-You'll need `pip` and `pipenv`.
-
-On Linux/Debian environment, install with:
+You'll need `poetry`. On a Mac with Homebrew, install with:
 
 ```
-$ sudo apt-get install python-pip
-$ sudo pip install pipenv
+$ brew install poetry
 ```
-On a Mac with Homebrew, install with:
 
-```
-$ brew install pipenv
-```
+For other options, see [the Poetry installation docs](https://python-poetry.org/docs/#installation).
 
 ### Developer setup
 
+Install dependencies - one time, and whenever you change them:
 ```
-$ pipenv shell
-$ pipenv install --dev
+$ poetry install
+```
+
+Then do all work within a poetry shell:
+```
+$ poetry shell
+$ python ...
 ```
 
 To run tests:
 
 ```
-$ pipenv run nosetests
+$ pytest
 ```
 
 ### Production setup (Raspberry Pi)
@@ -60,7 +60,7 @@ $ pipenv run nosetests
 
 1. Clone this repository
 ```bash
-git clone https://github.com/garthwebb/dance-floor.git
+git clone https://github.com/tennessee-garage/dance-floor.git
 ```
 
 2. [OPTIONAL] If you will run the code on a RaspberryPi, an SPI library is needed.  If running in dev/virtual mode, SPI is not necessary.
@@ -71,15 +71,14 @@ cd py-spidev
 sudo make install
 ```
 
-3. Make sure `pip` and `pipenv` are installed:
+3. Install poetry
 ```bash
-sudo apt-get install python-pip
-pip install pipenv
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 4. Install
 ```bash
-pipenv install --system
+poetry install
 ```
 
 ## Running the code
