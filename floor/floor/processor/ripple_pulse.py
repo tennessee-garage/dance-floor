@@ -1,10 +1,10 @@
 import math
-from floor.processor.utils import clocked
+
 from floor.processor.ripple import Ripple
+from floor.processor.utils import clocked
 
 
 class RipplePulse(Ripple):
-
     # 0.75 is good for long pulses
     DECAY = 4
     OMEGA = 2 * math.pi
@@ -18,7 +18,7 @@ class RipplePulse(Ripple):
     def __init__(self, **kwargs):
         super(RipplePulse, self).__init__(**kwargs)
 
-    @clocked(frames_per_beat=.5)
+    @clocked(frames_per_beat=0.5)
     def reset_on_beat(self, context):
         self.t_start = context.clock
         self.hue += self.hue_rotation

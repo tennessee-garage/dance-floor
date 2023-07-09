@@ -1,31 +1,30 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from builtins import range
-from builtins import object
-import logging
 import colorsys
+import logging
 import sys
+from builtins import object, range
 
 from floor.processor.constants import COLOR_MAXIMUM, RANGED_INPUT_MAX
 
 
 class ProcessorRegistry(type):
     """Python metaclass which automatically adds the class to `ALL_PROCESSORS`."""
+
     ALL_PROCESSORS = {}
 
     def __new__(cls, clsname, bases, attrs):
         new_class = super(ProcessorRegistry, cls).__new__(cls, clsname, bases, attrs)
         class_name = new_class.__name__
-        if class_name != 'Base':
+        if class_name != "Base":
             if class_name in cls.ALL_PROCESSORS:
                 existing_class = cls.ALL_PROCESSORS[class_name]
                 file1 = sys.modules[existing_class.__module__].__file__
                 file2 = sys.modules[new_class.__module__].__file__
-                files = ', '.join((file1, file2))
-                raise ValueError('Multiple processors with name "{}" declared: {}'.format(class_name, files))
+                files = ", ".join((file1, file2))
+                raise ValueError(
+                    'Multiple processors with name "{}" declared: {}'.format(class_name, files)
+                )
             cls.ALL_PROCESSORS[class_name] = new_class
         return new_class
 
@@ -36,8 +35,10 @@ class RenderContext(object):
     This class is how the `Controller` passes state to the `Processor`. As such,
     it can be considered write-only for the Controller, and read-only for the Processor.
     """
+
     class RangedInput:
         """Simple enum for logical `ranged_values` names."""
+
         WET_DRY = 0
         INTENSITY = 1
         AUX1 = 2
@@ -76,7 +77,7 @@ class RenderContext(object):
         in the range, the final choice receives the balance. This is illustrated above,
         since `128 // 3 == 42`, but `42 * 3 < 127`.
         """
-        choices = choices[:RANGED_INPUT_MAX + 1]
+        choices = choices[: RANGED_INPUT_MAX + 1]
         num_choices = len(choices)
         steps_per_choice = (RANGED_INPUT_MAX + 1) // num_choices
         current_position = ranged_value
@@ -101,47 +102,43 @@ class Base(metaclass=ProcessorRegistry):
 
     def init_controls(self):
         for item in self.CONTROLS:
-            name = item['name']
+            name = item["name"]
             if name in self.__dict__:
-                raise AttributeError('Proposed control name {} already exists in class'.format(name))
+                raise AttributeError(
+                    "Proposed control name {} already exists in class".format(name)
+                )
 
-            if 'range' in item:
+            if "range" in item:
                 self.add_range_control(name, item)
-            elif 'scale' in item:
+            elif "scale" in item:
                 self.add_scale_control(name, item)
             else:
                 self.add_absolute_control(name, item)
 
     def add_absolute_control(self, name, item):
-        if 'default' in item:
-            default = item['default']
+        if "default" in item:
+            default = item["default"]
         else:
             default = 0
 
-        self._controls.append({
-            'name': name,
-            'handler': lambda input_value: input_value
-        })
+        self._controls.append({"name": name, "handler": lambda input_value: input_value})
         self.__dict__[name] = default
 
     def add_scale_control(self, name, item):
-        scale = item['scale']
-        item['range'] = [0.0, scale]
+        scale = item["scale"]
+        item["range"] = [0.0, scale]
         return self.add_range_control(name, item)
 
     def add_range_control(self, name, item):
-        r = item['range']
+        r = item["range"]
         handler = self.get_range_handler(0, 127, r[0], r[1])
 
-        if 'default' in item:
-            default = item['default']
+        if "default" in item:
+            default = item["default"]
         else:
             default = r[0]
 
-        self._controls.append({
-            'name': name,
-            'handler': handler
-        })
+        self._controls.append({"name": name, "handler": handler})
         self.__dict__[name] = default
 
     @classmethod
@@ -172,8 +169,8 @@ class Base(metaclass=ProcessorRegistry):
             return
 
         control = self._controls[num]
-        name = control['name']
-        handler = control['handler']
+        name = control["name"]
+        handler = control["handler"]
         output_value = handler(val)
         self.__dict__[name] = output_value
         self.logger.info("Set control {} to {}".format(name, output_value))

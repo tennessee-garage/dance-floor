@@ -1,6 +1,5 @@
-from builtins import range
-from builtins import object
 import random
+from builtins import object, range
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
@@ -25,14 +24,18 @@ class Stripes(Base):
 
         for idx, p in enumerate(self.palette):
             for n in range(fade_length, 1, -1):
-                fade_factor = 1.0/n
-                self.gradient[idx].append((p[0]*fade_factor, p[1]*fade_factor, p[2]*fade_factor))
+                fade_factor = 1.0 / n
+                self.gradient[idx].append(
+                    (p[0] * fade_factor, p[1] * fade_factor, p[2] * fade_factor)
+                )
 
             self.gradient[idx].append(p)
 
-            for n in range(2, fade_length+1):
-                fade_factor = 1.0/n
-                self.gradient[idx].append((p[0]*fade_factor, p[1]*fade_factor, p[2]*fade_factor))
+            for n in range(2, fade_length + 1):
+                fade_factor = 1.0 / n
+                self.gradient[idx].append(
+                    (p[0] * fade_factor, p[1] * fade_factor, p[2] * fade_factor)
+                )
 
         for idx in range(8):
             self.stripes[idx] = self.generate_new_stripe()
@@ -67,7 +70,6 @@ class Stripes(Base):
 
 
 class Stripe(object):
-
     def __init__(self, gradient, speed, direction):
         self.gradient = gradient
         self.speed = speed
@@ -85,7 +87,7 @@ class Stripe(object):
             self.start = len(self.buffer) - 8
 
     def get_values(self):
-        return self.buffer[int(self.start):int(self.start)+8]
+        return self.buffer[int(self.start) : int(self.start) + 8]
 
     def is_done(self):
         return self.done

@@ -1,18 +1,15 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from builtins import range
-from freezegun import freeze_time
-import time
 import datetime
+import time
+from builtins import range
 from unittest import TestCase
+
+from freezegun import freeze_time
 
 from floor import processor
 from floor.processor.base import Base as BaseProcessor
 from floor.processor.base import RenderContext
-
 
 TEST_FPS = 120
 TEST_SECONDS = 30
@@ -26,10 +23,10 @@ def test_run_all_processors():
     # https://nose.readthedocs.io/en/latest/writing_tests.html#test-generators
     fake_weights = [0] * 64
     num_frames = TEST_FPS * TEST_SECONDS
-    clock_time_per_frame = datetime.timedelta(seconds=1/TEST_FPS)
+    clock_time_per_frame = datetime.timedelta(seconds=1 / TEST_FPS)
 
     def run_test(processor_name, cls):
-        with freeze_time('Jan 1, 2001') as fake_time:
+        with freeze_time("Jan 1, 2001") as fake_time:
             now = time.time()
             instance = cls()
             for i in range(num_frames):

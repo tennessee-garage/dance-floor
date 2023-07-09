@@ -1,16 +1,15 @@
-from builtins import range
 import collections
 import itertools
+from builtins import range
 
 from floor.processor.base import Base, RenderContext
 from floor.processor.utils import clocked
 from floor.util.color_utils import get_palette
 
-
 PALLETS = [
-    get_palette('rygw'),
-    get_palette('unicorns'),
-    get_palette('desert'),
+    get_palette("rygw"),
+    get_palette("unicorns"),
+    get_palette("desert"),
 ]
 
 BLACK = (0, 0, 0)

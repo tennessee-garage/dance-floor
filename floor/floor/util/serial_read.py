@@ -1,14 +1,12 @@
-from builtins import chr
-from builtins import range
-from builtins import object
-import serial
 import logging
+from builtins import chr, object, range
 
-logger = logging.getLogger('serial_read')
+import serial
+
+logger = logging.getLogger("serial_read")
 
 
 class SerialRead(object):
-
     packets = 64
     packet_bytes = 2
     frame_bytes = packet_bytes * packets
@@ -23,11 +21,7 @@ class SerialRead(object):
 
     def __init__(self):
         self.ser = serial.Serial(
-            self.port,
-            baudrate=self.baud,
-            bytesize=self.bits,
-            timeout=None,
-            stopbits=self.stop_bits
+            self.port, baudrate=self.baud, bytesize=self.bits, timeout=None, stopbits=self.stop_bits
         )
 
         self.read_buffer = []

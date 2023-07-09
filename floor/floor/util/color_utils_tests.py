@@ -1,11 +1,10 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from unittest import TestCase
+
+from floor.processor.constants import BLACK, COLOR_MAXIMUM, WHITE
+
 from . import color_utils
-from floor.processor.constants import BLACK, WHITE, COLOR_MAXIMUM
 
 
 class ColorUtilsTests(TestCase):
@@ -43,7 +42,9 @@ class ColorUtilsTests(TestCase):
         red = (COLOR_MAXIMUM, 0, 0)
         self.assertEqual(red, color_utils.tint(red, 0))
         self.assertEqual(WHITE, color_utils.tint(red, 1))
-        self.assertEqual((COLOR_MAXIMUM, COLOR_MAXIMUM//2, COLOR_MAXIMUM//2), color_utils.tint(red, 0.5))
+        self.assertEqual(
+            (COLOR_MAXIMUM, COLOR_MAXIMUM // 2, COLOR_MAXIMUM // 2), color_utils.tint(red, 0.5)
+        )
 
     def test_shade(self):
         red = (COLOR_MAXIMUM, 0, 0)
@@ -52,9 +53,9 @@ class ColorUtilsTests(TestCase):
         self.assertEqual((511, 0, 0), color_utils.shade(red, 0.5))
 
     def test_hex_to_rgb(self):
-        self.assertEqual(WHITE, color_utils.hex_to_rgb('#ffffff'))
-        self.assertEqual(BLACK, color_utils.hex_to_rgb('#000000'))
-        self.assertEqual((0, COLOR_MAXIMUM, 0), color_utils.hex_to_rgb('#00ff00'))
+        self.assertEqual(WHITE, color_utils.hex_to_rgb("#ffffff"))
+        self.assertEqual(BLACK, color_utils.hex_to_rgb("#000000"))
+        self.assertEqual((0, COLOR_MAXIMUM, 0), color_utils.hex_to_rgb("#00ff00"))
 
     def test_get_pallet(self):
         for p in color_utils.palettes.keys():

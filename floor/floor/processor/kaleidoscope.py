@@ -1,13 +1,12 @@
-from builtins import range
 import random
+from builtins import range
 
+import floor.util.color_utils as color
 from floor.processor.base import Base
 from floor.processor.utils import clocked
-import floor.util.color_utils as color
 
 
 class Kaleidoscope(Base):
-
     LIFETIME = 1.0
 
     def __init__(self, **kwargs):
@@ -25,7 +24,7 @@ class Kaleidoscope(Base):
         # Weight values are either 0 or 1.  If 1 consider it a step and add a pixel
         for i in range(0, 64):
             if context.weights[i] > 0 and self.times[i] == 0:
-                col = random.randint(0, self.palette_length-1)
+                col = random.randint(0, self.palette_length - 1)
                 self.active_px[i] = self.palette[col]
                 self.times[i] = context.clock
 
@@ -44,31 +43,31 @@ class Kaleidoscope(Base):
         t = context.clock
         for x in range(0, 8):
             for y in range(0, 8):
-                index = y*8 + x
+                index = y * 8 + x
                 if self.times[index] > 0:
-                    age_scale = 1 - (t - self.times[index])/self.LIFETIME
+                    age_scale = 1 - (t - self.times[index]) / self.LIFETIME
                     if age_scale < 0:
                         self.times[index] = 0
                     else:
                         next_pixel = color.scale_color(self.active_px[index], age_scale)
-                        index = y*8 + x
+                        index = y * 8 + x
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
-                        index = y*8 + (7-x)
+                        index = y * 8 + (7 - x)
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
-                        index = (7-y)*8 + (7-x)
+                        index = (7 - y) * 8 + (7 - x)
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
-                        index = (7-y)*8 + x
+                        index = (7 - y) * 8 + x
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
                         z = x
                         x = y
                         y = z
-                        index = y*8 + x
+                        index = y * 8 + x
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
-                        index = y*8 + (7-x)
+                        index = y * 8 + (7 - x)
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
-                        index = (7-y)*8 + (7-x)
+                        index = (7 - y) * 8 + (7 - x)
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
-                        index = (7-y)*8 + x
+                        index = (7 - y) * 8 + x
                         next_frame[index] = color.add_color(next_frame[index], next_pixel)
 
         return next_frame

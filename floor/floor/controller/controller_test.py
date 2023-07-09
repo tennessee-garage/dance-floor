@@ -1,31 +1,30 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-from floor.processor import all_processors
+from unittest import TestCase
+
+from mock import Mock
+
 from floor.controller.controller import Controller
 from floor.controller.playlist import Playlist, PlaylistManager
-from unittest import TestCase
-from mock import Mock
+from floor.processor import all_processors
 from floor.processor.base import Base as BaseProcessor
 
-
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-DEFAULT_PLAYLIST = BASE_DIR + '/../../config/playlists/default.json'
+DEFAULT_PLAYLIST = BASE_DIR + "/../../config/playlists/default.json"
 
 
-RED = (0xff, 0x00, 0x00)
-GREEN = (0x00, 0xff, 0x00)
-BLUE = (0x00, 0x00, 0xff)
+RED = (0xFF, 0x00, 0x00)
+GREEN = (0x00, 0xFF, 0x00)
+BLUE = (0x00, 0x00, 0xFF)
 BLACK = (0x00, 0x00, 0x00)
 
 
 class SingleColorProcessor(BaseProcessor):
     """A test processor that sets all pixels to a single color."""
+
     def __init__(self, **kwargs):
-        self.color = kwargs.pop('color', BLACK)
+        self.color = kwargs.pop("color", BLACK)
         super(SingleColorProcessor, self).__init__(**kwargs)
 
     def get_next_frame(self, context):
@@ -62,13 +61,13 @@ class ControllerTest(TestCase):
         self.driver.send_data.assert_called_once()
 
         first_processor_class = self.playlist.queue[0].processor_cls
-        self.assertEqual(first_processor_class, c.layers['playlist'].current_processor.__class__)
+        self.assertEqual(first_processor_class, c.layers["playlist"].current_processor.__class__)
 
     def test_layer_blending(self):
         red_processor = SingleColorProcessor(color=RED)
         green_processor = SingleColorProcessor(color=GREEN)
-        
-        playlist = Playlist.from_single_processor(SingleColorProcessor, args={'color': BLUE})
+
+        playlist = Playlist.from_single_processor(SingleColorProcessor, args={"color": BLUE})
         playlist_manager = PlaylistManager(playlist)
         driver = self.new_fake_driver()
         controller = Controller([driver], playlist_manager)
@@ -76,17 +75,17 @@ class ControllerTest(TestCase):
         controller.run_one_frame()
         self.assertEqual([BLUE + (1.0,)] * 64, driver.set_leds.call_args[0][0])
 
-        overlay2 = controller.layers['overlay2']
+        overlay2 = controller.layers["overlay2"]
         overlay2.set_processor(red_processor)
         overlay2.set_alpha(0.5)
         controller.run_one_frame()
-        self.assertEqual([(0x7f, 0x00, 0x7f)] * 64, driver.set_leds.call_args[0][0])
+        self.assertEqual([(0x7F, 0x00, 0x7F)] * 64, driver.set_leds.call_args[0][0])
 
-        overlay1 = controller.layers['overlay1']
+        overlay1 = controller.layers["overlay1"]
         overlay1.set_processor(green_processor)
         overlay1.set_alpha(0.5)
         controller.run_one_frame()
-        self.assertEqual([(0x3f, 0x7f, 0x3f)] * 64, driver.set_leds.call_args[0][0])
+        self.assertEqual([(0x3F, 0x7F, 0x3F)] * 64, driver.set_leds.call_args[0][0])
 
     def test_multiple_drivers_get_weights_are_blended(self):
         driver1 = Mock()

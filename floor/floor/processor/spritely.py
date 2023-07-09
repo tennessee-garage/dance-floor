@@ -23,6 +23,7 @@ Some potential future enhancements we could make:
 """
 
 import collections
+
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 from floor.util.color_utils import hex_to_rgb
@@ -46,27 +47,27 @@ MAXIMUM_BIPS_PER_FRAME = 1024
 class Frame:
     def __init__(self, pixels, duration_bips=BIPS_PER_WHOLE_NOTE):
         self.pixels = pixels
-        self.duration_bips = duration_bips        
+        self.duration_bips = duration_bips
 
     @classmethod
     def from_object(cls, obj):
         """Utility function to construct a `Frame` from a simple eg JSON object."""
-        pixels = obj.get('pixels')
-        duration_bips = obj.get('duration_bips')
+        pixels = obj.get("pixels")
+        duration_bips = obj.get("duration_bips")
         if pixels is None:
-            raise ValueError('object is missing `pixels`')
+            raise ValueError("object is missing `pixels`")
         if duration_bips is None:
-            raise ValueError('object is missing `duration_bips`')
+            raise ValueError("object is missing `duration_bips`")
         duration_bips = int(duration_bips)
         if duration_bips < 0 or duration_bips > MAXIMUM_BIPS_PER_FRAME:
-            raise ValueError('duration_bips must be >= 0 and <= {}'.format(MAXIMUM_BIPS_PER_FRAME))
+            raise ValueError("duration_bips must be >= 0 and <= {}".format(MAXIMUM_BIPS_PER_FRAME))
         return cls(pixels=pixels, duration_bips=duration_bips)
 
     @classmethod
     def test_pattern_of_color(cls, color_hex, frame_duration_bips=BIPS_PER_BEAT):
         """Utility function to create a basic `Frame` of `color`."""
         pixel = hex_to_rgb(color_hex)
-        black = hex_to_rgb('#000000')
+        black = hex_to_rgb("#000000")
         pattern1 = [pixel, black] * 32
         pattern2 = [black, pixel] * 32
         return [
@@ -75,7 +76,7 @@ class Frame:
         ]
 
 
-DEFAULT_SPRITE_FRAMES = Frame.test_pattern_of_color('#00ff00')
+DEFAULT_SPRITE_FRAMES = Frame.test_pattern_of_color("#00ff00")
 
 
 class Spritely(Base):

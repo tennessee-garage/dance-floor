@@ -2,20 +2,75 @@ import colorsys
 import math
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
-
+from floor.processor.utils import clocked
 
 # The distance from the center for every square
 DISTANCE = [
-    4.95, 4.30, 3.81, 3.54, 3.54, 3.81, 4.30, 4.95,
-    4.30, 3.54, 2.92, 2.55, 2.55, 2.92, 3.54, 4.30,
-    3.81, 2.92, 2.12, 1.58, 1.58, 2.12, 2.92, 3.81,
-    3.54, 2.55, 1.58, 0.71, 0.71, 1.58, 2.55, 3.54,
-    3.54, 2.55, 1.58, 0.71, 0.71, 1.58, 2.55, 3.54,
-    3.81, 2.92, 2.12, 1.58, 1.58, 2.12, 2.92, 3.81,
-    4.30, 3.54, 2.92, 2.55, 2.55, 2.92, 3.54, 4.30,
-    4.95, 4.30, 3.81, 3.54, 3.54, 3.81, 4.30, 4.95
+    4.95,
+    4.30,
+    3.81,
+    3.54,
+    3.54,
+    3.81,
+    4.30,
+    4.95,
+    4.30,
+    3.54,
+    2.92,
+    2.55,
+    2.55,
+    2.92,
+    3.54,
+    4.30,
+    3.81,
+    2.92,
+    2.12,
+    1.58,
+    1.58,
+    2.12,
+    2.92,
+    3.81,
+    3.54,
+    2.55,
+    1.58,
+    0.71,
+    0.71,
+    1.58,
+    2.55,
+    3.54,
+    3.54,
+    2.55,
+    1.58,
+    0.71,
+    0.71,
+    1.58,
+    2.55,
+    3.54,
+    3.81,
+    2.92,
+    2.12,
+    1.58,
+    1.58,
+    2.12,
+    2.92,
+    3.81,
+    4.30,
+    3.54,
+    2.92,
+    2.55,
+    2.55,
+    2.92,
+    3.54,
+    4.30,
+    4.95,
+    4.30,
+    3.81,
+    3.54,
+    3.54,
+    3.81,
+    4.30,
+    4.95,
 ]
 
 
@@ -24,18 +79,9 @@ class Ripple(Base):
 
     CONTROLS = [
         # Scale how far squares are from each other
-        {
-            'name': 'DISTANCE_FACTOR',
-            'range': [0.02, 0.18],
-            'default': 0.03
-        },
+        {"name": "DISTANCE_FACTOR", "range": [0.02, 0.18], "default": 0.03},
         # How quickly do we dampen the waves
-        {
-            'name': 'DECAY',
-            'range': [0.25, 2.0],
-            'default': 0.75
-        },
-
+        {"name": "DECAY", "range": [0.25, 2.0], "default": 0.75},
     ]
 
     OMEGA = 2 * math.pi
@@ -66,7 +112,7 @@ class Ripple(Base):
 
         pixels = []
         for dist in DISTANCE:
-            factor = self.sin_decay((now-self.t_start) - dist*self.DISTANCE_FACTOR)
+            factor = self.sin_decay((now - self.t_start) - dist * self.DISTANCE_FACTOR)
             if factor > 1.0:
                 factor = 0.0
 
@@ -94,4 +140,4 @@ class Ripple(Base):
             omega = angular frequency
             phi = phase angle at t=0 which for us will be 0.0
         """
-        return (math.e**(-self.DECAY * t)) * math.cos(self.OMEGA * t)
+        return (math.e ** (-self.DECAY * t)) * math.cos(self.OMEGA * t)

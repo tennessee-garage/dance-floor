@@ -1,9 +1,9 @@
-from builtins import range
 import collections
+from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
-from floor.util.color_utils import tint, hex_to_rgb
+from floor.util.color_utils import hex_to_rgb, tint
 
 
 def gradient(color, steps=4):
@@ -16,12 +16,12 @@ def gradient(color, steps=4):
     return ret
 
 
-RED = hex_to_rgb('#ff0000')
-ORANGE = hex_to_rgb('#ffa500')
-GREEN = hex_to_rgb('#00ff00')
-YELLOW = hex_to_rgb('#ffff00')
-BLUE = hex_to_rgb('#0000ff')
-PURPLE = hex_to_rgb('#9400d3')
+RED = hex_to_rgb("#ff0000")
+ORANGE = hex_to_rgb("#ffa500")
+GREEN = hex_to_rgb("#00ff00")
+YELLOW = hex_to_rgb("#ffff00")
+BLUE = hex_to_rgb("#0000ff")
+PURPLE = hex_to_rgb("#9400d3")
 
 COLOR_SETS = [
     gradient(RED),

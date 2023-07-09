@@ -1,12 +1,13 @@
 from __future__ import print_function
-from builtins import range
+
 import colorsys
 import math
+from builtins import range
 
-from floor.util.easing import Easing
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
+from floor.util.easing import Easing
 
 
 class LineSlam(Base):
@@ -48,14 +49,14 @@ class LineSlam(Base):
 
         cur = self.easing1.ease_in_circ()
 
-        pre = 1.0-(cur-int(cur))
-        post = 1.0-(int(cur+1.0)-cur)
+        pre = 1.0 - (cur - int(cur))
+        post = 1.0 - (int(cur + 1.0) - cur)
 
         for y in range(8):
             for x in range(8):
                 if y == int(cur):
                     pixels.append((int(COLOR_MAXIMUM * pre), 0, 0))
-                elif y == int(cur+1):
+                elif y == int(cur + 1):
                     pixels.append((int(COLOR_MAXIMUM * post), 0, 0))
                 else:
                     pixels.append((0, 0, 0))

@@ -1,24 +1,20 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
 import argparse
 import logging
-import timeit
+import sys
 import time
+import timeit
 
-from floor.processor import all_processors
 from floor.controller import Controller
 from floor.controller.playlist import Playlist
 from floor.driver.base import Base as BaseDriver
+from floor.processor import all_processors
 
-
-LOG_FORMAT = '%(levelname)s: %(message)s'
-logger = logging.getLogger('benchmark')
+LOG_FORMAT = "%(levelname)s: %(message)s"
+logger = logging.getLogger("benchmark")
 
 
 class DummyDriver(BaseDriver):
@@ -29,34 +25,33 @@ class DummyDriver(BaseDriver):
 
 
 def get_options():
-    parser = argparse.ArgumentParser(description='Benchmark one or more processors.')
-
-    parser.add_argument('processors',
-        type=str,
-        nargs='+',
-        help='The name of the processor(s) to test, or "all" to test all.')
+    parser = argparse.ArgumentParser(description="Benchmark one or more processors.")
 
     parser.add_argument(
-        '--iterations',
-        dest='iterations',
+        "processors",
+        type=str,
+        nargs="+",
+        help='The name of the processor(s) to test, or "all" to test all.',
+    )
+
+    parser.add_argument(
+        "--iterations",
+        dest="iterations",
         default=100000,
         type=int,
-        help='How many iterations to run.',
+        help="How many iterations to run.",
     )
 
     parser.add_argument(
-        '--verbose',
-        dest='verbose',
-        action='store_true',
-        help='Enable verbose logging'
+        "--verbose", dest="verbose", action="store_true", help="Enable verbose logging"
     )
 
     parser.add_argument(
-        '--disable_gc',
-        dest='disable_gc',
-        action='store_true',
+        "--disable_gc",
+        dest="disable_gc",
+        action="store_true",
         default=False,
-        help='Whether to enable or disable garbage collection during benchmark.',
+        help="Whether to enable or disable garbage collection during benchmark.",
     )
 
     return parser.parse_args()
@@ -83,9 +78,9 @@ def benchmark_processor(name, processor, iterations, disable_gc):
     controller = Controller(driver=driver, playlist=playlist, clocksource=clocksource)
 
     if disable_gc:
-        setup = ''
+        setup = ""
     else:
-        setup = 'gc.enable()'
+        setup = "gc.enable()"
 
     def timed_function(controller=controller):
         controller.run_one_frame()
@@ -93,17 +88,17 @@ def benchmark_processor(name, processor, iterations, disable_gc):
     timer = timeit.Timer(stmt=timed_function, setup=setup)
     total_time = timer.timeit(number=iterations)
     frames_per_second = round(iterations / total_time, 2)
-    logger.info('Benchmark done! Took {} seconds'.format(total_time))
-    logger.info('FPS={}'.format(frames_per_second))
+    logger.info("Benchmark done! Took {} seconds".format(total_time))
+    logger.info("FPS={}".format(frames_per_second))
 
     return frames_per_second
 
 
 def print_results(results):
-    print('Name              FPS')
-    print('----------------  -----------')
+    print("Name              FPS")
+    print("----------------  -----------")
     for name, fps in sorted(results.items(), key=lambda x: x[1]):
-        print('{:16s}  {}'.format(name, int(fps)))
+        print("{:16s}  {}".format(name, int(fps)))
 
 
 def run():
@@ -115,13 +110,13 @@ def run():
     processors_to_test = {}
 
     for processor_name in args.processors:
-        if processor_name == 'all':
+        if processor_name == "all":
             processors_to_test.update(procs)
         else:
             processor = procs.get(processor_name)
             if not processor:
-                logging.error('Processor not found: {}'.format(args.processor))
-                logging.error('Choices: {}'.format(', '.join(sorted(procs.keys()))))
+                logging.error("Processor not found: {}".format(args.processor))
+                logging.error("Choices: {}".format(", ".join(sorted(procs.keys()))))
                 sys.exit(1)
             processors_to_test[processor_name] = processor
 
@@ -129,13 +124,13 @@ def run():
     names = sorted(processors_to_test.keys())
     for name in names:
         processor = processors_to_test[name]
-        logger.info('Starting benchmark of {} with {} iterations ...'.format(name, args.iterations))
+        logger.info("Starting benchmark of {} with {} iterations ...".format(name, args.iterations))
         result = benchmark_processor(name, processor, args.iterations, args.disable_gc)
         results[name] = result
 
-    logger.info('Done!')
+    logger.info("Done!")
     print_results(results)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

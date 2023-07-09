@@ -1,13 +1,12 @@
-from builtins import range
 import datetime
+from builtins import range
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
 
 class Life(Base):
-
     BPM = 94
 
     def __init__(self, **kwargs):
@@ -35,12 +34,12 @@ class Life(Base):
         output_vals = self.init_frame(False)
         for y in range(0, self.FLOOR_HEIGHT):
             for x in range(0, self.FLOOR_WIDTH):
-                index = ((x * self.FLOOR_WIDTH) + y)
+                index = (x * self.FLOOR_WIDTH) + y
                 output_vals[index] = self.conway_cycle_pixel(input_vals, x, y)
         return output_vals
 
     def conway_cycle_pixel(self, board, x, y):
-        index = ((x * self.FLOOR_WIDTH) + y)
+        index = (x * self.FLOOR_WIDTH) + y
         output = board[index]
         neighbor_count = self.conway_count_neighbors(board, x, y)
         if board[index]:
@@ -78,7 +77,7 @@ class Life(Base):
     @clocked(frames_per_second=24)
     def get_next_frame(self, context):
         weights = context.weights
-        
+
         # update_active_px with lifecycle
         delta = datetime.datetime.now() - self.last_update
         if delta.microseconds > self.cycle_duration:
@@ -115,7 +114,7 @@ def main():
     for p in on:
         frame[life.idx(p)] = True
     count = life.conway_count_neighbors(frame, 2, 2)
-    assert (count == 3), "it counts neighbors correctly"
+    assert count == 3, "it counts neighbors correctly"
 
 
 if __name__ == "__main__":

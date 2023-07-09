@@ -1,25 +1,13 @@
 from builtins import range
+
 from floor.processor.base import Base
 
 
 class SimpleStep(Base):
-
     CONTROLS = [
-        {
-            'name': 'HUE',
-            'scale': 1.0,
-            'default': 1.0
-        },
-        {
-            'name': 'SAT',
-            'scale': 1.0,
-            'default': 1.0
-        },
-        {
-            'name': 'VAL',
-            'scale': 1.0,
-            'default': 1.0
-        }
+        {"name": "HUE", "scale": 1.0, "default": 1.0},
+        {"name": "SAT", "scale": 1.0, "default": 1.0},
+        {"name": "VAL", "scale": 1.0, "default": 1.0},
     ]
 
     def __init__(self, **kwargs):
