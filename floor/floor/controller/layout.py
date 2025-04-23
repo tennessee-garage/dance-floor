@@ -1,13 +1,13 @@
-from builtins import object
+import glob
 import json
 import os
-import glob
 import re
+from builtins import object
 
 
 class Layout(object):
-    LAYOUT_MAPPING_DIR = 'layouts'
-    DEFAULT_CONFIG_NAME = 'floor-layout'
+    LAYOUT_MAPPING_DIR = "layouts"
+    DEFAULT_CONFIG_NAME = "floor-layout"
 
     def __init__(self, config_dir, config_name=None):
         self.layout_dir = os.path.join(config_dir, self.LAYOUT_MAPPING_DIR)
@@ -28,10 +28,10 @@ class Layout(object):
         config_name = cls.DEFAULT_CONFIG_NAME
 
         # Pick the first layout that has at least as many squares as we've probed
-        for layout in sorted(layouts, key=lambda a: a['num']):
-            if num_squares > layout['num']:
+        for layout in sorted(layouts, key=lambda a: a["num"]):
+            if num_squares > layout["num"]:
                 continue
-            config_name = layout['name']
+            config_name = layout["name"]
             break
 
         return Layout(config_dir, config_name)
@@ -41,21 +41,20 @@ class Layout(object):
         layout_dir = os.path.join(config_dir, cls.LAYOUT_MAPPING_DIR)
         layouts = []
 
-        for filename in glob.glob(os.path.join(layout_dir, '*.json')):
-            result = re.search(r'([^/]+)\.json$', filename)
+        for filename in glob.glob(os.path.join(layout_dir, "*.json")):
+            result = re.search(r"([^/]+)\.json$", filename)
             if not result:
                 continue
             config_name = result.group(1)
 
             with open(filename) as json_data:
                 config = json.load(json_data)
-                layouts.append({'name': config_name,
-                                'num': config.get('squares')})
+                layouts.append({"name": config_name, "num": config.get("squares")})
 
         return layouts
 
     def load_config_from_name(self, name):
-        config_path = os.path.join(self.layout_dir, name + '.json')
+        config_path = os.path.join(self.layout_dir, name + ".json")
         self.load_config_from_path(config_path)
 
     def load_config_from_path(self, path):
@@ -67,10 +66,10 @@ class Layout(object):
             # is a 1 that means the square is active.  If its 0 then the square has been bypassed
             # with a cable, so we need to skip writing that squares data so that things don't
             # get out of sync
-            self.squares = config.get('squares', 64)
-            self.rows = config.get('rows', 8)
-            self.cols = config.get('cols', 8)
-            self.layout = config.get('layout', None)
+            self.squares = config.get("squares", 64)
+            self.rows = config.get("rows", 8)
+            self.cols = config.get("cols", 8)
+            self.layout = config.get("layout", None)
 
     def is_bypassed(self, num):
         return self.layout[num] == 0

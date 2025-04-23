@@ -1,11 +1,7 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from builtins import str
-from builtins import object
 import logging
+from builtins import object, str
 
 from floor.processor.constants import RANGED_INPUT_MAX
 
@@ -28,19 +24,19 @@ class BaseRenderLayer(object):
 
     def get_alpha(self):
         return self.alpha
-    
+
     def set_alpha(self, alpha):
         self.alpha = min(1.0, max(0, alpha))
 
     def on_ranged_value_change(self, num, val):
         """Sets the ranged input value.
-        
+
         Arguments:
             num {integer} -- The 0-indexed fader/slider number, between 0-3 inclusive
             val {integer} -- The position value, between 0-`RANGED_INPUT_MAX` inclusive
         """
         val = max(0, min(val, RANGED_INPUT_MAX))
-        self.logger.debug('on_ranged_value_change: {} -> {}'.format(num, val))
+        self.logger.debug("on_ranged_value_change: {} -> {}".format(num, val))
         if num >= len(self.ranged_values):
             return
         self.ranged_values[num] = val
@@ -53,7 +49,7 @@ class BaseRenderLayer(object):
             is_on {bool} -- Whether the switch should be on or off
         """
         is_on = bool(is_on)
-        self.logger.debug('on_switch_change: {} -> {}'.format(num, is_on))
+        self.logger.debug("on_switch_change: {} -> {}".format(num, is_on))
         if num >= len(self.switches):
             return
         self.switches[num] = bool(is_on)
@@ -72,6 +68,7 @@ class BaseRenderLayer(object):
 
 class ProcessorRenderLayer(BaseRenderLayer):
     """A RenderLayer that encapsulates a single Processor."""
+
     def __init__(self, processor=None):
         super(ProcessorRenderLayer, self).__init__()
         self.processor = processor
@@ -104,6 +101,7 @@ class ProcessorRenderLayer(BaseRenderLayer):
 
 class PlaylistRenderLayer(BaseRenderLayer):
     """A RenderLayer that encapsulates a Playlist."""
+
     def __init__(self, playlist_manager, all_processors):
         super(PlaylistRenderLayer, self).__init__()
         self.playlist_manager = playlist_manager
@@ -142,8 +140,10 @@ class PlaylistRenderLayer(BaseRenderLayer):
         except KeyboardInterrupt:
             raise
         except Exception:
-            self.logger.exception('Error generating frame for processor {}'.format(self.current_processor))
-            self.logger.warning('Removing processor due to error.')
+            self.logger.exception(
+                "Error generating frame for processor {}".format(self.current_processor)
+            )
+            self.logger.warning("Removing processor due to error.")
             current_playlist.remove(current_playlist.position)
             return None
 
@@ -153,7 +153,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
             return
 
         if item is not self.current_playlist_item:
-            self.logger.debug('Loading playlist item {}'.format(item))
+            self.logger.debug("Loading playlist item {}".format(item))
             self._set_current_item(item)
 
     def _set_current_item(self, item):
@@ -170,4 +170,6 @@ class PlaylistRenderLayer(BaseRenderLayer):
         try:
             return processor_cls(**processor_args)
         except Exception as e:
-            raise ValueError('Processor "{}" could not be created: {}'.format(processor_cls, str(e)))
+            raise ValueError(
+                'Processor "{}" could not be created: {}'.format(processor_cls, str(e))
+            )

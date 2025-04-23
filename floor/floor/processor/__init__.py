@@ -1,22 +1,18 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os.path
-from glob import glob
 from collections import OrderedDict
+from glob import glob
 
-from .base import ProcessorRegistry
-from .base import Base
+from .base import Base, ProcessorRegistry
 
 
 def _import_all():
     """Import all processors, to trigger registration."""
     pwd = os.path.dirname(__file__)
-    for filename in glob(os.path.join(pwd, '*.py')):
+    for filename in glob(os.path.join(pwd, "*.py")):
         name, ext = os.path.splitext(os.path.basename(filename))
-        __import__('floor.processor.{}'.format(name), globals(), locals())
+        __import__("floor.processor.{}".format(name), globals(), locals())
 
 
 def all_processors():
@@ -25,4 +21,4 @@ def all_processors():
     return OrderedDict(sorted(ProcessorRegistry.ALL_PROCESSORS.items()))
 
 
-__all__ = ['all_processors']
+__all__ = ["all_processors"]

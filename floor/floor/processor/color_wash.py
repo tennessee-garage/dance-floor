@@ -1,7 +1,8 @@
 from builtins import range
+
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
 
 class ColorWash(Base):
@@ -17,11 +18,13 @@ class ColorWash(Base):
 
         for x in range(0, 8):
             for y in range(0, 8):
-                pixels.append((
-                    (self.red * x) % COLOR_MAXIMUM,
-                    (self.green * y) % COLOR_MAXIMUM,
-                    self.blue % COLOR_MAXIMUM
-                ))
+                pixels.append(
+                    (
+                        (self.red * x) % COLOR_MAXIMUM,
+                        (self.green * y) % COLOR_MAXIMUM,
+                        self.blue % COLOR_MAXIMUM,
+                    )
+                )
 
         self.red += 1
         self.green += 1

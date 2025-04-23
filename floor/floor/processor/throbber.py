@@ -1,12 +1,12 @@
 from builtins import range
+
 from floor.processor.base import Base
 from floor.util.color_utils import hex_to_rgb
 
-
-RED = hex_to_rgb('#ff0000')
-YELLOW = hex_to_rgb('#ffff00')
-GREEN = hex_to_rgb('#00ff00')
-BLUE = hex_to_rgb('#0000ff')
+RED = hex_to_rgb("#ff0000")
+YELLOW = hex_to_rgb("#ffff00")
+GREEN = hex_to_rgb("#00ff00")
+BLUE = hex_to_rgb("#0000ff")
 
 COLORS = [RED, YELLOW, GREEN, BLUE]
 

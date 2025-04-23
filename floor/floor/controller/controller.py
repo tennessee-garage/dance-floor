@@ -1,26 +1,18 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from builtins import range
-from builtins import object
-import time
 import logging
+import time
+from builtins import object, range
 from collections import OrderedDict
 
 from floor import processor
-from floor.processor.base import RenderContext
-from floor.controller.rendering import PlaylistRenderLayer
-from floor.controller.rendering import ProcessorRenderLayer
 from floor.controller.playlist import PlaylistManager
-from floor.util.color_utils import alpha_blend
-from floor.util.color_utils import normalize_pixel
-from floor.util.color_utils import set_brightness
+from floor.controller.rendering import PlaylistRenderLayer, ProcessorRenderLayer
+from floor.processor.base import RenderContext
+from floor.util.color_utils import alpha_blend, normalize_pixel, set_brightness
 from floor.util.simple_profile import profile
 
-
-logger = logging.getLogger('controller')
+logger = logging.getLogger("controller")
 
 
 class Controller(object):
@@ -29,18 +21,20 @@ class Controller(object):
 
     def __init__(self, drivers, playlist_manager, clocksource=time):
         """Constructor.
-        
+
         Arguments:
             drivers {floor.driver.Base} -- One or more drivers for show output
             playlist_manager {floor.playlist.PlaylistManager} -- The show's playlist manager
-        
+
         Keyword Arguments:
             clocksource {function} -- An object that should have `.time()`
             and `.sleep()` methods (default: {time})
         """
-        assert len(drivers) > 0, 'Must provide 1 or more drivers'
+        assert len(drivers) > 0, "Must provide 1 or more drivers"
         self.drivers = drivers
-        assert isinstance(playlist_manager, PlaylistManager), 'playlist_manager is not a PlaylistManager'
+        assert isinstance(
+            playlist_manager, PlaylistManager
+        ), "playlist_manager is not a PlaylistManager"
         self.playlist_manager = playlist_manager
         self.clocksource = clocksource
         self.frame_start = 0
@@ -52,11 +46,18 @@ class Controller(object):
         self.set_fps(self.DEFAULT_FPS)
 
         # Ordered dict of layers to render, bottom-most layer first.
-        self.layers = OrderedDict((
-            ('playlist', PlaylistRenderLayer(playlist_manager=self.playlist_manager, all_processors=self.all_processors)),
-            ('overlay2', ProcessorRenderLayer()),
-            ('overlay1', ProcessorRenderLayer()),
-        ))
+        self.layers = OrderedDict(
+            (
+                (
+                    "playlist",
+                    PlaylistRenderLayer(
+                        playlist_manager=self.playlist_manager, all_processors=self.all_processors
+                    ),
+                ),
+                ("overlay2", ProcessorRenderLayer()),
+                ("overlay1", ProcessorRenderLayer()),
+            )
+        )
 
         self.bpm = None
         self.downbeat = None
@@ -74,10 +75,10 @@ class Controller(object):
 
     def set_fps(self, fps):
         self.fps = fps
-        self.frame_seconds = 1.0/fps
+        self.frame_seconds = 1.0 / fps
 
     def set_bpm(self, bpm, downbeat=None):
-        logger.info('Setting bpm to: {}'.format(bpm))
+        logger.info("Setting bpm to: {}".format(bpm))
         self.bpm = float(bpm)
         self.downbeat = downbeat or self.clocksource.time()
 
@@ -88,36 +89,36 @@ class Controller(object):
         :return: none
         """
         self.brightness = max(0.0, min(1.0, factor))
-        logger.info('Set brightness to: {}%'.format(int(self.brightness * 100)))
+        logger.info("Set brightness to: {}%".format(int(self.brightness * 100)))
 
     def handle_input_event(self, event_name, num, value):
-        logger.debug('input event: {}: {} -> {}'.format(event_name, num, value))
-        if event_name == 'playlist_ranged_value':
-            self.layers['playlist'].on_ranged_value_change(num, value)
-        elif event_name == 'overlay1_ranged_value':
-            self.layers['overlay1'].on_ranged_value_change(num, value)
-        elif event_name == 'overlay2_ranged_value':
-            self.layers['overlay2'].on_ranged_value_change(num, value)
-        elif event_name == 'playlist_switch':
-            self.layers['playlist'].on_switch_change(num, value)
-        elif event_name == 'overlay1_switch':
-            self.layers['overlay1'].on_switch_change(num, value)
-        elif event_name == 'overlay2_switch':
-            self.layers['overlay2'].on_switch_change(num, value)
+        logger.debug("input event: {}: {} -> {}".format(event_name, num, value))
+        if event_name == "playlist_ranged_value":
+            self.layers["playlist"].on_ranged_value_change(num, value)
+        elif event_name == "overlay1_ranged_value":
+            self.layers["overlay1"].on_ranged_value_change(num, value)
+        elif event_name == "overlay2_ranged_value":
+            self.layers["overlay2"].on_ranged_value_change(num, value)
+        elif event_name == "playlist_switch":
+            self.layers["playlist"].on_switch_change(num, value)
+        elif event_name == "overlay1_switch":
+            self.layers["overlay1"].on_switch_change(num, value)
+        elif event_name == "overlay2_switch":
+            self.layers["overlay2"].on_switch_change(num, value)
         else:
-            logger.warning('Ignoring unknown event {}'.format(event_name))
+            logger.warning("Ignoring unknown event {}".format(event_name))
 
     def square_weight_on(self, index):
         if index > 64 or index < 1:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.synthetic_weights[index-1] = 1
+        self.synthetic_weights[index - 1] = 1
 
     def square_weight_off(self, index):
         if index > 64 or index < 1:
             logger.error("Ignoring square_weight_on() value beyond bounds")
             return
-        self.synthetic_weights[index-1] = 0
+        self.synthetic_weights[index - 1] = 0
 
     def run_forever(self):
         while True:

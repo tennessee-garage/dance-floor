@@ -1,12 +1,11 @@
-from builtins import range
-from builtins import object
-import random
 import colorsys
 import math
+import random
+from builtins import object, range
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
 
 class Fire(Base):
@@ -23,8 +22,7 @@ class Fire(Base):
         self.in_flight = []
 
     def can_spawn_ember(self):
-        """Max self.spawn_chance chance of spawning a ball, modulated by a sine curve.
-        """
+        """Max self.spawn_chance chance of spawning a ball, modulated by a sine curve."""
         val = random.random() * (math.sin(self.count) + 1.0)
         return val > self.spawn_chance
 
@@ -41,11 +39,13 @@ class Fire(Base):
         for ember in self.in_flight:
             row_pos = int(round(ember.position))
             if row_pos <= 7:
-                index = int(round(ember.position)) + (ember.row*8)
+                index = int(round(ember.position)) + (ember.row * 8)
                 r, g, b = colorsys.hsv_to_rgb(ember.hue, 1.0, 1.0)
-                pixels[index] = [int(r * COLOR_MAXIMUM),
-                                 int(g * COLOR_MAXIMUM),
-                                 int(b * COLOR_MAXIMUM)]
+                pixels[index] = [
+                    int(r * COLOR_MAXIMUM),
+                    int(g * COLOR_MAXIMUM),
+                    int(b * COLOR_MAXIMUM),
+                ]
 
             ember.run()
 
@@ -59,8 +59,7 @@ class Fire(Base):
 
 
 class Ember(object):
-
-    SLOW_HUE = 0.0   # red
+    SLOW_HUE = 0.0  # red
     FAST_HUE = 0.2  # yellow
 
     MAX_SPEED = 18.0
@@ -71,14 +70,14 @@ class Ember(object):
 
         self.hue = self.SLOW_HUE
         self.row = random.randrange(8)
-        self.speed = random.random()*self.MAX_SPEED
+        self.speed = random.random() * self.MAX_SPEED
         self.position = 0
 
         self.finished = False
 
     def run(self):
         self.position = (self.speed * self.t) + (-9.8 * self.t**2)
-        col_range = (self.speed + (-9.8 * self.t))/self.MAX_SPEED
+        col_range = (self.speed + (-9.8 * self.t)) / self.MAX_SPEED
 
         if col_range > 1.0:
             col_range = 1.0

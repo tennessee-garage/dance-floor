@@ -3,10 +3,13 @@ Helper functions to make color manipulations easier
 """
 
 from __future__ import division
-from builtins import range
+
 import math
 import random
-from floor.processor.constants import COLOR_MAXIMUM, WHITE, BLACK
+from builtins import range
+
+from floor.processor.constants import BLACK, COLOR_MAXIMUM, WHITE
+
 
 def remap(x, oldmin, oldmax, newmin, newmax):
     """
@@ -17,8 +20,8 @@ def remap(x, oldmin, oldmax, newmin, newmax):
         remap(math.sin(time.time()), -1, 1, 0, 256)
 
     """
-    zero_to_one = (x-oldmin) / (oldmax-oldmin)
-    return zero_to_one*(newmax-newmin) + newmin
+    zero_to_one = (x - oldmin) / (oldmax - oldmin)
+    return zero_to_one * (newmax - newmin) + newmin
 
 
 def clamp(x, minn, maxx):
@@ -36,8 +39,8 @@ def cos(x, offset=0, period=1, minn=0, maxx=1):
     minn, maxx: the output range
 
     """
-    value = math.cos((x/period - offset) * math.pi * 2) / 2 + 0.5
-    return value*(maxx-minn) + minn
+    value = math.cos((x / period - offset) * math.pi * 2) / 2 + 0.5
+    return value * (maxx - minn) + minn
 
 
 def contrast(color, center, mult):
@@ -65,7 +68,7 @@ def clip_black_by_luminance(color, threshold):
 
     """
     r, g, b = color
-    if r+g+b < threshold*3:
+    if r + g + b < threshold * 3:
         return 0, 0, 0
     return r, g, b
 
@@ -97,7 +100,7 @@ def mod_dist(a, b, n):
     mod_dist(11, 1, 12) == 2 because you can "wrap around".
 
     """
-    return min((a-b) % n, (b-a) % n)
+    return min((a - b) % n, (b - a) % n)
 
 
 def gamma(color, gamma_val):
@@ -109,32 +112,33 @@ def gamma(color, gamma_val):
 
 
 def add_color(color1, color2):
-    return color1[0]+color2[0], color1[1]+color2[1], color1[2]+color2[2]
+    return color1[0] + color2[0], color1[1] + color2[1], color1[2] + color2[2]
 
 
 def scale_color(color, scale):
-    return scale*color[0], scale*color[1], scale*color[2]
+    return scale * color[0], scale * color[1], scale * color[2]
 
 
 def hex_to_rgb(value):
     """Given an RGB hex value, returns a 3-tuple scaled to COLOR_MAXIMUM."""
-    value = value.lstrip('#')
+    value = value.lstrip("#")
     lv = len(value)
-    hex_values = (value[i:i + lv // 3] for i in range(0, lv, lv // 3))
+    hex_values = (value[i : i + lv // 3] for i in range(0, lv, lv // 3))
     raw_color = tuple(int(v, 16) for v in hex_values)
     return scale_color(raw_color, COLOR_MAXIMUM / 255.0)
 
+
 # palettes as hex strings
 palettes = {
-    'rainbow_bunny': ['31cb00', 'f9c80e', 'f86624', 'f86624', 'ea3546', '662e9b', '43bccd'],
-    'new_mexico': ['004777', 'a30000', 'ff7700', 'efd28d', '00afb5'],
-    'desert': ['ff9f1c', 'ffbf69', 'ffffff', 'cbf3f0', '2ec4b6'],
-    'druids': ['483c46', '3c6e71', '70ae6e', 'beee62', 'f4743b'],
-    'autumn': ['8ea604', 'f5bb00', 'ec9f05', 'd76a03', 'bf3100'],
-    'unicorns': ['dec5e3', 'cdedfd', 'b6dcfe', 'a9f8fb', '81f7e5'],
-    'linoleum': ['d33f49', 'd7c0d0', 'eff0d1', '77ba99', '806c89'],
-    'wedding1': ['f8aeaa', 'abaab2', 'f5927b'],
-    'rygw': ['ff0000', 'ffff00', '00ff00', 'ffffff'],
+    "rainbow_bunny": ["31cb00", "f9c80e", "f86624", "f86624", "ea3546", "662e9b", "43bccd"],
+    "new_mexico": ["004777", "a30000", "ff7700", "efd28d", "00afb5"],
+    "desert": ["ff9f1c", "ffbf69", "ffffff", "cbf3f0", "2ec4b6"],
+    "druids": ["483c46", "3c6e71", "70ae6e", "beee62", "f4743b"],
+    "autumn": ["8ea604", "f5bb00", "ec9f05", "d76a03", "bf3100"],
+    "unicorns": ["dec5e3", "cdedfd", "b6dcfe", "a9f8fb", "81f7e5"],
+    "linoleum": ["d33f49", "d7c0d0", "eff0d1", "77ba99", "806c89"],
+    "wedding1": ["f8aeaa", "abaab2", "f5927b"],
+    "rygw": ["ff0000", "ffff00", "00ff00", "ffffff"],
 }
 palette_keys = list(palettes.keys())
 palettes_length = len(palette_keys)

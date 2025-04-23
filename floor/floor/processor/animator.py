@@ -1,18 +1,18 @@
 import importlib
 
 from floor.processor.base import Base
+from floor.processor.constants import COLOR_MAXIMUM
 from floor.processor.utils import clocked
 from floor.util.color_utils import scale_color
-from floor.processor.constants import COLOR_MAXIMUM
+
 
 class Animator(Base):
-
     DEFAULT_ANIMATION = "gods_eye"
 
     def __init__(self, **kwargs):
         super(Animator, self).__init__(**kwargs)
 
-        animation = kwargs.get('animation', self.DEFAULT_ANIMATION)
+        animation = kwargs.get("animation", self.DEFAULT_ANIMATION)
 
         module = importlib.import_module("floor.processor.animations.{}".format(animation))
         self.animation = module.anim()

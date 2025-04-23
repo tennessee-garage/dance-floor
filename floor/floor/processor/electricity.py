@@ -1,15 +1,13 @@
-from builtins import range
-from builtins import object
+import logging
 import math
 import random
-import logging
+from builtins import object, range
 
 from floor.processor.base import Base
-from floor.processor.utils import clocked
 from floor.processor.constants import COLOR_MAXIMUM
+from floor.processor.utils import clocked
 
-
-logger = logging.getLogger('electricity')
+logger = logging.getLogger("electricity")
 
 
 def dist(x1, y1, x2, y2):
@@ -17,7 +15,6 @@ def dist(x1, y1, x2, y2):
 
 
 class Electricity(Base):
-
     DECAY_RATE = 0.8
     DECAY_THRESHOLD = 0.001
 
@@ -61,7 +58,9 @@ class Electricity(Base):
 
         for idx, val in enumerate(arc.frame):
             if len(val) > 0:
-                self.pixels[idx] = val  # [val * COLOR_MAXIMUM, val * COLOR_MAXIMUM, val * COLOR_MAXIMUM]
+                self.pixels[
+                    idx
+                ] = val  # [val * COLOR_MAXIMUM, val * COLOR_MAXIMUM, val * COLOR_MAXIMUM]
 
     def fade_frame(self):
         for idx in range(64):
@@ -74,7 +73,6 @@ class Electricity(Base):
 
 
 class Arc(object):
-
     LEAD_PATH = 1.0
     LEAD_ALTERNATE = 0.4
 
@@ -89,7 +87,11 @@ class Arc(object):
         self.p2x = point2 % 8
         self.p2y = int(point2 / 8)
 
-        logger.info("p1:{}, p2:{} == x1:{}, y1:{}, x2:{}, y2:{}".format(point1, point2, self.p1x, self.p1y, self.p2x, self.p2y))
+        logger.info(
+            "p1:{}, p2:{} == x1:{}, y1:{}, x2:{}, y2:{}".format(
+                point1, point2, self.p1x, self.p1y, self.p2x, self.p2y
+            )
+        )
 
         # The position of the leading edge of the arc
         self.lead_x = self.p1x
@@ -138,7 +140,7 @@ class Arc(object):
         pick = random.randint(0, len(options) - 1)
         for idx, point in enumerate(options):
             if idx == pick:
-                self.frame[point[0] + point[1]*8] = [0, 0, 1000]
+                self.frame[point[0] + point[1] * 8] = [0, 0, 1000]
                 self.lead_x = point[0]
                 self.lead_y = point[1]
             else:

@@ -1,4 +1,3 @@
-
 def main():
     test = Test()
     leds = []
@@ -21,5 +20,6 @@ def main():
 
     test.run(leds)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
