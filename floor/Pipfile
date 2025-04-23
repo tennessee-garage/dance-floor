@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+nose = "*"
+mock = "*"
+freezegun = "*"
+e1839a8 = {path = ".",editable = true}
+future = "*"
+
+[packages]
+pyserial = "*"
+flask = "*"
+flask-sockets = "*"
+pymidi = "*"
+mock = "*"
+gevent = "*"
+flask-cors = "*"
+
+[scripts]
+show = "python run-show.py"
+benchmark = "python bin/benchmark.py"
