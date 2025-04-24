@@ -68,7 +68,7 @@ $ pre-commit install
 git clone git@github.com:tennessee-garage/dance-floor.git
 ```
 
-2. [OPTIONAL] If you will run the code on a RaspberryPi, an SPI library is needed.  If running in dev/virtual mode, SPI is not necessary.
+2. [OPTIONAL] If you will run the code on a RaspberryPi, an SPI library is needed (If running in dev/virtual mode, SPI is not necessary)
 ```bash
 git clone git@github.com:doceme/py-spidev.git
 sudo apt-get install python-dev
@@ -76,12 +76,18 @@ cd py-spidev
 sudo make install
 ```
 
-3. Install poetry
+3. Include the user that will run the code to groups that grant access to hardware ports
+```bash
+sudo usermod -aG spi disco
+sudo usermod -aG dialout disco
+```
+
+4. Install poetry
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-4. Install depencencies (from within the dance-floor repository)
+5. Install depencencies (from within the dance-floor repository)
 ```bash
 cd floor
 poetry install
