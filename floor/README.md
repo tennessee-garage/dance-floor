@@ -66,12 +66,12 @@ $ pre-commit install
 
 1. Clone this repository
 ```bash
-git clone https://github.com/tennessee-garage/dance-floor.git
+git clone git@github.com:tennessee-garage/dance-floor.git
 ```
 
 2. [OPTIONAL] If you will run the code on a RaspberryPi, an SPI library is needed.  If running in dev/virtual mode, SPI is not necessary.
 ```bash
-git clone git://github.com/doceme/py-spidev
+git clone git@github.com:doceme/py-spidev.git
 sudo apt-get install python-dev
 cd py-spidev
 sudo make install
