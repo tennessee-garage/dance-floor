@@ -45,7 +45,7 @@ $ poetry install
 
 Then activate the virtual environment:
 ```
-$ poetry env activate
+$ eval $(poetry env activate)
 ```
 
 To run tests:
