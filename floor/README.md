@@ -43,10 +43,9 @@ Install dependencies - one time, and whenever you change them:
 $ poetry install
 ```
 
-Then do all work within a poetry shell:
+Then activate the virtual environment:
 ```
-$ poetry shell
-$ python ...
+$ poetry env activate
 ```
 
 To run tests:
