@@ -1,0 +1,11 @@
+# Ignore a KiCad cache directory
+fp-info-cache
+
+# We don't need to check in our specific backups.
+*-backups
+
+# We don't need lock files
+*.lck
+
+# Don't need autosaves
+_autosave*
