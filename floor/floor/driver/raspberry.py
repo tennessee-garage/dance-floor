@@ -13,6 +13,10 @@ logger = logging.getLogger("raspberry")
 
 
 class Raspberry(Base):
+    # Use an explicit upper limit for the data rate to make sure we don't overrun
+    # the AVR chips running at 16MHz.
+    MAX_DATA_RATE = 8000000
+
     # Unique bytes to send through the floor when probing.  Can tell whether the
     # data we get back is what we sent vs. random existing data
     PROBE_MARKER = 0xEE
@@ -65,6 +69,7 @@ class Raspberry(Base):
 
         self.spi = module.SpiDev()
         self.spi.open(0, 0)
+        self.spi.max_speed_hz = MAX_DATA_RATE
 
         self.weights = [0] * self.NUM_TILES
         self.raw_weights = [0] * self.NUM_TILES
@@ -179,7 +184,7 @@ class Raspberry(Base):
         self.reader.read()
 
         if not self.reader.data_ready:
-            return
+            return False
 
         data_bytes = self.reader.get_frame()
         values = self.process_bytes(data_bytes)
@@ -192,6 +197,8 @@ class Raspberry(Base):
         self.debug_skip_read -= 1
         if self.debug_skip_read < 0:
             self.debug_skip_read = self.DEBUG_SKIP_RESET
+
+        return True
 
     def get_weights(self):
         return self.weights
