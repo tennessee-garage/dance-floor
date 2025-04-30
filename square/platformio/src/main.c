@@ -10,6 +10,7 @@
  */
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 #include "main.h"
 
@@ -26,9 +27,14 @@
 #define IN_OVERFLOW() (USISR & _BV(USIOIF))
 #define NOT_IN_OVERFLOW() !IN_OVERFLOW()
 
+#define CHIP_SELECT_PIN    PINA3
+#define CHIP_SELECT_PORTIN PINA
+#define CHIP_SELECT_MASK   _BV(CHIP_SELECT_PIN)
+
 // Read the value off the chip select
-#define CHIP_SELECT() (PINA & _BV(PINA3))
+#define CHIP_SELECT() (CHIP_SELECT_PORTIN & CHIP_SELECT_MASK)
 #define IS_CHIP_SELECTED() (CHIP_SELECT() == 0)
+#define IS_CHIP_UNSELECTED() (CHIP_SELECT() == 1)
 
 // Pull 10-bit values
 #define DECODE_RED(byte1, byte2) ((((byte1) & 0x3F) << 4) | ((byte2) >> 4))
@@ -39,13 +45,17 @@
 // to have 64 packets sent to set LED values.  Using 96 to give some extra room
 #define DATA_BYTES 4
 #define MAX_PACKETS 96
+#define BUFFER_SIZE (DATA_BYTES * MAX_PACKETS)
 
 // Hold the data being piped through the squares
-uint8_t buffer[DATA_BYTES * MAX_PACKETS];
+uint8_t buffer[BUFFER_SIZE];
 
 void init_avr() {
     // Set all of port A to input
     DDRA = 0x00;
+
+    // pull up on the chip select pin
+    PORTA |= _BV(PA3);
 
     // set all of port B to output
     DDRB = 0xFF;
@@ -131,21 +141,32 @@ void init_adc(void) {
 }
 
 void init_spi(void) {
-    // USIWM0 sets 3 wire mode, USICS1 sets an external clock source
-    USICR = _BV(USIWM0) | _BV(USICS1);
+    // USIWM0 sets 3 wire mode, USICS1 sets an external clock source, and enable USI overflow interrupt
+    USICR = _BV(USIWM0) | _BV(USICS1) | _BV(USIOIE);
 
     // Set alternate SPI pins on PORTA (PA0=DI, PA1=DO, PA2=USCK)
     USIPP = _BV(USIPOS);
 
-    // Set PA0 to be an output for the DO SPI function
+    // Set PA1 to be an output for the DO SPI function
     DDRA |= _BV(DDA1);
 
-    for (int i = 0; i < DATA_BYTES * MAX_PACKETS; i++) {
+    // Clear the data register
+    USIDR = 0x00;
+
+    // Clear the input buffer
+    for (int i = 0; i < BUFFER_SIZE; i++) {
         buffer[i] = 0x00;
     }
 
     // Clear the overflow flag
     CLEAR_OVERFLOW();
+
+    // Enable pin change interrupt group 0 (PINA)
+    GIMSK |= _BV(PCIE0);
+    // Enable interrupt on PINA3 (/CS)
+    PCMSK0 |= CHIP_SELECT_MASK;
+
+    sei(); 
 }
 
 void set_blue(uint16_t val) {
@@ -163,68 +184,94 @@ void set_green(uint16_t val) {
     OCR1B = val & 0x0FF;
 }
 
+
+uint8_t data_transferred = 0;
+
+/*
+ISR(USI_OVF_vect)
+{
+    set_red(1023);
+    set_red(0);
+    CLEAR_OVERFLOW();
+}
+
+ISR(PCINT_vect)
+{
+    if (IS_CHIP_UNSELECTED()) {
+        data_transferred = 1;
+        set_green(1023);
+        set_red(1023);
+        set_green(0);
+        set_red(0);
+    }
+}
+    */
+
+uint16_t buffer_head = 4;
+ISR(USI_OVF_vect) {
+    // Load the byte we got and immediately write out the next byte to send
+    uint8_t val_in = USIDR;
+    USIDR = buffer[buffer_head-3];
+    CLEAR_OVERFLOW();
+
+    buffer[buffer_head] = val_in;
+
+    // Increment the head of the buffer to point to the next byte to write to.  If for some
+    // reason we are about to overrun the buffer, keep us 4 bytes from the end, so we just cycle
+    // through with a full window until the data stops.
+    buffer_head++;
+    if (buffer_head >= BUFFER_SIZE) {
+        buffer_head = BUFFER_SIZE - 4;
+    }
+
+    //set_red(1023);
+    //set_red(0);
+}
+
+ISR(PCINT_vect) {
+    // Check if CS pin has gone HIGH (chip unselected)
+    if (IS_CHIP_UNSELECTED()) {
+        data_transferred = 1;
+        // Paranoid guard against partial data
+        RESET_USI_COUNTER();
+
+        //set_blue(1023);
+        //set_blue(0);
+    
+    }
+}
+
+uint8_t in_select = 0;
 void handle_spi(void) {
-    uint8_t transferred = 0;
-    uint8_t val_in;
 
-    // Start the head at 4 since 0..3 are the weight values
-    uint16_t head = 4;
-
-    // When we enter this method USIDR already has buffer[head-4] loaded.  When we
-    // write out val_out it will be for the next byte, which is buffer[head+1-4] or buffer[head-3]
-    uint8_t val_out = buffer[head-3];
-
-    // Wait for the next cycle to start
-    while (!IS_CHIP_SELECTED());
-
-    // While in chip select, read data
-    while (IS_CHIP_SELECTED()) {
-        transferred = 1;
-
-        // Wait for bytes to be read in, at which point overflow will trigger
-        while (NOT_IN_OVERFLOW()) {
-            // If the chip becomes unselected, break out of the loop
-            if (!IS_CHIP_SELECTED()) {
-                // It would be cleaner to not even set transferred to 1 until after this loop when 
-                // we know we're in overflow and have a full byte, but I'm being paranoid about performing
-                // any operations between when overflow it is hit and reading/writing the USIDR to make sure
-                // we don't miss any data.
-                transferred = 0;
-                break;
-            }
-        } 
-
-        // Read the value we got in and immediately write out the value we want to send forward
-        val_in = USIDR;
-        USIDR = val_out;
-        CLEAR_OVERFLOW();
-
-        // Write the value we got to the head of the fifo
-        buffer[head] = val_in;
-        head++;
-
-        // Set the value we'll output on the next round.  Now that head has been incremented, the
-        // value in USIDR is buffer[head-4].  To ready the next value we grab buffer[head+1-4]
-        val_out = buffer[head-3];
+    if (IS_CHIP_SELECTED()) {
+        in_select = 1;
+        set_blue(1023);
+    } else {
+        set_blue(0);
+        if (in_select == 1) {
+            in_select = 0;
+            data_transferred = 1;
+        }
     }
 
-    // Guard against leaving the loop above when there were bits in USIDR but not yet in overflow.  Clear
-    // the counter so that we start frsh on the next transfer
-    RESET_USI_COUNTER();
+    if (data_transferred) {
 
-    // If we didn't just transfer some bytes, don't decode and set LEDs
-    if (!transferred) {
-        return;
+        set_green(1023);
+        //_delay_ms(500);
+        set_green(0);
+
+        data_transferred = 0;
+
+        // The value of head is incremented after the last byte is written, so our data starts at head - 1
+        uint16_t red = DECODE_RED(buffer[buffer_head-4], buffer[buffer_head-3]);
+        uint16_t green = DECODE_GREEN(buffer[buffer_head-3], buffer[buffer_head-2]);
+        uint16_t blue = DECODE_BLUE(buffer[buffer_head-2], buffer[buffer_head-1]);
+
+        set_red(red);
+        set_green(green);
+        set_blue(blue);
     }
-
-    // The value of head is incremented after the last byte is written, so our data starts at head - 1
-    uint16_t red = DECODE_RED(buffer[head-4], buffer[head-3]);
-    uint16_t green = DECODE_GREEN(buffer[head-3], buffer[head-2]);
-    uint16_t blue = DECODE_BLUE(buffer[head-2], buffer[head-1]);
-
-    set_red(red);
-    set_green(green);
-    set_blue(blue);
 }
 
 void handle_adc(void) {
@@ -245,27 +292,11 @@ void handle_adc(void) {
     }
 }
 
-void sync_spi(void) {
-    // Wait out a full cycle to make sure we are fully synced up
-
-    // Wait for any current cycle to finish
-    while (IS_CHIP_SELECTED());
-
-    // Wait for the next cycle to start
-    while (!IS_CHIP_SELECTED());
-
-    // Wait out this cycle
-    while (IS_CHIP_SELECTED());
-}
-
 int main(void) {
     init_avr();
     init_pwm();
     init_adc();
     init_spi();
-
-    // Get ourselves synced up by waiting out one cycle
-    sync_spi();
 
     while (1) {
         handle_spi();
