@@ -181,18 +181,15 @@ void handle_spi(void) {
     while (IS_CHIP_SELECTED()) {
         transferred = 1;
 
-        // Wait for bytes to be read in, at which point overflow will trigger
-        while (NOT_IN_OVERFLOW()) {
-            // If the chip becomes unselected, break out of the loop
-            if (!IS_CHIP_SELECTED()) {
-                // It would be cleaner to not even set transferred to 1 until after this loop when 
-                // we know we're in overflow and have a full byte, but I'm being paranoid about performing
-                // any operations between when overflow it is hit and reading/writing the USIDR to make sure
-                // we don't miss any data.
-                transferred = 0;
-                break;
-            }
-        } 
+        // Block on the overflow condition, but exit if the chip select goes high
+        while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
+
+        // If we exited above because the chip select went high, break out of the loop
+        if (!IS_CHIP_SELECTED()) {
+            // Since we're likely in an indeterminate state, clear the transferred flag so we don't set the LEDs
+            transferred = 0;
+            break;
+        }
 
         // Read the value we got in and immediately write out the value we want to send forward
         val_in = USIDR;
@@ -211,6 +208,7 @@ void handle_spi(void) {
     // Guard against leaving the loop above when there were bits in USIDR but not yet in overflow.  Clear
     // the counter so that we start frsh on the next transfer
     RESET_USI_COUNTER();
+    CLEAR_OVERFLOW();
 
     // If we didn't just transfer some bytes, don't decode and set LEDs
     if (!transferred) {
