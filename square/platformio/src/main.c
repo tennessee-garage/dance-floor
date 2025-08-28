@@ -19,6 +19,9 @@
 // Clear the overflow flag after reading data from an SPI transfer
 #define CLEAR_OVERFLOW() USISR |= _BV(USIOIF)
 
+// Clear the USI counter to make sure we are ready for the next transfer (e.g. and don't have extra bits in the buffer)
+#define RESET_USI_COUNTER() USISR &= ~_BV(USICNT0) & ~_BV(USICNT1) & ~_BV(USICNT2) & ~_BV(USICNT3)
+
 // Test whether the overflow condition has happened
 #define IN_OVERFLOW() (USISR & _BV(USIOIF))
 #define NOT_IN_OVERFLOW() !IN_OVERFLOW()
@@ -178,8 +181,15 @@ void handle_spi(void) {
     while (IS_CHIP_SELECTED()) {
         transferred = 1;
 
-        // Wait for bytes to be read in, at which point overflow will trigger
+        // Block on the overflow condition, but exit if the chip select goes high
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
+
+        // If we exited above because the chip select went high, break out of the loop
+        if (!IS_CHIP_SELECTED()) {
+            // Since we're likely in an indeterminate state, clear the transferred flag so we don't set the LEDs
+            transferred = 0;
+            break;
+        }
 
         // Read the value we got in and immediately write out the value we want to send forward
         val_in = USIDR;
@@ -195,16 +205,20 @@ void handle_spi(void) {
         val_out = buffer[head-3];
     }
 
+    // Guard against leaving the loop above when there were bits in USIDR but not yet in overflow.  Clear
+    // the counter so that we start frsh on the next transfer
+    RESET_USI_COUNTER();
+    CLEAR_OVERFLOW();
+
     // If we didn't just transfer some bytes, don't decode and set LEDs
     if (!transferred) {
         return;
     }
 
-    // The value of head is incremented after the last byte is written, and then incremented again when
-    // chip select goes high (not selected) for this reason the last byte written is at head - 2
-    uint16_t red = DECODE_RED(buffer[head-5], buffer[head-4]);
-    uint16_t green = DECODE_GREEN(buffer[head-4], buffer[head-3]);
-    uint16_t blue = DECODE_BLUE(buffer[head-3], buffer[head-2]);
+    // The value of head is incremented after the last byte is written, so our data starts at head - 1
+    uint16_t red = DECODE_RED(buffer[head-4], buffer[head-3]);
+    uint16_t green = DECODE_GREEN(buffer[head-3], buffer[head-2]);
+    uint16_t blue = DECODE_BLUE(buffer[head-2], buffer[head-1]);
 
     set_red(red);
     set_green(green);
