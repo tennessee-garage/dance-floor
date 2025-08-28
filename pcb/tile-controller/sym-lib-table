@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 0)
+  (lib (name "tile-controller-eagle-import")(type "KiCad")(uri "${KIPRJMOD}/tile-controller-eagle-import.kicad_sym")(options "")(descr ""))
+)
