@@ -15,7 +15,7 @@ logger = logging.getLogger("raspberry")
 class Raspberry(Base):
     # Use an explicit upper limit for the data rate to make sure we don't overrun
     # the AVR chips running at 16MHz.
-    MAX_DATA_RATE = 8000000
+    MAX_DATA_RATE = 500000
 
     # Unique bytes to send through the floor when probing.  Can tell whether the
     # data we get back is what we sent vs. random existing data
@@ -69,7 +69,7 @@ class Raspberry(Base):
 
         self.spi = module.SpiDev()
         self.spi.open(0, 0)
-        self.spi.max_speed_hz = MAX_DATA_RATE
+        self.spi.max_speed_hz = self.MAX_DATA_RATE
 
         self.weights = [0] * self.NUM_TILES
         self.raw_weights = [0] * self.NUM_TILES

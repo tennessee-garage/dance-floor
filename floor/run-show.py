@@ -126,7 +126,7 @@ def main():
 
     if args.processor_name:
         try:
-            playlist = Playlist.from_object({"name": args.processor_name})
+            playlist = Playlist.from_single_processor({"name": args.processor_name})
         except ProcessorNotFound:
             logger.error('Processor "{}" unknown'.format(args.processor_name))
             sys.exit(1)

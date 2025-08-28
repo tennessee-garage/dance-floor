@@ -47,6 +47,9 @@ class SerialRead(object):
 
     @staticmethod
     def is_stop_marker(val):
+        if not isinstance(val[0], str) or not isinstance(val[1], str):
+            return False
+
         # The first 6 bits of the first byte should always be zero for normal data so this condition is unique
         return ord(val[0]) == 0xFF and ord(val[1]) == 0xFF
 
