@@ -1,5 +1,4 @@
 import collections
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
@@ -84,7 +83,7 @@ class Zap(Base):
     """Chasing boxes."""
 
     def __init__(self, **kwargs):
-        super(Zap, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.frame_sets = collections.deque(FRAME_SETS)
         self.frames = collections.deque(self.frame_sets[0])
         self.last_downbeat = None

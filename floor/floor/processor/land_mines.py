@@ -1,6 +1,5 @@
 import math
 import random
-from builtins import range
 
 import floor.util.color_utils as color_utils
 from floor.processor.base import Base
@@ -12,7 +11,7 @@ life_time = 4
 
 class LandMines(Base):
     def __init__(self, **kwargs):
-        super(LandMines, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.pixels = []
         self.mines = []
         self.walkers = self.init_walkers()

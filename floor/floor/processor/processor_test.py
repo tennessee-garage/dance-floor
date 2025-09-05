@@ -1,6 +1,5 @@
 import datetime
 import time
-from builtins import range
 from unittest import TestCase
 
 import pytest

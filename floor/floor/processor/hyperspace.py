@@ -1,5 +1,4 @@
 import math
-from builtins import range
 
 import floor.util.color_utils as color
 from floor.processor.base import Base
@@ -10,7 +9,7 @@ class Hyperspace(Base):
     LIFETIME = 1.0
 
     def __init__(self, **kwargs):
-        super(Hyperspace, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.pixels = []
         self.times = [0 for _ in range(64)]
         self.palette = color.get_palette("rainbow_bunny")

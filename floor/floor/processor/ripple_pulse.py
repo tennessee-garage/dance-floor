@@ -16,7 +16,7 @@ class RipplePulse(Ripple):
     DISTANCE_FACTOR = 0.03
 
     def __init__(self, **kwargs):
-        super(RipplePulse, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @clocked(frames_per_beat=0.5)
     def reset_on_beat(self, context):

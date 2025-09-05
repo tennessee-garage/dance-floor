@@ -1,7 +1,6 @@
 import os
 import threading
 import time
-from builtins import str
 
 from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS

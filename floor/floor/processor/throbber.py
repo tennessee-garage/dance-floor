@@ -1,5 +1,3 @@
-from builtins import range
-
 from floor.processor.base import Base
 from floor.util.color_utils import hex_to_rgb
 

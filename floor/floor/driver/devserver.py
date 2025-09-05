@@ -1,5 +1,3 @@
-from builtins import map
-
 from gevent import monkey
 
 monkey.patch_all()
@@ -92,7 +90,7 @@ class Devserver(Base):
     """Floor driver interface."""
 
     def __init__(self, args):
-        super(Devserver, self).__init__(args)
+        super().__init__(args)
         self.weights = [0] * 64
         self.thr = threading.Thread(target=serve_forever)
         self.thr.daemon = True

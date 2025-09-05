@@ -1,5 +1,4 @@
 import random
-from builtins import range
 
 import floor.util.color_utils as color
 from floor.processor.base import Base
@@ -10,7 +9,7 @@ class Kaleidoscope(Base):
     LIFETIME = 1.0
 
     def __init__(self, **kwargs):
-        super(Kaleidoscope, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.active_px = []
         self.times = [0 for _ in range(64)]
         self.palette = color.get_random_palette()

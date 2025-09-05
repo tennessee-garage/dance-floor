@@ -81,7 +81,7 @@ DEFAULT_SPRITE_FRAMES = Frame.test_pattern_of_color("#00ff00")
 
 class Spritely(Base):
     def __init__(self, frames=None, frames_json=None, **kwargs):
-        super(Spritely, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if not frames and frames_json:
             frames = []
             for f in frames_json:

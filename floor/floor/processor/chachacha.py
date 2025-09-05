@@ -1,6 +1,5 @@
 import collections
 import itertools
-from builtins import range
 
 from floor.processor.base import Base, RenderContext
 from floor.processor.utils import clocked
@@ -19,7 +18,7 @@ class ChaChaCha(Base):
     """Chasing boxes."""
 
     def __init__(self, **kwargs):
-        super(ChaChaCha, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.pallet = None
         self.lines = None
         self.set_pallet(PALLETS[0])

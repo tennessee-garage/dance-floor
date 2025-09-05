@@ -1,5 +1,3 @@
-from builtins import range
-
 from floor.processor.base import Base
 from floor.processor.utils import clocked
 
@@ -37,7 +35,7 @@ class HeatStep(Base):
     ]
 
     def __init__(self, **kwargs):
-        super(HeatStep, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.pixels = self.zeroed_pixel_array()
 
         self.secondary_hue = 0.5

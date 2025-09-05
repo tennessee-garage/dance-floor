@@ -1,4 +1,3 @@
-from builtins import range
 from unittest import TestCase, mock
 
 from floor.processor.base import RenderContext

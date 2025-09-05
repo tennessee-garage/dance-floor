@@ -22,7 +22,7 @@ class SingleColorProcessor(BaseProcessor):
 
     def __init__(self, **kwargs):
         self.color = kwargs.pop("color", BLACK)
-        super(SingleColorProcessor, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def get_next_frame(self, context):
         return [self.color] * 64

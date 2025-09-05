@@ -1,7 +1,6 @@
 import colorsys
 import logging
 import sys
-from builtins import range
 
 from floor.processor.constants import COLOR_MAXIMUM, RANGED_INPUT_MAX
 
@@ -12,7 +11,7 @@ class ProcessorRegistry(type):
     ALL_PROCESSORS = {}
 
     def __new__(cls, clsname, bases, attrs):
-        new_class = super(ProcessorRegistry, cls).__new__(cls, clsname, bases, attrs)
+        new_class = super().__new__(cls, clsname, bases, attrs)
         class_name = new_class.__name__
         if class_name != "Base":
             if class_name in cls.ALL_PROCESSORS:

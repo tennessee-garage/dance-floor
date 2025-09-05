@@ -1,6 +1,5 @@
 import logging
 import time
-from builtins import range
 from collections import OrderedDict
 
 from floor import processor

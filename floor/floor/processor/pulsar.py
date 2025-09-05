@@ -1,5 +1,4 @@
 import random
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -8,7 +7,7 @@ from floor.processor.utils import clocked
 
 class Pulsar(Base):
     def __init__(self, **kwargs):
-        super(Pulsar, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.pixels = []
         self.wave_toggle = 1
         self.last_time = None

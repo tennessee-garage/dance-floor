@@ -1,6 +1,5 @@
 import math
 import random
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -25,7 +24,7 @@ class FlashBang(Base):
     SPARKLE_SPACING = 5
 
     def __init__(self, **kwargs):
-        super(FlashBang, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.burst_pixels = []
         self.sparkles = []
 
