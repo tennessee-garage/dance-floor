@@ -2,7 +2,7 @@ import os.path
 from collections import OrderedDict
 from glob import glob
 
-from .base import Base, ProcessorRegistry
+from .base import ProcessorRegistry
 
 
 def _import_all():

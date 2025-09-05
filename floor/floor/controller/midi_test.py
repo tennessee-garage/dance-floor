@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from floor.controller.midi.constants import *
+from floor.controller.midi.constants import COMMAND_CONTROL_MODE_CHANGE, COMMAND_NOTE_ON
 from floor.controller.midi.functions import MidiFunctions
 from floor.controller.midi.manager import MidiManager
 from floor.controller.midi.mapping import MidiMapping
