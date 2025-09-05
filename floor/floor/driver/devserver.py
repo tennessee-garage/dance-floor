@@ -1,7 +1,3 @@
-from gevent import monkey
-
-monkey.patch_all()
-
 import collections
 import json
 import logging
@@ -9,15 +5,18 @@ import os
 import threading
 import time
 
-logger = logging.getLogger("devserver")
-
 import gevent
 from flask import Flask, render_template, request
 from flask_sock import Sock
+from gevent import monkey
 from gevent.pywsgi import WSGIServer
 
 from floor.driver.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
+
+monkey.patch_all()
+
+logger = logging.getLogger("devserver")
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "devserver")

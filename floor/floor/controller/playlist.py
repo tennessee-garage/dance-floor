@@ -231,7 +231,7 @@ class Playlist:
 
 class PlaylistManager:
     PLAYLIST_NAME_DEFAULT = "default"
-    PLAYLIST_NAME_RE = re.compile("[0-9a-zA-Z_\s]+")
+    PLAYLIST_NAME_RE = re.compile(r"[0-9a-zA-Z_\s]+")
 
     def __init__(self, default_playlist, user_playlists_dir=None):
         self.default_playlist = default_playlist
