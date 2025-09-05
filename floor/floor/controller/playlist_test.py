@@ -16,7 +16,7 @@ class PlaylistTest(TestCase):
 
     def test_default_playlist(self):
         p = Playlist.from_file(DEFAULT_PLAYLIST, self.all_procs, strict=True)
-        self.assert_(len(p.queue) > 0, "Expected non-zero default playlist.")
+        self.assertTrue(len(p.queue) > 0, "Expected non-zero default playlist.")
 
     def test_playlist_item_from_and_to_object(self):
         item = PlaylistItem.from_object(
