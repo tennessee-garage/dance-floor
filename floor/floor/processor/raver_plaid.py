@@ -1,5 +1,4 @@
 import math
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -9,7 +8,7 @@ from floor.util import color_utils
 
 class RaverPlaid(Base):
     def __init__(self, **kwargs):
-        super(RaverPlaid, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.n_pixels = 64
 

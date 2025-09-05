@@ -1,5 +1,4 @@
 import random
-from builtins import range
 
 import floor.util.color_utils as color
 from floor.processor.base import Base
@@ -8,7 +7,7 @@ from floor.processor.utils import clocked
 
 class Fishies(Base):
     def __init__(self, **kwargs):
-        super(Fishies, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.pixels = []
         self.palette = color.get_palette("rainbow_bunny")
         self.palette_length = len(self.palette)
@@ -64,7 +63,7 @@ class Fishies(Base):
 
         for index in range(len(self.fishies)):
             fish = self.fishies[index]
-            chance = random.random()
+            random.random()
             if d_time > 0.2:
                 self.swim(fish)
                 self.last_time = next_time

@@ -88,7 +88,7 @@ class Ripple(Base):
     RESTART_THRESHOLD = 0.01
 
     def __init__(self, **kwargs):
-        super(Ripple, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.t_start = None
         self.hue = 0.0
         self.hue_rotation = 0.05

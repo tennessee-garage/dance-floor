@@ -10,7 +10,7 @@ class Animator(Base):
     DEFAULT_ANIMATION = "gods_eye"
 
     def __init__(self, **kwargs):
-        super(Animator, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         animation = kwargs.get("animation", self.DEFAULT_ANIMATION)
 

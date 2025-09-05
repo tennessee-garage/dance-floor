@@ -1,7 +1,6 @@
 import colorsys
 import math
 import random
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -12,7 +11,7 @@ class Fire(Base):
     """Spiral out from the center."""
 
     def __init__(self, **kwargs):
-        super(Fire, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.count = 0.0
         self.count_delta = 0.1

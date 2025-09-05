@@ -1,5 +1,3 @@
-from builtins import range
-
 from floor.processor.base import Base
 
 
@@ -11,7 +9,7 @@ class SimpleStep(Base):
     ]
 
     def __init__(self, **kwargs):
-        super(SimpleStep, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def get_next_frame(self, context):
         weights = context.weights

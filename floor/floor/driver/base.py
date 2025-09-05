@@ -1,5 +1,3 @@
-from builtins import range
-
 from floor.controller import Layout
 
 

@@ -1,5 +1,4 @@
 import colorsys
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -11,7 +10,7 @@ class LineSlam(Base):
     """Spiral out from the center."""
 
     def __init__(self, **kwargs):
-        super(LineSlam, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.t_start = None
         self.t_end = None
         self.end_pause = 1.0

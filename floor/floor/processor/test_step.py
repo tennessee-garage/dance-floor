@@ -1,5 +1,3 @@
-from builtins import range
-
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
 from floor.processor.utils import clocked
@@ -14,7 +12,7 @@ class StepTester(Base):
     MAX_WEIGHT = 40
 
     def __init__(self):
-        super(StepTester, self).__init__()
+        super().__init__()
 
     @clocked(frames_per_second=24)
     def get_next_frame(self, context):

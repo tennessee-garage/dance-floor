@@ -1,7 +1,6 @@
 import colorsys
 import importlib
 import os.path
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -21,7 +20,7 @@ class Message(Base):
     DEFAULT_MESSAGE = "Burn baby burn, Disco Inferno"
 
     def __init__(self, **kwargs):
-        super(Message, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         font_module = importlib.import_module(f"floor.processor.fonts.{self.DEFAULT_FONT}")
 

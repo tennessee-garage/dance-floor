@@ -1,5 +1,4 @@
 import random
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -8,7 +7,7 @@ from floor.processor.utils import clocked
 
 class RandomDecay(Base):
     def __init__(self, **kwargs):
-        super(RandomDecay, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.red = 0
         self.green = 0
         self.blue = 0

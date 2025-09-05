@@ -1,7 +1,6 @@
 import logging
 import math
 import random
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
@@ -18,7 +17,7 @@ class Electricity(Base):
     DECAY_THRESHOLD = 0.001
 
     def __init__(self, **kwargs):
-        super(Electricity, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.arcs = {}
 

@@ -1,5 +1,4 @@
 import datetime
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -10,7 +9,7 @@ class Life(Base):
     BPM = 94
 
     def __init__(self, **kwargs):
-        super(Life, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # used to track floor state
         self.active_px = self.init_frame(False)

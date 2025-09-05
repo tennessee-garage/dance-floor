@@ -4,7 +4,6 @@ Helper functions to make color manipulations easier
 
 import math
 import random
-from builtins import range
 
 from floor.processor.constants import BLACK, COLOR_MAXIMUM, WHITE
 

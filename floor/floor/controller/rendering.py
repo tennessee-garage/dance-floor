@@ -1,5 +1,4 @@
 import logging
-from builtins import str
 
 from floor.processor.constants import RANGED_INPUT_MAX
 
@@ -68,7 +67,7 @@ class ProcessorRenderLayer(BaseRenderLayer):
     """A RenderLayer that encapsulates a single Processor."""
 
     def __init__(self, processor=None):
-        super(ProcessorRenderLayer, self).__init__()
+        super().__init__()
         self.processor = processor
 
     def is_enabled(self):
@@ -76,7 +75,7 @@ class ProcessorRenderLayer(BaseRenderLayer):
 
     def on_ranged_value_change(self, num, val):
         """Extends the base implementation to add a callback to the current processor."""
-        super(ProcessorRenderLayer, self).on_ranged_value_change(num, val)
+        super().on_ranged_value_change(num, val)
         if self.processor:
             self.processor.on_ranged_value_change(num, val)
 
@@ -101,7 +100,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
     """A RenderLayer that encapsulates a Playlist."""
 
     def __init__(self, playlist_manager, all_processors):
-        super(PlaylistRenderLayer, self).__init__()
+        super().__init__()
         self.playlist_manager = playlist_manager
         self.all_processors = all_processors
         self.logger = logging.getLogger(__name__)
@@ -112,7 +111,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
 
     def set_enabled(self, enabled):
         """Suspend/unsuspend the playlist when the layer is enabled/disabled."""
-        super(PlaylistRenderLayer, self).set_enabled(enabled)
+        super().set_enabled(enabled)
         current_playlist = self.playlist_manager.get_current_playlist()
         if self.enabled and not current_playlist.is_running():
             current_playlist.start_playlist()

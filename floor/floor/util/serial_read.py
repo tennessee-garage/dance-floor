@@ -1,5 +1,4 @@
 import logging
-from builtins import chr, range
 
 import serial
 
@@ -88,7 +87,7 @@ class SerialRead:
         """
         available = self.ser.inWaiting()
         while available >= self.packet_bytes:
-            data = self.ser.read(self.packet_bytes)
+            self.ser.read(self.packet_bytes)
             available -= self.packet_bytes
 
         self.read_buffer = []

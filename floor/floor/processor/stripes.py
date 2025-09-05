@@ -1,5 +1,4 @@
 import random
-from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.utils import clocked
@@ -13,7 +12,7 @@ class Stripes(Base):
     DEFAULT_MIN_SPEED = 0.2
 
     def __init__(self, **kwargs):
-        super(Stripes, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.palette = color_utils.get_random_palette()
         self.gradient = [[] for _ in range(len(self.palette))]
         self.stripes = [None for _ in range(8)]  # list[Stripe]

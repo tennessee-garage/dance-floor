@@ -1,5 +1,3 @@
-from builtins import range
-
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
 from floor.processor.utils import clocked
@@ -10,7 +8,7 @@ class Test(Base):
     FAST_CYCLE = 2
 
     def __init__(self, **kwargs):
-        super(Test, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # helpful colors
         dark = (0, 0, 0)

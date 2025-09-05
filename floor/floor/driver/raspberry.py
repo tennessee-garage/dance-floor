@@ -1,7 +1,6 @@
 import importlib
 import logging
 import time
-from builtins import range
 
 from floor.util.serial_read import SerialRead
 
@@ -112,7 +111,7 @@ class Raspberry(Base):
     NUM_TILES = len(TILE_ORDER)
 
     def __init__(self, args):
-        super(Raspberry, self).__init__(args)
+        super().__init__(args)
 
         self.floor_threshold = args.get("floor_threshold", self.DEFAULT_FLOOR_THRESHOLD)
 
