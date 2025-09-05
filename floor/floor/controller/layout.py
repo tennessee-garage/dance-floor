@@ -2,10 +2,9 @@ import glob
 import json
 import os
 import re
-from builtins import object
 
 
-class Layout(object):
+class Layout:
     LAYOUT_MAPPING_DIR = "layouts"
     DEFAULT_CONFIG_NAME = "floor-layout"
 

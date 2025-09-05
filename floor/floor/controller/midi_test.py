@@ -1,8 +1,4 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from floor.controller.midi.constants import *
 from floor.controller.midi.functions import MidiFunctions

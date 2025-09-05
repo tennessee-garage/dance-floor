@@ -37,7 +37,7 @@ WEIGHT_ON_SECONDS = 1.0
 
 @sockets_app.route("/events")
 def echo_socket(ws):
-    logger.info("Socket connected: {}".format(ws))
+    logger.info(f"Socket connected: {ws}")
     SOCKETS.add(ws)
     try:
         while ws.connected:
@@ -47,8 +47,8 @@ def echo_socket(ws):
             try:
                 message = json.loads(message)
             except ValueError:
-                logger.warning('Ignoring unparseable JSON message: "{}"'.format(message))
-            logger.info("Got message: {}".format(message))
+                logger.warning(f'Ignoring unparseable JSON message: "{message}"')
+            logger.info(f"Got message: {message}")
             if message.get("event") == "click":
                 pixel = message.get("payload", {}).get("pixel", None)
                 if pixel is not None and pixel <= 64 and pixel >= 0:
@@ -82,7 +82,7 @@ def _broadcast(message):
 
 
 def serve_forever(port=1979):
-    logger.info("Starting devserver on port {}".format(port))
+    logger.info(f"Starting devserver on port {port}")
     gevent.spawn(sender)
     server = WSGIServer(("", port), app)
     server.serve_forever()

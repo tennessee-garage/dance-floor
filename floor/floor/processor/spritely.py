@@ -60,7 +60,7 @@ class Frame:
             raise ValueError("object is missing `duration_bips`")
         duration_bips = int(duration_bips)
         if duration_bips < 0 or duration_bips > MAXIMUM_BIPS_PER_FRAME:
-            raise ValueError("duration_bips must be >= 0 and <= {}".format(MAXIMUM_BIPS_PER_FRAME))
+            raise ValueError(f"duration_bips must be >= 0 and <= {MAXIMUM_BIPS_PER_FRAME}")
         return cls(pixels=pixels, duration_bips=duration_bips)
 
     @classmethod

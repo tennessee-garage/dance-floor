@@ -1,7 +1,5 @@
-import sys
-import logging
-
 from floor.controller import Test
+
 
 def main():
     test = Test()

@@ -1,9 +1,9 @@
-from builtins import object, range
+from builtins import range
 
 from floor.controller import Layout
 
 
-class Base(object):
+class Base:
     def __init__(self, driver_args):
         self.weights = []
         self.leds = [[0, 0, 0, 0] for _ in range(64)]

@@ -1,7 +1,7 @@
 import colorsys
 import math
 import random
-from builtins import object, range
+from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -58,7 +58,7 @@ class Fire(Base):
         return pixels
 
 
-class Ember(object):
+class Ember:
     SLOW_HUE = 0.0  # red
     FAST_HUE = 0.2  # yellow
 

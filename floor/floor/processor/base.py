@@ -1,9 +1,7 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import colorsys
 import logging
 import sys
-from builtins import object, range
+from builtins import range
 
 from floor.processor.constants import COLOR_MAXIMUM, RANGED_INPUT_MAX
 
@@ -22,14 +20,12 @@ class ProcessorRegistry(type):
                 file1 = sys.modules[existing_class.__module__].__file__
                 file2 = sys.modules[new_class.__module__].__file__
                 files = ", ".join((file1, file2))
-                raise ValueError(
-                    'Multiple processors with name "{}" declared: {}'.format(class_name, files)
-                )
+                raise ValueError(f'Multiple processors with name "{class_name}" declared: {files}')
             cls.ALL_PROCESSORS[class_name] = new_class
         return new_class
 
 
-class RenderContext(object):
+class RenderContext:
     """An object that a `Controller` will pass to `Processor.get_next_frame`.
 
     This class is how the `Controller` passes state to the `Processor`. As such,
@@ -104,9 +100,7 @@ class Base(metaclass=ProcessorRegistry):
         for item in self.CONTROLS:
             name = item["name"]
             if name in self.__dict__:
-                raise AttributeError(
-                    "Proposed control name {} already exists in class".format(name)
-                )
+                raise AttributeError(f"Proposed control name {name} already exists in class")
 
             if "range" in item:
                 self.add_range_control(name, item)
@@ -173,7 +167,7 @@ class Base(metaclass=ProcessorRegistry):
         handler = control["handler"]
         output_value = handler(val)
         self.__dict__[name] = output_value
-        self.logger.info("Set control {} to {}".format(name, output_value))
+        self.logger.info(f"Set control {name} to {output_value}")
 
     def hsv_to_rgb(self, p):
         """Convert a pixel tuple of [h, s, v] to a tuple of [r, g, b]

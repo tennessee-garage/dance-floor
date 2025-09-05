@@ -1,12 +1,9 @@
-from __future__ import print_function
-
-import logging
 import os
 import time
 from builtins import object
 
 
-class profile(object):
+class profile:
     """Utility decorator that implements a simple profiler."""
 
     __INSTANCE = None
@@ -19,7 +16,7 @@ class profile(object):
 
         if print_seconds:
             profile.__INSTANCE.print_seconds = print_seconds
-            print("Profiling enabled: output every {} seconds".format(print_seconds))
+            print(f"Profiling enabled: output every {print_seconds} seconds")
 
         return profile.__INSTANCE
 
@@ -64,9 +61,7 @@ class profile(object):
 
         # Print times in microseconds
         print(
-            " {: >5d} | {: >8.3f} | {: >8.3f} | {: >6.2f} | {}".format(
-                calls, per_call * 1000, cumulative * 1000, pct, name
-            )
+            f" {calls: >5d} | {per_call * 1000: >8.3f} | {cumulative * 1000: >8.3f} | {pct: >6.2f} | {name}"
         )
 
     @classmethod

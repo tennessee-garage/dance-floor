@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os
 import threading
@@ -29,7 +27,7 @@ class MidiHandler(pymidi_server.Handler):
         self.manager.on_midi_commands(peer, commands)
 
 
-class MidiManager(object):
+class MidiManager:
     """Binds a pymidi server to the dance floor controller."""
 
     def __init__(self, port, controller, default_midi_mapping=None):
@@ -39,7 +37,7 @@ class MidiManager(object):
         self.midi_server.add_handler(self.midi_handler)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.midi_peers_to_mappings = {}
-        self.logger.info("Midi enabled, port={}".format(port))
+        self.logger.info(f"Midi enabled, port={port}")
         self.default_midi_mapping = default_midi_mapping or MidiMapping(name="default")
 
     def load_default_midi_mapping(self, mapping_dir, map_name):
@@ -50,10 +48,10 @@ class MidiManager(object):
             try:
                 self.default_midi_mapping = MidiMapping.from_file(mapping_file)
             except (KeyError, ValueError) as e:
-                self.logger.error("Could not load mapping {}: {}".format(map_name, e))
-            self.logger.info("Loaded MIDI mapping: {}".format(map_name))
+                self.logger.error(f"Could not load mapping {map_name}: {e}")
+            self.logger.info(f"Loaded MIDI mapping: {map_name}")
         else:
-            self.logger.error("Mapping file does not exist: {}".format(mapping_file))
+            self.logger.error(f"Mapping file does not exist: {mapping_file}")
 
     def get_midi_mapping(self, peer):
         """Returns the midi mapping for this peer."""
@@ -76,11 +74,11 @@ class MidiManager(object):
         return None
 
     def on_midi_peer_connected(self, peer):
-        self.logger.info("Peer connected: {}".format(peer))
+        self.logger.info(f"Peer connected: {peer}")
         self.midi_peers_to_mappings[peer.ssrc] = self.default_midi_mapping
 
     def on_midi_peer_disconnected(self, peer):
-        self.logger.info("Peer disconnected: {}".format(peer))
+        self.logger.info(f"Peer disconnected: {peer}")
         del self.midi_peers_to_mappings[peer.ssrc]
 
     def on_midi_commands(self, peer, commands):
@@ -91,7 +89,7 @@ class MidiManager(object):
         for command in commands:
             func = mapping.get_function(command)
             if not func:
-                self.logger.info("Received unmapped command: {} {}".format(command[0], command[1]))
+                self.logger.info(f"Received unmapped command: {command[0]} {command[1]}")
                 continue
 
             value = command[2]

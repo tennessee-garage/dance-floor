@@ -1,10 +1,9 @@
 import logging
 import math
 import random
-from builtins import object, range
+from builtins import range
 
 from floor.processor.base import Base
-from floor.processor.constants import COLOR_MAXIMUM
 from floor.processor.utils import clocked
 
 logger = logging.getLogger("electricity")
@@ -37,8 +36,8 @@ class Electricity(Base):
         for idx, w in enumerate(weights):
             if w > 0:
                 if last_val is not None:
-                    pair = "{}-{}".format(last_val, idx)
-                    logger.info("Pair: {}".format(pair))
+                    pair = f"{last_val}-{idx}"
+                    logger.info(f"Pair: {pair}")
                     if pair in self.arcs:
                         new_arcs[pair] = self.arcs[pair]
                     else:
@@ -58,9 +57,9 @@ class Electricity(Base):
 
         for idx, val in enumerate(arc.frame):
             if len(val) > 0:
-                self.pixels[
-                    idx
-                ] = val  # [val * COLOR_MAXIMUM, val * COLOR_MAXIMUM, val * COLOR_MAXIMUM]
+                self.pixels[idx] = (
+                    val  # [val * COLOR_MAXIMUM, val * COLOR_MAXIMUM, val * COLOR_MAXIMUM]
+                )
 
     def fade_frame(self):
         for idx in range(64):
@@ -72,7 +71,7 @@ class Electricity(Base):
                 self.pixels[idx] = [0, 0, 0]
 
 
-class Arc(object):
+class Arc:
     LEAD_PATH = 1.0
     LEAD_ALTERNATE = 0.4
 
@@ -88,9 +87,7 @@ class Arc(object):
         self.p2y = int(point2 / 8)
 
         logger.info(
-            "p1:{}, p2:{} == x1:{}, y1:{}, x2:{}, y2:{}".format(
-                point1, point2, self.p1x, self.p1y, self.p2x, self.p2y
-            )
+            f"p1:{point1}, p2:{point2} == x1:{self.p1x}, y1:{self.p1y}, x2:{self.p2x}, y2:{self.p2y}"
         )
 
         # The position of the leading edge of the arc

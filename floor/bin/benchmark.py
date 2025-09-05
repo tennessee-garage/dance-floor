@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 import logging
@@ -88,8 +87,8 @@ def benchmark_processor(name, processor, iterations, disable_gc):
     timer = timeit.Timer(stmt=timed_function, setup=setup)
     total_time = timer.timeit(number=iterations)
     frames_per_second = round(iterations / total_time, 2)
-    logger.info("Benchmark done! Took {} seconds".format(total_time))
-    logger.info("FPS={}".format(frames_per_second))
+    logger.info(f"Benchmark done! Took {total_time} seconds")
+    logger.info(f"FPS={frames_per_second}")
 
     return frames_per_second
 
@@ -98,7 +97,7 @@ def print_results(results):
     print("Name              FPS")
     print("----------------  -----------")
     for name, fps in sorted(results.items(), key=lambda x: x[1]):
-        print("{:16s}  {}".format(name, int(fps)))
+        print(f"{name:16s}  {int(fps)}")
 
 
 def run():
@@ -115,7 +114,7 @@ def run():
         else:
             processor = procs.get(processor_name)
             if not processor:
-                logging.error("Processor not found: {}".format(args.processor))
+                logging.error(f"Processor not found: {args.processor}")
                 logging.error("Choices: {}".format(", ".join(sorted(procs.keys()))))
                 sys.exit(1)
             processors_to_test[processor_name] = processor
@@ -124,7 +123,7 @@ def run():
     names = sorted(processors_to_test.keys())
     for name in names:
         processor = processors_to_test[name]
-        logger.info("Starting benchmark of {} with {} iterations ...".format(name, args.iterations))
+        logger.info(f"Starting benchmark of {name} with {args.iterations} iterations ...")
         result = benchmark_processor(name, processor, args.iterations, args.disable_gc)
         results[name] = result
 

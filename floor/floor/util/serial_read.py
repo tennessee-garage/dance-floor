@@ -1,12 +1,12 @@
 import logging
-from builtins import chr, object, range
+from builtins import chr, range
 
 import serial
 
 logger = logging.getLogger("serial_read")
 
 
-class SerialRead(object):
+class SerialRead:
     packets = 64
     packet_bytes = 2
     frame_bytes = packet_bytes * packets

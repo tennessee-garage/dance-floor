@@ -1,25 +1,18 @@
-from __future__ import print_function
-
 import importlib
-from builtins import object
-import time
-
 import logging
+import time
 
 logger = logging.getLogger("test")
 
-class Test(object):
+
+class Test:
     def __init__(self):
         driver_name = "raspberry"
 
         try:
-            module = importlib.import_module("floor.driver.{}".format(driver_name))
+            module = importlib.import_module(f"floor.driver.{driver_name}")
         except ImportError as e:
-            print(
-                "Error: Driver '{}' does not exist or could not be loaded: {}".format(
-                    driver_name, e
-                )
-            )
+            print(f"Error: Driver '{driver_name}' does not exist or could not be loaded: {e}")
             raise
 
         self.driver = getattr(module, driver_name.title())({})

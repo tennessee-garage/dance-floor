@@ -1,7 +1,4 @@
-from __future__ import print_function
-
 import colorsys
-import math
 from builtins import range
 
 from floor.processor.base import Base

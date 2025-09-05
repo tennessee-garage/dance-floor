@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os.path
 from collections import OrderedDict
 from glob import glob
@@ -12,7 +10,7 @@ def _import_all():
     pwd = os.path.dirname(__file__)
     for filename in glob(os.path.join(pwd, "*.py")):
         name, ext = os.path.splitext(os.path.basename(filename))
-        __import__("floor.processor.{}".format(name), globals(), locals())
+        __import__(f"floor.processor.{name}", globals(), locals())
 
 
 def all_processors():

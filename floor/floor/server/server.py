@@ -3,10 +3,9 @@ import threading
 import time
 from builtins import str
 
-from flask import Flask, abort, jsonify, render_template, request, send_from_directory
+from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-from floor.controller import Controller
 from floor.controller.playlist import Playlist, PlaylistItem, ProcessorNotFound
 
 MIN_BPM = 40
@@ -105,7 +104,7 @@ def api_playlist_add():
 
     processor = app.controller.all_processors.get(name)
     if not processor:
-        abort(400, 'Processor "{}" not found'.format(name))
+        abort(400, f'Processor "{name}" not found')
     item = PlaylistItem(processor, title=title, duration=duration, processor_args=args)
 
     playlist = app.controller.playlist_manager.get_current_playlist()
@@ -285,7 +284,7 @@ def api_layer_detail(layer_name):
             else:
                 processor = app.controller.all_processors.get(processor_name)
                 if not processor:
-                    abort(400, 'Processor "{}" not found'.format(processor_name))
+                    abort(400, f'Processor "{processor_name}" not found')
                     return
                 layer.set_processor(processor())
 
@@ -327,5 +326,5 @@ def run_server(controller, host="0.0.0.0", port=1977, debug=True):
         },
     )
     thr.daemon = True
-    app.logger.info("Starting server on http://{}:{}".format(host, port))
+    app.logger.info(f"Starting server on http://{host}:{port}")
     thr.start()
