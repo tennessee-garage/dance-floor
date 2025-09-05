@@ -23,7 +23,7 @@ class Message(Base):
     def __init__(self, **kwargs):
         super(Message, self).__init__(**kwargs)
 
-        font_module = importlib.import_module("floor.processor.fonts.{}".format(self.DEFAULT_FONT))
+        font_module = importlib.import_module(f"floor.processor.fonts.{self.DEFAULT_FONT}")
 
         self.font = font_module.alpha()
         # The list of messages to scroll
@@ -59,13 +59,13 @@ class Message(Base):
         if os.path.isfile(self.MESSAGE_FILE):
             try:
                 self.load_messages_from_file()
-            except IOError:
+            except OSError:
                 self.load_default_message()
         else:
             self.load_default_message()
 
     def load_messages_from_file(self):
-        msg_file = open(self.MESSAGE_FILE, "r")
+        msg_file = open(self.MESSAGE_FILE)
         for line in msg_file:
             self.messages.append(line)
         msg_file.close()

@@ -1,9 +1,8 @@
 import math
 import time
-from builtins import object
 
 
-class Easing(object):
+class Easing:
     def __init__(self, duration, start, end=None, change=None):
         self.t_start = None
         self.t = None

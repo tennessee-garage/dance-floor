@@ -1,6 +1,6 @@
 import math
 import random
-from builtins import object, range
+from builtins import range
 
 from floor.processor.base import Base
 from floor.processor.constants import COLOR_MAXIMUM
@@ -62,7 +62,7 @@ class Balls(Base):
         return pixels
 
 
-class Ball(object):
+class Ball:
     def __init__(self, row, delta, decay, color):
         self.t = 0
 

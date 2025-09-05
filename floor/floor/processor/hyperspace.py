@@ -1,5 +1,4 @@
 import math
-import time
 from builtins import range
 
 import floor.util.color_utils as color

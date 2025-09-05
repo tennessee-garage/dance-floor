@@ -1,4 +1,4 @@
-class MidiFunctions(object):
+class MidiFunctions:
     """Defines things that can be controlled over midi.
 
     Instances of this class are simple containers which contain the
@@ -153,7 +153,7 @@ for base in (
     "overlay2_switch",
 ):
     for idx in range(0, 4):
-        event_name = "{}_{}".format(base, idx + 1)
+        event_name = f"{base}_{idx + 1}"
 
         def callback(controller, value, event_base_name=base, i=idx):
             controller.handle_input_event(event_base_name, i, value)
@@ -165,15 +165,15 @@ for base in (
 # Setup methods for floor foot presses
 for idx in range(1, 65):
     MidiFunctions.add(
-        "foot_on_square_{}".format(idx),
+        f"foot_on_square_{idx}",
         callback=lambda controller, _, i=idx: controller.square_weight_on(i),
-        help_text="Send a foot step for square {}".format(idx),
+        help_text=f"Send a foot step for square {idx}",
     )
 
 # Setup methods for floor foot releases
 for idx in range(1, 65):
     MidiFunctions.add(
-        "foot_off_square_{}".format(idx),
+        f"foot_off_square_{idx}",
         callback=lambda controller, _, i=idx: controller.square_weight_off(i),
-        help_text="Release a foot step for square {}".format(idx),
+        help_text=f"Release a foot step for square {idx}",
     )

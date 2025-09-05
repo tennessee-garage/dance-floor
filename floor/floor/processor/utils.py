@@ -1,9 +1,7 @@
-from builtins import object
-
 BLANK_FRAME = [(0, 0, 0)] * 64
 
 
-class clocked(object):
+class clocked:
     """Utility decorator that interpolates a `get_next_frame` call according to bpm or time.
 
     You can think of this decorator as providing a TTL cache decorator for

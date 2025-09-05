@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from unittest import TestCase
 
 from floor.processor.constants import BLACK, COLOR_MAXIMUM, WHITE

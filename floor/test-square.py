@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
-import sys
+import logging
 
 from floor.controller import Test
 
-import logging
 LOG_FORMAT = "%(asctime)-15s | %(name)-12s (%(levelname)s): %(message)s"
 
 logger = logging.getLogger("test-square")
+
 
 def get_options():
     parser = argparse.ArgumentParser(description="Probe individual squares on the floor")
@@ -30,7 +30,9 @@ def main():
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
-    logger.info(f"Probing square {args.square} with color (R:{args.red}, G:{args.green}, B:{args.blue})")
+    logger.info(
+        f"Probing square {args.square} with color (R:{args.red}, G:{args.green}, B:{args.blue})"
+    )
 
     leds = []
     for s in range(64):

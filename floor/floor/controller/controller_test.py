@@ -1,9 +1,6 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os
 from unittest import TestCase
-
-from mock import Mock
+from unittest.mock import Mock
 
 from floor.controller.controller import Controller
 from floor.controller.playlist import Playlist, PlaylistManager

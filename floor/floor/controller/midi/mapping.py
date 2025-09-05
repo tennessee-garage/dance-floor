@@ -4,7 +4,7 @@ from .constants import SUPPORTED_COMMANDS
 from .functions import MidiFunctions
 
 
-class MidiMapping(object):
+class MidiMapping:
     """Maps MIDI commands to a special functions.
 
     Mappings will typically be one-to-one with MIDI devices, because the layout

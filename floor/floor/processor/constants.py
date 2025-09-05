@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 # Maximum value for any component color in a pixel. As currently defined,
 # colors have a 10-bit range of `[0, 1023]`
 COLOR_MAXIMUM = 1023

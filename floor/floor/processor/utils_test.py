@@ -1,8 +1,5 @@
-import datetime
 from builtins import range
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from floor.processor.base import RenderContext
 from floor.processor.utils import clocked

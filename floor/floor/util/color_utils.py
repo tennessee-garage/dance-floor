@@ -2,8 +2,6 @@
 Helper functions to make color manipulations easier
 """
 
-from __future__ import division
-
 import math
 import random
 from builtins import range

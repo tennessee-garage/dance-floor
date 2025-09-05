@@ -33,15 +33,13 @@ def driver_to_classname(name):
 
 def load_driver(driver_name, driver_args):
     try:
-        module = importlib.import_module("floor.driver.{}".format(driver_name))
+        module = importlib.import_module(f"floor.driver.{driver_name}")
     except ImportError as e:
-        logger.exception(
-            "Driver '{}' does not exist or could not be loaded: {}".format(driver_name, e)
-        )
+        logger.exception(f"Driver '{driver_name}' does not exist or could not be loaded: {e}")
         return None
 
     driver = getattr(module, driver_to_classname(driver_name))(driver_args)
-    logger.info("Loaded driver '{}'".format(driver_name))
+    logger.info(f"Loaded driver '{driver_name}'")
     return driver
 
 
@@ -64,7 +62,7 @@ def get_options():
         "--playlist",
         dest="playlist",
         default=None,
-        help="Load this playlist instead of the default {}".format(DEFAULT_PLAYLIST),
+        help=f"Load this playlist instead of the default {DEFAULT_PLAYLIST}",
     )
     parser.add_argument(
         "--user_playlists_dir",
@@ -111,13 +109,13 @@ def main():
     driver_names = set(args.driver_names or DEFAULT_DRIVERS)
 
     for driver_name in driver_names:
-        logger.info('Initializing driver "{}"'.format(driver_name))
+        logger.info(f'Initializing driver "{driver_name}"')
         driver = load_driver(driver_name, {"config_dir": CONFIG_DIR})
         if not driver:
             logger.error("No driver, exiting.")
             sys.exit(1)
         driver.init_layout(layout)
-        logger.info("Using layout: {}".format(driver.layout.name))
+        logger.info(f"Using layout: {driver.layout.name}")
         drivers.append(driver)
 
     if args.playlist and args.processor_name:
@@ -128,7 +126,7 @@ def main():
         try:
             playlist = Playlist.from_single_processor({"name": args.processor_name})
         except ProcessorNotFound:
-            logger.error('Processor "{}" unknown'.format(args.processor_name))
+            logger.error(f'Processor "{args.processor_name}" unknown')
             sys.exit(1)
     elif args.playlist:
         playlist = Playlist.from_file(args.playlist, all_processors())
@@ -158,7 +156,7 @@ def main():
         logger.info("Got CTRL-C, quitting.")
         sys.exit(0)
     except Exception as e:
-        logger.exception("Unexpected error, aborting: {}".format(e))
+        logger.exception(f"Unexpected error, aborting: {e}")
         sys.exit(1)
 
 

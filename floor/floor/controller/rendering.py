@@ -1,12 +1,10 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
-from builtins import object, str
+from builtins import str
 
 from floor.processor.constants import RANGED_INPUT_MAX
 
 
-class BaseRenderLayer(object):
+class BaseRenderLayer:
     """Abstract class for anything that can return a frame of pixels."""
 
     def __init__(self):
@@ -36,7 +34,7 @@ class BaseRenderLayer(object):
             val {integer} -- The position value, between 0-`RANGED_INPUT_MAX` inclusive
         """
         val = max(0, min(val, RANGED_INPUT_MAX))
-        self.logger.debug("on_ranged_value_change: {} -> {}".format(num, val))
+        self.logger.debug(f"on_ranged_value_change: {num} -> {val}")
         if num >= len(self.ranged_values):
             return
         self.ranged_values[num] = val
@@ -49,7 +47,7 @@ class BaseRenderLayer(object):
             is_on {bool} -- Whether the switch should be on or off
         """
         is_on = bool(is_on)
-        self.logger.debug("on_switch_change: {} -> {}".format(num, is_on))
+        self.logger.debug(f"on_switch_change: {num} -> {is_on}")
         if num >= len(self.switches):
             return
         self.switches[num] = bool(is_on)
@@ -140,9 +138,7 @@ class PlaylistRenderLayer(BaseRenderLayer):
         except KeyboardInterrupt:
             raise
         except Exception:
-            self.logger.exception(
-                "Error generating frame for processor {}".format(self.current_processor)
-            )
+            self.logger.exception(f"Error generating frame for processor {self.current_processor}")
             self.logger.warning("Removing processor due to error.")
             current_playlist.remove(current_playlist.position)
             return None
@@ -153,14 +149,14 @@ class PlaylistRenderLayer(BaseRenderLayer):
             return
 
         if item is not self.current_playlist_item:
-            self.logger.debug("Loading playlist item {}".format(item))
+            self.logger.debug(f"Loading playlist item {item}")
             self._set_current_item(item)
 
     def _set_current_item(self, item):
         """Sets the active playlist item."""
         self.current_processor = self._build_processor(item)
         self.processor_render_layer.set_processor(self.current_processor)
-        self.logger.info("Started processor '{}'".format(self.current_processor))
+        self.logger.info(f"Started processor '{self.current_processor}'")
         self.current_playlist_item = item
 
     def _build_processor(self, item):
@@ -170,6 +166,4 @@ class PlaylistRenderLayer(BaseRenderLayer):
         try:
             return processor_cls(**processor_args)
         except Exception as e:
-            raise ValueError(
-                'Processor "{}" could not be created: {}'.format(processor_cls, str(e))
-            )
+            raise ValueError(f'Processor "{processor_cls}" could not be created: {str(e)}')

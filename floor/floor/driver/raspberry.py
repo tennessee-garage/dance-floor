@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import importlib
 import logging
 import time
@@ -45,14 +43,70 @@ class Raspberry(Base):
     # Define the order in which we output the LEDs.  This could be calculated
     # but spelling it out here to reduce the time to display a frame
     TILE_ORDER = [
-        00,  1,  2,  3,  4,  5,  6,  7,
-        15, 14, 13, 12, 11, 10,  9,  8,
-        16, 17, 18, 19, 20, 21, 22, 23,
-        31, 30, 29, 28, 27, 26, 25, 24,
-        32, 33, 34, 35, 36, 37, 38, 39,
-        47, 46, 45, 44, 43, 42, 41, 40,
-        48, 49, 50, 51, 52, 53, 54, 55,
-        63, 62, 61, 60, 59, 58, 57, 56
+        00,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        15,
+        14,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        31,
+        30,
+        29,
+        28,
+        27,
+        26,
+        25,
+        24,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        47,
+        46,
+        45,
+        44,
+        43,
+        42,
+        41,
+        40,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        63,
+        62,
+        61,
+        60,
+        59,
+        58,
+        57,
+        56,
     ]
 
     NUM_TILES = len(TILE_ORDER)
@@ -95,9 +149,9 @@ class Raspberry(Base):
             self.send_probe_data()
             num_squares = self.read_probe_data()
 
-            logger.info("Probed floor: {} tiles connected".format(num_squares))
+            logger.info(f"Probed floor: {num_squares} tiles connected")
         except ProbeException as e:
-            logger.error("Failed to probe floor, using default tile count: {}".format(e))
+            logger.error(f"Failed to probe floor, using default tile count: {e}")
             num_squares = self.NUM_TILES
 
         return num_squares
@@ -217,9 +271,7 @@ class Raspberry(Base):
         for packet in range(self.WEIGHT_PACKETS):
             position = self.TILE_ORDER[packet]
 
-            log_line += "{}: {:>2} ({:>2}/{:>2}) | ".format(
-                position, values[position], self.value_floor[position], self.value_ceiling[position]
-            )
+            log_line += f"{position}: {values[position]:>2} ({self.value_floor[position]:>2}/{self.value_ceiling[position]:>2}) | "
 
             if packet % 8 == 7:
                 log_line += " | \n"
