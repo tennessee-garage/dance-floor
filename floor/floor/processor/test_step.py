@@ -7,14 +7,14 @@ from floor.util import color_utils
 
 
 def create(args=None):
-    return TestStep()
+    return StepTester()
 
 
-class TestStep(Base):
+class StepTester(Base):
     MAX_WEIGHT = 40
 
     def __init__(self):
-        super(TestStep, self).__init__()
+        super(StepTester, self).__init__()
 
     @clocked(frames_per_second=24)
     def get_next_frame(self, context):
