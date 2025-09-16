@@ -181,15 +181,8 @@ void handle_spi(void) {
     while (IS_CHIP_SELECTED()) {
         transferred = 1;
 
-        // Block on the overflow condition, but exit if the chip select goes high
+        // Wait for bytes to be read in, at which point overflow will trigger
         while (NOT_IN_OVERFLOW() && IS_CHIP_SELECTED());
-
-        // If we exited above because the chip select went high, break out of the loop
-        if (!IS_CHIP_SELECTED()) {
-            // Since we're likely in an indeterminate state, clear the transferred flag so we don't set the LEDs
-            transferred = 0;
-            break;
-        }
 
         // Read the value we got in and immediately write out the value we want to send forward
         val_in = USIDR;
@@ -215,10 +208,11 @@ void handle_spi(void) {
         return;
     }
 
-    // The value of head is incremented after the last byte is written, so our data starts at head - 1
-    uint16_t red = DECODE_RED(buffer[head-4], buffer[head-3]);
-    uint16_t green = DECODE_GREEN(buffer[head-3], buffer[head-2]);
-    uint16_t blue = DECODE_BLUE(buffer[head-2], buffer[head-1]);
+    // The value of head is incremented after the last byte is written, and then incremented again when
+    // chip select goes high (not selected) for this reason the last byte written is at head - 2
+    uint16_t red = DECODE_RED(buffer[head-5], buffer[head-4]);
+    uint16_t green = DECODE_GREEN(buffer[head-4], buffer[head-3]);
+    uint16_t blue = DECODE_BLUE(buffer[head-3], buffer[head-2]);
 
     set_red(red);
     set_green(green);
